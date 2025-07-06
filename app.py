@@ -37,9 +37,12 @@ def home():
 
 @app.route('/alumno/<clase>/<nombre>', methods=['GET', 'POST'])
 def mostrar_alumno(clase, nombre):
+    clase = clase.upper()
+    nombre_lower = nombre.lower()
+
     with conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s", (clase, nombre))
+            cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s", (clase, nombre_lower))
             row = cur.fetchone()
             puntos = row[0] if row else 0
 
@@ -48,27 +51,26 @@ def mostrar_alumno(clase, nombre):
                 puntos += 1 if accion == '1' else -1
 
                 if row:
-                    cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s", (puntos, clase, nombre))
+                    cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s", (puntos, clase, nombre_lower))
                 else:
-                    cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)", (clase, nombre, puntos))
+                    cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)", (clase, nombre_lower, puntos))
 
                 return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
-    # 📸 Buscar imagen correspondiente sin importar extensión
+    # 📸 Buscar imagen sin importar extensión
     carpeta_foto = os.path.join("static", "photos", clase)
-    nombre_archivo = None
+    nombre_archivo = "default.jpg"
     if os.path.isdir(carpeta_foto):
         for archivo in os.listdir(carpeta_foto):
-            if os.path.splitext(archivo)[0].lower() == nombre.lower():
+            if os.path.splitext(archivo)[0].lower() == nombre_lower:
                 nombre_archivo = archivo
                 break
-    if not nombre_archivo:
-        nombre_archivo = "default.jpg"
 
-    bg_cls, txt_cls = color_map.get(clase.upper(), ("bg-gray-100", "text-black"))
+    # 🎨 Colores por clase
+    bg_cls, txt_cls = color_map.get(clase, ("bg-gray-100", "text-black"))
 
     return render_template("alumno.html",
-                           alumno=(nombre, nombre_archivo, clase, puntos),
+                           alumno=(nombre.capitalize(), nombre_archivo, clase, puntos),
                            bg_cls=bg_cls,
                            txt_cls=txt_cls)
 
