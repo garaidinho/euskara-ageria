@@ -43,7 +43,7 @@ def mostrar_alumno(clase, nombre):
 
     with conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s", (clase, nombre))
+            cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s", (clase, nombre_lower))
             row = cur.fetchone()
             puntos = row[0] if row else 0
 
@@ -52,9 +52,9 @@ def mostrar_alumno(clase, nombre):
                 puntos += 1 if accion == '1' else -1
 
                 if row:
-                    cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s", (puntos, clase, nombre))
+                    cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s", (puntos, clase, nombre_lower))
                 else:
-                    cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)", (clase, nombre, puntos))
+                    cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)", (clase, nombre_lower, puntos))
 
                 return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
