@@ -8,107 +8,99 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-/* === text =================================================== */
+/*────────  TIPOGRAFÍA  ────────*/
 .nombre{font-family:'Luckiest Guy',cursive;line-height:.9;
-        text-shadow:2px 2px 0 #fff,4px 4px 0 #000,
-                    6px 6px 0 rgba(0,0,0,.25)}
-.nombre span{display:inline-block;opacity:0;animation:pop 0.35s ease-out forwards}
+        text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgba(0,0,0,.25)}
+/* letras pop */
+@keyframes popIn{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes popOut{to{transform:scale(.2);opacity:0}}
+.nombre span{display:inline-block;opacity:0;animation:popIn .35s ease-out forwards}
 
-@keyframes pop{0%{transform:scale(.4);opacity:0}
-               100%{transform:scale(1);opacity:1}}
-
-/* === heart & photo entrance ================================ */
-@keyframes heartPop{0%{transform:scale(0)}
-                    100%{transform:scale(1)}}
-
-@keyframes photoDrop{0%{transform:translateY(-90px) scale(.4);opacity:0}
-                     100%{transform:translateY(0) scale(1);opacity:1}}
-
-@keyframes pulse{0%,100%{transform:rotate(-45deg) scale(.78);opacity:.65;filter:none}
-                 50%     {transform:rotate(-45deg) scale(1); opacity:.45;
-                          filter:drop-shadow(0 0 10px currentColor)}}
-
-@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
-@keyframes dance{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
-
-@keyframes btnSlide{from{transform:translateY(80px);opacity:0}
-                    to  {transform:translateY(0);opacity:1}}
-
-@keyframes scaleBounceCenter{0%,100%{transform:translateX(-50%) scale(1)}
-                             50%    {transform:translateX(-50%) scale(1.15)}}
-
-/* === full-screen zoom love ================================= */
-@keyframes zoomLove{to{transform:rotate(-45deg) scale(25);opacity:0}}
-/* === zoom then break ======================================= */
-@keyframes zoomMid {to{transform:rotate(-45deg) scale(9)}}
-@keyframes breakLeft  {to{transform:translate(-45vw,120vh) rotate(-85deg);opacity:0}}
-@keyframes breakRight {to{transform:translate( 45vw,120vh) rotate( 35deg);opacity:0}}
-@keyframes fadeOutAll {to{opacity:0}}
-@keyframes bouncePts {0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-
-/* === helpers =============================================== */
-.heart   {position:absolute;width:200px;height:200px;
-          transform:rotate(-45deg);opacity:.6;z-index:20;
-          animation:pulse 6s ease-in-out infinite}
+/*────────  CORAZÓN  ───────────*/
+.heart{position:absolute;width:220px;height:220px;
+       transform:rotate(-45deg);opacity:.75;z-index:20;
+       animation:pulse 6s ease-in-out infinite}
 .heart,.heart:before,.heart:after{background:inherit}
-.heart:before,.heart:after{content:"";position:absolute;width:200px;height:200px;border-radius:50%}
-.heart:before{top:-100px;left:0}
-.heart:after {top:0;left:100px}
-.half{position:absolute;width:200px;height:200px;border-radius:50%;background:inherit}
+.heart:before,.heart:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%}
+.heart:before{top:-110px;left:0}
+.heart:after {top:0;left:110px}
 
-.fadeAll{animation:fadeOutAll .4s forwards}
+@keyframes pulse{0%,100%{transform:rotate(-45deg) scale(.78)}
+                 50%     {transform:rotate(-45deg) scale(1)}}
 
+@keyframes heartPopIn{0%{transform:rotate(-45deg) scale(0)}
+                      100%{transform:rotate(-45deg) scale(1)}}
+@keyframes zoomFront{to{transform:rotate(-45deg) scale(18);opacity:0}}
+@keyframes zoomMid  {to{transform:rotate(-45deg) scale(9)}}
+@keyframes breakL   {to{transform:translate(-50vw,90vh) rotate(-75deg);opacity:0}}
+@keyframes breakR   {to{transform:translate( 50vw,90vh) rotate( 35deg);opacity:0}}
+.half{position:absolute;width:220px;height:220px;border-radius:50%;background:inherit}
+
+/*────────  FOTO  ──────────────*/
+@keyframes dropIn{0%{transform:translateY(-90px) scale(.4);opacity:0}
+                  100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes swing {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+/*────────  BOTONES & PUNTOS  ──*/
+@keyframes slideIn{from{transform:translateY(90px);opacity:0}
+                   to  {transform:translateY(0);opacity:1}}
+@keyframes slideOut{to{transform:translateY(100px);opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes bouncePts{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* utilidades para JS */
+.hidePop   {animation:popOut .35s forwards}
+.btnHide   {animation:slideOut .35s forwards}
+.fade      {animation:fadeOut .3s forwards}
+.zoomFront {animation:zoomFront 1s forwards}
+.zoomMid   {animation:zoomMid .5s forwards}
+.breakLeft {animation:breakL .9s .5s forwards}
+.breakRight{animation:breakR .9s .5s forwards}
 </style>
 </head>
 <body class="flex items-center justify-center min-h-screen {{ bg_cls }}">
 
 <div id="card" class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
 
-  <!-- lema -->
+  <!-- Lema -->
   <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
        class="absolute inset-0 m-auto h-[85%] opacity-10 pointer-events-none" alt="">
 
-  <!-- nombre -->
+  <!-- Nombre -->
   <h1 id="nombre"
       class="nombre whitespace-nowrap text-6xl {{ txt_cls }}
-             absolute top-10 left-1/2 -translate-x-1/2 z-40 opacity-0"
-      style="animation:scaleBounceCenter 1.6s ease-in-out 1.4s infinite;"></h1>
+             absolute top-10 left-1/2 -translate-x-1/2 z-40 opacity-0"></h1>
 
-  <!-- corazón + foto -->
-  <div class="relative flex items-center justify-center z-30 mt-20 mb-4 pointer-events-none">
-
-    <!-- corazón -->
+  <!-- Corazón + Foto -->
+  <div class="relative flex items-center justify-center z-30 mt-20 mb-4">
     <div id="heart" class="heart {{ bg_cls }}"
-         style="animation:heartPop .35s ease-out forwards"></div>
+         style="animation:heartPopIn .35s ease-out forwards"></div>
 
-    <!-- foto -->
-    <img id="foto"
-         src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
+    <img id="foto" src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
          alt="{{ alumno[0] }}"
-         class="w-44 h-44 rounded-full shadow-lg relative -top-10 opacity-0 z-30 pointer-events-auto"
-         style="animation:photoDrop .6s ease-out .8s forwards,
-                swing 1s ease-in-out 2s infinite alternate,
-                dance 3s ease-in-out 2.5s infinite;">
+         class="w-44 h-44 rounded-full shadow-lg relative -top-10 opacity-0 z-30"
+         style="animation:dropIn .5s ease-out .75s forwards,
+                swing 1s ease-in-out 2s infinite alternate;">
   </div>
 
-  <!-- puntos -->
+  <!-- Puntos -->
   <p id="pts" class="relative z-40 text-4xl font-bold mb-4 opacity-0"
-     style="animation:btnSlide .4s ease-out .9s forwards,
-            bouncePts 1.6s ease-in-out 1.6s infinite">
+     style="animation:slideIn .4s ease-out .8s forwards,
+            bouncePts 1.6s ease-in-out 1.8s infinite;">
     <span>{{ alumno[3] }}</span> PUNTU
   </p>
 
   <!-- +1 -->
-  <form id="formPlus" method="post" class="relative z-40"
-        style="animation:btnSlide .4s ease-out .9s forwards;transform:translateY(80px);opacity:0">
+  <form id="plusForm" method="post" class="relative z-40"
+        style="animation:slideIn .4s ease-out .8s forwards">
     <button id="btnPlus" name="accion" value="1"
             class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black
                    bg-gradient-to-r from-cyan-400 to-emerald-400">+1 P.</button>
   </form>
 
   <!-- -1 -->
-  <form id="formMinus" method="post" class="relative z-40 mt-2"
-        style="animation:btnSlide .4s ease-out 1.0s forwards;transform:translateY(80px);opacity:0">
+  <form id="minusForm" method="post" class="relative z-40 mt-2"
+        style="animation:slideIn .4s ease-out .9s forwards">
     <button id="btnMinus" name="accion" value="-1"
             class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black
                    bg-gradient-to-r from-rose-500 to-orange-400">-1 P.</button>
@@ -116,41 +108,46 @@
 </div>
 
 <script>
-/* ---- nombre letras pop ---- */
-const nameEl=document.getElementById('nombre');
-nameEl.innerHTML=[...`{{ alumno[0] }}`]
-  .map((c,i)=>`<span style="animation-delay:${ .4+i*.09}s">${c}</span>`).join('');
+/* ------- Nombre pop-in -------- */
+const nameTxt=`{{ alumno[0] }}`, nameEl=document.getElementById('nombre');
+nameEl.innerHTML=[...nameTxt]
+  .map((c,i)=>`<span style="animation-delay:${.4+i*.09}s">${c}</span>`).join('');
 nameEl.classList.remove('opacity-0');
 
-const heart=document.getElementById('heart');
-const card =document.getElementById('card');
+const heart = document.getElementById('heart');
+const foto  = document.getElementById('foto');
+const pts   = document.getElementById('pts');
+const plusF = document.getElementById('plusForm');
+const minusF= document.getElementById('minusForm');
 
-function fadeRest(){
-  card.querySelectorAll('#foto,#nombre,#pts,#formPlus,#formMinus')
-      .forEach(el=>el.classList.add('fadeAll'));
+/* helper para esconder elementos antes del fin */
+function hideNonHeart(){
+  [nameEl,foto,pts].forEach(el=>el.classList.add('hidePop'));
+  [plusF,minusF].forEach(el=>el.classList.add('btnHide'));
 }
 
 /* +1 */
 document.getElementById('btnPlus').addEventListener('click',e=>{
   e.preventDefault();
-  heart.style.animation='none';              /* stop pulse */
-  void heart.offsetWidth;                    /* restart timeline */
-  heart.className+=' zoomLove';
-  fadeRest();
-  setTimeout(()=>e.target.form.submit(),1500);
+  hideNonHeart();
+  heart.classList.remove('pulse');  // parar latido
+  heart.classList.add('zoomFront');
+  setTimeout(()=>e.target.form.submit(),1400); // 1.4 s total
 });
 
 /* -1 */
 document.getElementById('btnMinus').addEventListener('click',e=>{
   e.preventDefault();
-  heart.style.animation='none'; void heart.offsetWidth;
-  heart.className+=' zoomBreak';
-  /* spawn halves */
-  const L=document.createElement('div'), R=L.cloneNode();
-  L.className='half breakLeft';  R.className='half breakRight';
-  heart.appendChild(L); heart.appendChild(R);
-  fadeRest();
-  setTimeout(()=>e.target.form.submit(),1500);
+  hideNonHeart();
+  heart.classList.remove('pulse');
+  heart.classList.add('zoomMid');
+  // crear mitades tras el primer medio segundo
+  setTimeout(()=>{
+      const L=document.createElement('div'), R=L.cloneNode();
+      L.className='half breakLeft'; R.className='half breakRight';
+      heart.appendChild(L); heart.appendChild(R);
+  },500);
+  setTimeout(()=>e.target.form.submit(),1400);
 });
 </script>
 </body>
