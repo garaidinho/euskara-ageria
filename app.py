@@ -3,7 +3,7 @@ import os
 
 app = Flask(__name__)
 
-# ✅ Colores por clase
+# ✅ Colores por clase (usamos claves en mayúsculas para consistencia visual)
 color_map = {
     "LM1": ("bg-blue-200", "text-blue-600"),
     "LM2": ("bg-yellow-200", "text-yellow-600"),
@@ -15,23 +15,14 @@ color_map = {
 # 💾 Memoria temporal de puntos
 puntos_dict = {}
 
-def buscar_imagen(nombre, clase):
-    carpeta_foto = os.path.join("static", "photos", clase.lower())
-    if not os.path.isdir(carpeta_foto):
-        return None
-
-    for archivo in os.listdir(carpeta_foto):
-        base, ext = os.path.splitext(archivo)
-        if base.lower() == nombre.lower():
-            return archivo
-    return None
-
 @app.route('/')
 def home():
     return "✅ Web activa. Accede a una URL como /alumno/LM1/Nahia para ver un alumno."
 
 @app.route('/alumno/<clase>/<nombre>', methods=['GET', 'POST'])
 def mostrar_alumno(clase, nombre):
+    clase = clase.lower()
+    nombre = nombre.lower()
     key = f"{clase}_{nombre}"
     puntos = puntos_dict.get(key, 0)
 
@@ -42,18 +33,27 @@ def mostrar_alumno(clase, nombre):
         elif accion == '-1':
             puntos -= 1
         puntos_dict[key] = puntos
-
         return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
-    # 📸 Buscar imagen correspondiente
-    nombre_archivo = buscar_imagen(nombre, clase)
-    if not nombre_archivo:
-        nombre_archivo = "default.jpg"  # Imagen por defecto si no encuentra al alumno
+    # 📸 Buscar imagen correspondiente sin importar extensión
+    carpeta_foto = os.path.join("static", "photos", clase)
+    nombre_archivo = None
 
+    if os.path.isdir(carpeta_foto):
+        archivos = os.listdir(carpeta_foto)
+        for archivo in archivos:
+            if os.path.splitext(archivo)[0].lower() == nombre:
+                nombre_archivo = archivo
+                break
+
+    if not nombre_archivo:
+        nombre_archivo = "default.jpg"  # Imagen por defecto si no se encuentra
+
+    # 🎨 Colores según clase
     bg_cls, txt_cls = color_map.get(clase.upper(), ("bg-gray-100", "text-black"))
 
     return render_template("alumno.html",
-                           alumno=(nombre, nombre_archivo, clase, puntos),
+                           alumno=(nombre.capitalize(), nombre_archivo, clase, puntos),
                            bg_cls=bg_cls,
                            txt_cls=txt_cls)
 
