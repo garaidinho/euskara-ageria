@@ -8,17 +8,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Fuente original con un leve relieve */
+    /* Fuente + relieve estilo “arcade” */
     .nombre{
       font-family:'Luckiest Guy',cursive;
       line-height:.9;
-      text-shadow:2px 2px 0 rgba(0,0,0,.15);
+      text-shadow:
+          2px 2px   0 rgba(0,0,0,.25),
+          4px 4px   0 rgba(0,0,0,.20),
+          6px 6px   0 rgba(0,0,0,.15);
     }
     /* Animaciones */
-    @keyframes zoomIntro{0%{transform:scale(4);opacity:0}100%{transform:scale(1);opacity:1}}
-    @keyframes slideUp  {0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
-    @keyframes swingFast{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+    @keyframes zoomIntro   {0%{transform:scale(4);opacity:0}100%{transform:scale(1);opacity:1}}
+    @keyframes slideUp     {0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
+    @keyframes swingFast   {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
     @keyframes bounce-scale{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+    @keyframes pulseBG     {0%,100%{transform:scale(0.85);opacity:.55;}50%{transform:scale(1);opacity:.25;}}
   </style>
 </head>
 
@@ -26,7 +30,7 @@
 
   <div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
 
-    <!-- Lema de fondo -->
+    <!-- Lema -->
     <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
       <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
            class="h-[85%] w-auto opacity-10 select-none" alt="Euskaraz bizi nahi dut">
@@ -37,13 +41,14 @@
         class="nombre text-6xl {{ txt_cls }} absolute top-10 left-1/2 -translate-x-1/2 z-20 opacity-0 bounce-scale">
     </h1>
 
-    <!-- Bloque foto + círculo (centrados entre sí) -->
+    <!-- Foto + círculo -->
     <div class="relative flex items-center justify-center z-20 mt-20 mb-4 opacity-0"
-         style="animation:zoomIntro 0.6s ease-out 1s forwards;">
-      <!-- Círculo de fondo -->
-      <div class="absolute flex items-center justify-center inset-0">
-        <div class="w-52 h-52 rounded-full {{ bg_cls }} opacity-40"></div>
-      </div>
+         style="animation:zoomIntro .6s ease-out 1s forwards;">
+
+      <!-- Círculo de fondo (4 px más grande que la foto) -->
+      <div class="absolute w-48 h-48 rounded-full {{ bg_cls }} shadow-inner"
+           style="animation:pulseBG 6s ease-in-out infinite;"></div>
+
       <!-- Foto -->
       <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
            alt="{{ alumno[0] }}"
@@ -52,7 +57,7 @@
 
     <!-- Puntos -->
     <p class="text-4xl font-bold mb-4 z-20 opacity-0 bounce-scale"
-       style="animation-delay:1.6s;animation:slideUp .6s ease-out 1.6s forwards,bounce-scale 1.6s ease-in-out infinite;">
+       style="animation:slideUp .6s ease-out 1.6s forwards,bounce-scale 1.6s ease-in-out infinite;">
       <span id="puntuak">{{ alumno[3] }}</span> PUNTU
     </p>
 
@@ -74,8 +79,9 @@
   </div>
 
   <script>
-    // Animación “escribiendo” el nombre letra a letra
-    const txt="{{ alumno[0] }}", el=document.getElementById("nombre");
+    /* “Escribiendo” nombre */
+    const txt="{{ alumno[0] }}",
+          el=document.getElementById("nombre");
     el.classList.remove("opacity-0");
     el.innerHTML=[...txt].map((c,i)=>`<span style="animation-delay:${i*.1}s">${c}</span>`).join('');
   </script>
