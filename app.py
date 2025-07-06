@@ -15,6 +15,10 @@ color_map = {
 # 💾 Memoria temporal de puntos
 puntos_dict = {}
 
+@app.route('/')
+def home():
+    return "✅ Web activa. Accede a una URL como /alumno/LM1/Nahia para ver un alumno."
+
 @app.route('/alumno/<clase>/<nombre>', methods=['GET', 'POST'])
 def mostrar_alumno(clase, nombre):
     key = f"{clase}_{nombre}"
@@ -28,10 +32,8 @@ def mostrar_alumno(clase, nombre):
             puntos -= 1
         puntos_dict[key] = puntos
 
-        # 👇 Redirige para evitar duplicación al recargar
         return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
-    # Buscar imagen correcta
     carpeta_foto = os.path.join("static", "photos", clase)
     nombre_archivo = nombre.lower() + ".jpg"
     if os.path.isdir(carpeta_foto):
