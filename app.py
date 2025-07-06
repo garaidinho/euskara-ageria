@@ -4,11 +4,20 @@ import psycopg2
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-load_dotenv()
+load_dotenv()                      # solo se usa en local; en Render las
+                                   # variables vienen del panel “Environment”
 
-# 🔗 Conexión con PostgreSQL
+# 🔗 Conexión con PostgreSQL ---------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL")
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+# Render (y Heroku) entregan el DSN con el esquema “postgres://”.
+# Libpq/psycopg2 solo entiende “postgresql://”. Lo convertimos si hace falta.
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Conexión persistente
+conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+# -----------------------------------------------------------------------------
 
 # ✅ Colores por clase
 color_map = {
@@ -22,40 +31,54 @@ color_map = {
 # 🔧 Crear tabla si no existe
 with conn:
     with conn.cursor() as cur:
-        cur.execute("""
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS puntos (
                 id SERIAL PRIMARY KEY,
-                clase TEXT NOT NULL,
+                clase  TEXT NOT NULL,
                 nombre TEXT NOT NULL,
                 puntos INTEGER NOT NULL
             )
-        """)
+            """
+        )
 
-@app.route('/')
+# ──────────────────────────── Rutas ──────────────────────────────────────────
+@app.route("/")
 def home():
-    return "✅ Web activa. Accede a una URL como /alumno/LM1/Nahia para ver un alumno."
+    return "✅ Web activa. Accede a /alumno/<clase>/<nombre> para ver un alumno."
 
-@app.route('/alumno/<clase>/<nombre>', methods=['GET', 'POST'])
+@app.route("/alumno/<clase>/<nombre>", methods=["GET", "POST"])
 def mostrar_alumno(clase, nombre):
     clase = clase.upper()
     nombre_lower = nombre.lower()
 
     with conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s", (clase, nombre_lower))
+            cur.execute(
+                "SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
+                (clase, nombre_lower),
+            )
             row = cur.fetchone()
             puntos = row[0] if row else 0
 
-            if request.method == 'POST':
-                accion = request.form.get('accion')
-                puntos += 1 if accion == '1' else -1
+            if request.method == "POST":
+                accion = request.form.get("accion")
+                puntos += 1 if accion == "1" else -1
 
                 if row:
-                    cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s", (puntos, clase, nombre_lower))
+                    cur.execute(
+                        "UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s",
+                        (puntos, clase, nombre_lower),
+                    )
                 else:
-                    cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)", (clase, nombre_lower, puntos))
+                    cur.execute(
+                        "INSERT INTO puntos (clase, nombre, puntos) VALUES (%s, %s, %s)",
+                        (clase, nombre_lower, puntos),
+                    )
 
-                return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
+                return redirect(
+                    url_for("mostrar_alumno", clase=clase, nombre=nombre)
+                )
 
     # 📸 Buscar imagen sin importar extensión
     carpeta_foto = os.path.join("static", "photos", clase)
@@ -69,10 +92,14 @@ def mostrar_alumno(clase, nombre):
     # 🎨 Colores por clase
     bg_cls, txt_cls = color_map.get(clase, ("bg-gray-100", "text-black"))
 
-    return render_template("alumno.html",
-                           alumno=(nombre.capitalize(), nombre_archivo, clase, puntos),
-                           bg_cls=bg_cls,
-                           txt_cls=txt_cls)
+    return render_template(
+        "alumno.html",
+        alumno=(nombre.capitalize(), nombre_archivo, clase, puntos),
+        bg_cls=bg_cls,
+        txt_cls=txt_cls,
+    )
 
-if __name__ == '__main__':
+# ──────────────────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    # En producción Gunicorn lanza la app, pero esto permite probar localmente
     app.run(debug=True)
