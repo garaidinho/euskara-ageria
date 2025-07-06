@@ -1,24 +1,10 @@
-# Entorno virtual de Python
-venv/
-
-# Archivos compilados de Python
+# Python cache
 __pycache__/
 *.py[cod]
-*$py.class
+*.egg-info/
 
-# Archivos de configuración local
-.env
+# Entornos virtuales
+venv/
 
-# Archivos del sistema
-.DS_Store
-Thumbs.db
-
-# Configuración de editores
-.vscode/
-.idea/
-
-# Archivos de logs y cachés
-*.log
-*.sqlite3
-*.db
+# Variables de entorno reales
 .env
