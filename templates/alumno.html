@@ -8,25 +8,24 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Tipografía con relieve arcade */
+    /* Tipografía con relieve */
     .nombre{
       font-family:'Luckiest Guy',cursive;
       line-height:.9;
       text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgba(0,0,0,.25);
     }
-    /* Animaciones base */
+    /* Animaciones */
     @keyframes zoomIntro   {0%{transform:scale(4);opacity:0}100%{transform:scale(1);opacity:1}}
     @keyframes slideUp     {0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
     @keyframes popIn       {0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
     @keyframes swingFast   {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
     @keyframes bounceScale {0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
     @keyframes pulseHeart  {0%,100%{transform:rotate(-45deg) scale(.80);opacity:.45}
-                            50%     {transform:rotate(-45deg) scale(1);opacity:.25}}
-    /* Nuevas animaciones */
-    @keyframes wiggle      {0%,100%{transform:translateX(-2px)}50%{transform:translateX(2px)}}
+                            50%{transform:rotate(-45deg) scale(1);opacity:.25}}
     @keyframes dance       {0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
-    /* Letras pop-in */
-    .nombre span{display:inline-block;opacity:0;animation:popIn .3s ease-out forwards}
+
+    .nombre span{display:inline-block;opacity:0;animation:popIn .3s ease-out forwards;}
+
     /* Corazón */
     .heart{position:absolute;width:200px;height:200px;transform:rotate(-45deg);
            animation:pulseHeart 6s ease-in-out infinite;}
@@ -41,7 +40,7 @@
 
   <div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
 
-    <!-- Lema de fondo -->
+    <!-- Lema -->
     <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
       <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
            class="h-[85%] w-auto opacity-10 select-none" alt="Euskaraz bizi nahi dut">
@@ -50,22 +49,18 @@
     <!-- Nombre -->
     <h1 id="nombre"
         class="nombre text-6xl {{ txt_cls }} absolute top-10 left-1/2 -translate-x-1/2 z-20 opacity-0"
-        style="animation:
-               bounceScale 1.6s ease-in-out 1.6s infinite,
-               wiggle 0.4s linear 1.6s infinite;">
+        style="animation:bounceScale 1.6s ease-in-out 1.6s infinite;">
     </h1>
 
     <!-- Foto + corazón -->
     <div class="relative flex items-center justify-center z-20 mt-20 mb-4 opacity-0"
          style="animation:zoomIntro .6s ease-out 1s forwards;">
 
-      <!-- Corazón de fondo -->
       <div class="heart {{ bg_cls }} opacity-40"></div>
 
-      <!-- Foto -->
       <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
            alt="{{ alumno[0] }}"
-           class="w-44 h-44 object-cover rounded-full shadow-lg"
+           class="w-44 h-44 object-cover rounded-full shadow-lg relative -top-10"
            style="animation:
                   swingFast 1s ease-in-out infinite alternate,
                   dance 3s ease-in-out 1.5s infinite;">
@@ -73,7 +68,9 @@
 
     <!-- Puntos -->
     <p class="text-4xl font-bold mb-4 z-20 opacity-0"
-       style="animation:slideUp .6s ease-out 1.6s forwards;">
+       style="animation:
+              slideUp .6s ease-out 1.6s forwards,
+              bounceScale 1.6s ease-in-out 1.6s infinite;">
       <span id="puntuak">{{ alumno[3] }}</span> PUNTU
     </p>
 
@@ -95,9 +92,8 @@
   </div>
 
   <script>
-    /* efecto de escritura */
-    const txt="{{ alumno[0] }}",
-          el=document.getElementById("nombre");
+    /* Escribe el nombre */
+    const txt="{{ alumno[0] }}", el=document.getElementById("nombre");
     el.innerHTML=[...txt].map((c,i)=>`<span style="animation-delay:${i*.1}s">${c}</span>`).join('');
     el.classList.remove("opacity-0");
   </script>
