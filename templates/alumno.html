@@ -1,28 +1,51 @@
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>{{ alumno[0] }}</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Fuente + relieve estilo “arcade” */
+    /* ---------------- tipografía + relieve ---------------- */
     .nombre{
       font-family:'Luckiest Guy',cursive;
       line-height:.9;
       text-shadow:
-          2px 2px   0 rgba(0,0,0,.25),
-          4px 4px   0 rgba(0,0,0,.20),
-          6px 6px   0 rgba(0,0,0,.15);
+        2px 2px   0 #fff,
+        4px 4px   0 #000,
+        6px 6px   0 rgba(0,0,0,.25);
     }
-    /* Animaciones */
+    /* ---------------- animaciones ------------------------- */
     @keyframes zoomIntro   {0%{transform:scale(4);opacity:0}100%{transform:scale(1);opacity:1}}
     @keyframes slideUp     {0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
     @keyframes swingFast   {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
     @keyframes bounce-scale{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
-    @keyframes pulseBG     {0%,100%{transform:scale(0.85);opacity:.55;}50%{transform:scale(1);opacity:.25;}}
+    @keyframes popIn       {0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+    @keyframes pulseHeart  {0%,100%{transform:rotate(-45deg) scale(.80);opacity:.45}
+                            50%     {transform:rotate(-45deg) scale(1);opacity:.25}}
+    /* ---------------- letras pop-in ----------------------- */
+    .nombre span{display:inline-block;opacity:0;transform:scale(.5);animation:popIn .3s ease-out forwards}
+    /* ---------------- corazón ----------------------------- */
+    .heart{
+      position:absolute;                    /* se superpone */
+      width:200px;
+      height:200px;
+      transform:rotate(-45deg);             /* forma corazón */
+      animation:pulseHeart 6s ease-in-out infinite;
+    }
+    .heart, .heart:before, .heart:after{background:inherit}
+    .heart:before,
+    .heart:after{
+      content:"";
+      position:absolute;
+      width:200px;
+      height:200px;
+      border-radius:50%;
+    }
+    .heart:before{top:-100px;left:0}         /* lóbulo superior izq */
+    .heart:after {top:0;left:100px}          /* lóbulo superior der */
   </style>
 </head>
 
@@ -30,7 +53,7 @@
 
   <div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
 
-    <!-- Lema -->
+    <!-- Lema translúcido -->
     <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
       <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
            class="h-[85%] w-auto opacity-10 select-none" alt="Euskaraz bizi nahi dut">
@@ -41,13 +64,12 @@
         class="nombre text-6xl {{ txt_cls }} absolute top-10 left-1/2 -translate-x-1/2 z-20 opacity-0 bounce-scale">
     </h1>
 
-    <!-- Foto + círculo -->
+    <!-- Foto + corazón -->
     <div class="relative flex items-center justify-center z-20 mt-20 mb-4 opacity-0"
          style="animation:zoomIntro .6s ease-out 1s forwards;">
 
-      <!-- Círculo de fondo (4 px más grande que la foto) -->
-      <div class="absolute w-48 h-48 rounded-full {{ bg_cls }} shadow-inner"
-           style="animation:pulseBG 6s ease-in-out infinite;"></div>
+      <!-- Corazón de fondo (usa el mismo bg_cls) -->
+      <div class="heart {{ bg_cls }} opacity-40"></div>
 
       <!-- Foto -->
       <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
@@ -79,7 +101,7 @@
   </div>
 
   <script>
-    /* “Escribiendo” nombre */
+    /* animación escritura del nombre */
     const txt="{{ alumno[0] }}",
           el=document.getElementById("nombre");
     el.classList.remove("opacity-0");
