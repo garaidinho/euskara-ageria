@@ -34,13 +34,20 @@ def mostrar_alumno(clase, nombre):
 
         return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
+    # 📸 Buscar imagen correspondiente sin importar extensión
     carpeta_foto = os.path.join("static", "photos", clase)
-    nombre_archivo = nombre.lower() + ".jpg"
+    nombre_archivo = None
+
     if os.path.isdir(carpeta_foto):
         archivos = os.listdir(carpeta_foto)
-        posibles = [f for f in archivos if f.startswith(nombre.lower())]
-        if posibles:
-            nombre_archivo = posibles[0]
+        for archivo in archivos:
+            nombre_sin_ext = os.path.splitext(archivo)[0].lower()
+            if nombre_sin_ext == nombre.lower():
+                nombre_archivo = archivo
+                break
+
+    if not nombre_archivo:
+        nombre_archivo = "default.jpg"  # Si no encuentra la imagen del alumno
 
     bg_cls, txt_cls = color_map.get(clase.upper(), ("bg-gray-100", "text-black"))
 
