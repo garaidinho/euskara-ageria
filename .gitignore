@@ -1,16 +1,23 @@
-# Ignorar el entorno virtual de Python
+# Entorno virtual de Python
 venv/
 
-# Ignorar archivos temporales de VSCode
-.vscode/
+# Archivos compilados de Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
 
-# Ignorar variables de entorno
+# Archivos de configuración local
 .env
 
-# Ignorar archivos de sistema
+# Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Archivos de logs y cachés
+*.log
+*.sqlite3
+*.db
