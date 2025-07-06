@@ -15,6 +15,17 @@ color_map = {
 # 💾 Memoria temporal de puntos
 puntos_dict = {}
 
+def buscar_imagen(nombre, clase):
+    carpeta_foto = os.path.join("static", "photos", clase.lower())
+    if not os.path.isdir(carpeta_foto):
+        return None
+
+    for archivo in os.listdir(carpeta_foto):
+        base, ext = os.path.splitext(archivo)
+        if base.lower() == nombre.lower():
+            return archivo
+    return None
+
 @app.route('/')
 def home():
     return "✅ Web activa. Accede a una URL como /alumno/LM1/Nahia para ver un alumno."
@@ -34,20 +45,10 @@ def mostrar_alumno(clase, nombre):
 
         return redirect(url_for('mostrar_alumno', clase=clase, nombre=nombre))
 
-    # 📸 Buscar imagen correspondiente sin importar extensión
-    carpeta_foto = os.path.join("static", "photos", clase)
-    nombre_archivo = None
-
-    if os.path.isdir(carpeta_foto):
-        archivos = os.listdir(carpeta_foto)
-        for archivo in archivos:
-            nombre_sin_ext = os.path.splitext(archivo)[0].lower()
-            if nombre_sin_ext == nombre.lower():
-                nombre_archivo = archivo
-                break
-
+    # 📸 Buscar imagen correspondiente
+    nombre_archivo = buscar_imagen(nombre, clase)
     if not nombre_archivo:
-        nombre_archivo = "default.jpg"  # Si no encuentra la imagen del alumno
+        nombre_archivo = "default.jpg"  # Imagen por defecto si no encuentra al alumno
 
     bg_cls, txt_cls = color_map.get(clase.upper(), ("bg-gray-100", "text-black"))
 
