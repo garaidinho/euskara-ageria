@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ alumno[0] }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @keyframes zoomIntro { 0%{transform:scale(4);opacity:0} 100%{transform:scale(1);opacity:1} }
+    @keyframes slideUp { 0%{transform:translateY(120%);opacity:0} 100%{transform:translateY(0);opacity:1} }
+    @keyframes swingFast {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+    @keyframes bounce-scale {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .nombre span {
+      display: inline-block;
+      opacity: 0;
+      transform: scale(0.5);
+      animation: popIn 0.3s ease-out forwards;
+    }
+
+    .zoom-intro { animation:zoomIntro .6s ease-out forwards }
+    .slideUp { animation:slideUp .6s ease-out forwards }
+    .swingFast { animation:swingFast 1.2s ease-in-out infinite alternate }
+    .bounce-scale { animation: bounce-scale 1.6s ease-in-out infinite }
+
+    .nombre {
+      font-family: 'Luckiest Guy', cursive;
+      text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen {{ bg_cls }}">
+
+  <div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
+
+    <!-- Fondo lema -->
+    <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+      <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
+           class="h-[85%] w-auto opacity-10 select-none" alt="Euskaraz bizi nahi dut">
+    </div>
+
+    <!-- Nombre (centrado correctamente) -->
+<h1 id="nombre"
+    class="nombre text-6xl {{ txt_cls }} absolute top-10 left-[25%] -translate-x-1/2 z-20 opacity-0 bounce-scale">
+</h1>
+
+<!-- Círculo de fondo SIN borde -->
+<div class="w-52 h-52 rounded-full {{ bg_cls }} absolute top-[137px] left-[22.5%] -translate-x-[40%] z-10 opacity-0"
+     style="animation:zoomIntro 0.6s ease-out 0.4s forwards;"></div>
+
+
+    <!-- Foto -->
+<div class="relative flex items-center justify-center z-20 mt-20 mb-4 opacity-0"
+     style="animation:zoomIntro 0.6s ease-out 1s forwards;">
+  <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
+       alt="{{ alumno[0] }}"
+       class="w-44 h-44 object-cover rounded-full shadow-lg swingFast relative -top-6">
+</div>
+
+
+    <!-- Puntos -->
+    <p id="pwrap" class="text-4xl font-bold mb-4 z-20 opacity-0 bounce-scale"
+       style="animation-delay:1.6s; animation:slideUp 0.6s ease-out 1.6s forwards, bounce-scale 1.6s ease-in-out infinite;">
+      <span id="puntuak">{{ alumno[3] }}</span> PUNTU
+    </p>
+
+    <!-- Botón +1 -->
+    <form method="post" class="z-20 opacity-0"
+          style="animation:slideUp 0.6s ease-out 2s forwards;">
+      <button type="submit" name="accion" value="1"
+              class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black"
+              style="background:linear-gradient(90deg,#00d2ff,#25d96f)">+1 P.</button>
+    </form>
+
+    <!-- Botón -1 -->
+    <form method="post" class="mt-2 z-20 opacity-0"
+          style="animation:slideUp 0.6s ease-out 2.4s forwards;">
+      <button type="submit" name="accion" value="-1"
+              class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black"
+              style="background:linear-gradient(90deg,#ff5858,#ffa55c)">-1 P.</button>
+    </form>
+  </div>
+
+  <script>
+    const nombreText = "{{ alumno[0] }}";
+    const nombreElem = document.getElementById("nombre");
+    nombreElem.classList.remove("opacity-0");
+    nombreElem.innerHTML = [...nombreText].map((char, i) =>
+      `<span style="animation-delay:${i * 0.1}s">${char}</span>`
+    ).join('');
+  </script>
+</body>
+</html>
