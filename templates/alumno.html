@@ -8,9 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    .nombre{font-family:'Luckiest Guy',cursive;line-height:.9}
+    /* Fuente original con un leve relieve */
+    .nombre{
+      font-family:'Luckiest Guy',cursive;
+      line-height:.9;
+      text-shadow:2px 2px 0 rgba(0,0,0,.15);
+    }
+    /* Animaciones */
     @keyframes zoomIntro{0%{transform:scale(4);opacity:0}100%{transform:scale(1);opacity:1}}
-    @keyframes slideUp{0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
+    @keyframes slideUp  {0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
     @keyframes swingFast{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
     @keyframes bounce-scale{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
   </style>
@@ -31,13 +37,14 @@
         class="nombre text-6xl {{ txt_cls }} absolute top-10 left-1/2 -translate-x-1/2 z-20 opacity-0 bounce-scale">
     </h1>
 
-    <!-- Círculo de fondo -->
-    <div class="w-52 h-52 rounded-full {{ bg_cls }} absolute top-[137px] left-1/2 -translate-x-1/2 z-10 opacity-0"
-         style="animation:zoomIntro 0.6s ease-out 0.4s forwards;"></div>
-
-    <!-- Foto -->
+    <!-- Bloque foto + círculo (centrados entre sí) -->
     <div class="relative flex items-center justify-center z-20 mt-20 mb-4 opacity-0"
          style="animation:zoomIntro 0.6s ease-out 1s forwards;">
+      <!-- Círculo de fondo -->
+      <div class="absolute flex items-center justify-center inset-0">
+        <div class="w-52 h-52 rounded-full {{ bg_cls }} opacity-40"></div>
+      </div>
+      <!-- Foto -->
       <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
            alt="{{ alumno[0] }}"
            class="w-44 h-44 object-cover rounded-full shadow-lg swingFast relative -top-6">
@@ -67,8 +74,8 @@
   </div>
 
   <script>
-    // efecto de escritura
-    const txt="{{ alumno[0] }}",el=document.getElementById("nombre");
+    // Animación “escribiendo” el nombre letra a letra
+    const txt="{{ alumno[0] }}", el=document.getElementById("nombre");
     el.classList.remove("opacity-0");
     el.innerHTML=[...txt].map((c,i)=>`<span style="animation-delay:${i*.1}s">${c}</span>`).join('');
   </script>
