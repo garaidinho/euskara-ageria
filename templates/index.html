@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+  <meta charset="UTF-8">
+  <title>Euskara Ageria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-100">
+  <h1 class="text-4xl font-bold">Euskara Ageria</h1>
+
+  <div class="flex flex-wrap gap-4">
+    {% for cls in clases %}
+      <a href="/{{ cls }}/amaia"
+         class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 shadow">
+        {{ cls|upper }}
+      </a>
+    {% endfor %}
+  </div>
+</body>
+</html>
