@@ -8,55 +8,56 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-/*──────── Texto ───────*/
+:root{--dur:1s}               /* ⬅ duración principal */
+
+/* ---------- fuente ---------- */
 .nombre{font-family:'Luckiest Guy',cursive;line-height:.9;
         text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgba(0,0,0,.3)}
-@keyframes pop   {0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes bounce{0%,100%{transform:translateX(-50%) scale(1)}
-                  50%     {transform:translateX(-50%) scale(1.16)}}
-.nombre span{display:inline-block;opacity:0;animation:pop .35s ease-out forwards}
+                  50%     {transform:translateX(-50%) scale(1.15)}}
+.nombre span{display:inline-block;opacity:0;animation:pop .35s forwards}
 
-/*──────── Corazón ─────*/
+/* ---------- corazón ---------- */
 .heart{position:absolute;width:220px;height:220px;transform:rotate(-45deg);opacity:.8;z-index:20}
 .heart,.heart:before,.heart:after{background:inherit}
 .heart:before,.heart:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%}
 .heart:before{top:-110px;left:0}
 .heart:after {top:0;left:110px}
-@keyframes heartPop {0%{transform:rotate(-45deg) scale(0)}
-                      100%{transform:rotate(-45deg) scale(1)}}
-@keyframes heartPulse{0%,100%{transform:rotate(-45deg) scale(.8)}
-                      50%     {transform:rotate(-45deg) scale(1)}}
-@keyframes zoomBig {to{transform:rotate(-45deg) scale(22);opacity:0}}
-@keyframes zoomMed {to{transform:rotate(-45deg) scale(8)}}
-@keyframes breakL  {to{transform:translate(-45vw,95vh) rotate(-85deg);opacity:0}}
-@keyframes breakR  {to{transform:translate( 45vw,95vh) rotate( 35deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:rotate(-45deg) scale(.75)}
+                 50%     {transform:rotate(-45deg) scale(1)}}
+@keyframes heartIn{from{transform:rotate(-45deg) scale(0)}to{transform:rotate(-45deg) scale(1)}}
+@keyframes zoomBig{to{transform:rotate(-45deg) scale(20);opacity:0}}
+@keyframes zoomMed{to{transform:rotate(-45deg) scale(9)}}
+@keyframes breakL {to{transform:translate(-45vw,90vh) rotate(-85deg);opacity:0}}
+@keyframes breakR {to{transform:translate( 45vw,90vh) rotate( 35deg);opacity:0}}
 .half{position:absolute;width:220px;height:220px;border-radius:50%;background:inherit}
 
-/*──────── Foto ────────*/
-@keyframes drop {0%{transform:translateY(-80px) scale(.5);opacity:0}
-                 100%{transform:translateY(0) scale(1);opacity:1}}
+/* ---------- foto ---------- */
+@keyframes drop {from{transform:translateY(-90px) scale(.5);opacity:0}
+                 to  {transform:translateY(0)      scale(1);opacity:1}}
 @keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
 
-/*──────── Botones & puntos ─*/
+/* ---------- botones & pts ---- */
 @keyframes slideIn {from{transform:translateY(80px);opacity:0}
                     to  {transform:translateY(0);opacity:1}}
 @keyframes slideOut{to{transform:translateY(80px);opacity:0}}
 @keyframes fadeOut {to{opacity:0}}
 @keyframes ptsPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 
-/* utilidades JS */
-.hide-scale {animation:fadeOut .25s forwards, pop .25s reverse forwards}
-.hide-slide {animation:slideOut .3s forwards}
-.zoomBig    {animation:zoomBig 1.5s ease-in forwards}
-.zoomMed    {animation:zoomMed .7s forwards}
-.breakL     {animation:breakL .8s .7s forwards}
-.breakR     {animation:breakR .8s .7s forwards}
+/* helpers para JS */
+.fade      {animation:fadeOut .3s forwards}
+.popHide   {animation:pop .25s reverse forwards}
+.btnHide   {animation:slideOut .3s forwards}
+.zoomBig   {animation:zoomBig var(--dur) forwards}
+.zoomMed   {animation:zoomMed .5s forwards}
+.breakL    {animation:breakL .5s .5s forwards}
+.breakR    {animation:breakR .5s .5s forwards}
 </style>
 </head>
 <body class="flex items-center justify-center min-h-screen {{ bg_cls }}">
 <div id="card" class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
 
-  <!-- Lema -->
   <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
        class="absolute inset-0 m-auto h-[85%] opacity-10 pointer-events-none" alt="">
 
@@ -68,7 +69,7 @@
   <!-- Corazón + Foto -->
   <div class="relative flex items-center justify-center z-30 mt-20 mb-4">
     <div id="heart" class="heart {{ bg_cls }}"
-         style="animation:heartPop .35s ease-out forwards"></div>
+         style="animation:heartIn .35s ease-out forwards"></div>
 
     <img id="foto" src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
          alt="{{ alumno[0] }}"
@@ -100,63 +101,60 @@
 </div>
 
 <script>
-/* ------- nombre pop & bounce ---------- */
-const name=`{{ alumno[0] }}`, nEl=document.getElementById('nombre');
-nEl.innerHTML=[...name]
-  .map((c,i)=>`<span style="animation-delay:${.4+i*.09}s">${c}</span>`).join('');
+/* ---------- fase 2 después de pop ---------------- */
+const n=`{{ alumno[0] }}`, nEl=document.getElementById('nombre');
+nEl.innerHTML=[...n].map((c,i)=>`<span style="animation-delay:${.4+i*.09}s">${c}</span>`).join('');
 nEl.classList.remove('opacity-0');
 nEl.addEventListener('animationend',e=>{
-  if(e.animationName==='pop') nEl.style.animation="bounce 1.6s ease-in-out 0s infinite";
+  if(e.animationName==='pop') nEl.style.animation="bounce 1.6s ease-in-out infinite";
 },{once:true});
 
-/* ------- corazón pulse after pop ------ */
 const heart=document.getElementById('heart');
 heart.addEventListener('animationend',e=>{
-  if(e.animationName==='heartPop') heart.style.animation="heartPulse 6s ease-in-out 0s infinite";
+  if(e.animationName==='heartIn') heart.style.animation="pulse 6s ease-in-out infinite";
 },{once:true});
 
-/* ------- foto swing after drop -------- */
 const foto=document.getElementById('foto');
 foto.addEventListener('animationend',e=>{
-  if(e.animationName==='drop') foto.style.animation+=", swing 1s ease-in-out 0s infinite alternate";
+  if(e.animationName==='drop') foto.style.animation+=", swing 1s ease-in-out infinite alternate";
 },{once:true});
 
-/* ------- puntos pulso contínuo -------- */
 const pts=document.getElementById('pts');
 pts.addEventListener('animationend',e=>{
-  if(e.animationName==='slideIn') pts.style.animation+=", ptsPulse 1.6s ease-in-out 0s infinite";
+  if(e.animationName==='slideIn') pts.style.animation+=", ptsPulse 1.6s ease-in-out infinite";
 },{once:true});
 
-/* helpers */
+/* ---------- helpers para salida ----------------- */
 function hideUI(){
-  [nEl,foto,pts].forEach(el=>el.classList.add('hide-scale'));
-  [plusForm,minusForm].forEach(el=>el.classList.add('hide-slide'));
+  [nEl,foto,pts].forEach(el=>el.classList.add('popHide'));
+  [plusForm,minusForm].forEach(el=>el.classList.add('btnHide'));
 }
-
 const plusForm=document.getElementById('plusForm');
 const minusForm=document.getElementById('minusForm');
+const btnPlus=document.getElementById('btnPlus');
+const btnMinus=document.getElementById('btnMinus');
 
-/* +1 sequence */
-document.getElementById('btnPlus').addEventListener('click',ev=>{
+/* +1 */
+btnPlus.addEventListener('click',ev=>{
   ev.preventDefault();
   hideUI();
-  heart.classList.remove('heartPulse'); /* stop pulse */
+  heart.classList.remove('pulse');
   heart.classList.add('zoomBig');
-  setTimeout(()=>plusForm.submit(),1500);
+  setTimeout(()=>plusForm.requestSubmit(btnPlus),1000);   /* 1 s = --dur */
 });
 
-/* -1 sequence */
-document.getElementById('btnMinus').addEventListener('click',ev=>{
+/* -1 */
+btnMinus.addEventListener('click',ev=>{
   ev.preventDefault();
   hideUI();
-  heart.classList.remove('heartPulse');
+  heart.classList.remove('pulse');
   heart.classList.add('zoomMed');
   setTimeout(()=>{
      const L=document.createElement('div'),R=L.cloneNode();
      L.className='half breakL'; R.className='half breakR';
      heart.appendChild(L); heart.appendChild(R);
-  },700);
-  setTimeout(()=>minusForm.submit(),1500);
+  },500);                                                /* empieza rotura a mitad de dur */
+  setTimeout(()=>minusForm.requestSubmit(btnMinus),1000);
 });
 </script>
 </body>
