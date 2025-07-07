@@ -8,53 +8,47 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-/* ====== apariencia inicial ====== */
+:root{--durFlash:.8s}
+
+/* ---------- texto ---------- */
 .nombre{font-family:'Luckiest Guy',cursive;line-height:.9;
-        text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgba(0,0,0,.3)}
-@keyframes pop   {0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+        text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgb(0 0 0/.3)}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes bounce{0%,100%{transform:translateX(-50%) scale(1)}
                   50%     {transform:translateX(-50%) scale(1.15)}}
 .nombre span{display:inline-block;opacity:0;animation:pop .35s forwards}
 
-@keyframes heartIn {from{transform:rotate(-45deg) scale(0)}
-                    to  {transform:rotate(-45deg) scale(1)}}
-@keyframes pulse   {0%,100%{transform:rotate(-45deg) scale(.78)}
-                    50%     {transform:rotate(-45deg) scale(1)}}
-.heart{position:absolute;width:220px;height:220px;transform:rotate(-45deg);
-       opacity:.8;z-index:20}
+/* ---------- corazón ---------- */
+.heart{position:absolute;width:230px;height:230px;transform:rotate(-45deg);opacity:.8;z-index:20}
 .heart,.heart:before,.heart:after{background:inherit}
-.heart:before,.heart:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%}
-.heart:before{top:-110px;left:0}
-.heart:after {top:0;left:110px}
+.heart:before,.heart:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%}
+.heart:before{top:-115px;left:0}
+.heart:after {top:0;left:115px}
+@keyframes heartPop{from{transform:rotate(-45deg) scale(0)}
+                    to  {transform:rotate(-45deg) scale(1)}}
+@keyframes heartPulse{0%,100%{transform:rotate(-45deg) scale(.78)}
+                      50%     {transform:rotate(-45deg) scale(1)}}
 
-@keyframes drop  {from{transform:translateY(-80px) scale(.5);opacity:0}
-                  to  {transform:translateY(0) scale(1);opacity:1}}
-@keyframes swing {0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+/* ---------- foto ---------- */
+@keyframes drop{from{transform:translateY(-90px) scale(.5);opacity:0}
+                to  {transform:translateY(0)      scale(1);opacity:1}}
+@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
 
-@keyframes slideIn{from{transform:translateY(80px);opacity:0}
+/* ---------- botones y puntos ---------- */
+@keyframes slideIn{from{transform:translateY(90px);opacity:0}
                    to  {transform:translateY(0);opacity:1}}
 @keyframes ptsPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 
-/* ====== flash radial ====== */
-#flash{position:fixed;inset:0;pointer-events:none;z-index:50;
-       transform:scale(0);opacity:0}
-@keyframes burst{to{transform:scale(3);opacity:0}}
-.flashPlus {background:radial-gradient(circle at center,
-               rgba(0,255,245,.8) 0%,rgba(0,255,245,.4) 30%,
-               transparent 70%);
-            animation:burst .8s ease-out forwards}
-.flashMinus{background:radial-gradient(circle at center,
-               rgba(255,80,80,.85) 0%,rgba(255,120,80,.4) 30%,
-               transparent 70%);
-            animation:burst .8s ease-out forwards}
+/* ---------- flash overlay ---------- */
+.flash{position:fixed;inset:-10%;z-index:50;border-radius:50%;
+       pointer-events:none;animation:expand var(--durFlash) ease-out forwards}
+@keyframes expand{0%{transform:scale(0);opacity:.75}100%{transform:scale(12);opacity:0}}
+.flash.plus  {background:radial-gradient(circle at center,#00d2ff,#25d96f)}
+.flash.minus {background:radial-gradient(circle at center,#ff5858,#ffa55c)}
 </style>
 </head>
-
 <body class="flex items-center justify-center min-h-screen {{ bg_cls }}">
 <div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
-
-  <!-- flash overlay -->
-  <div id="flash"></div>
 
   <!-- lema -->
   <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
@@ -68,12 +62,17 @@
   <!-- corazón + foto -->
   <div class="relative flex items-center justify-center z-30 mt-20 mb-4">
     <div id="heart" class="heart {{ bg_cls }}"
-         style="animation:heartIn .35s ease-out forwards"></div>
+         style="animation:heartPop .35s ease-out forwards"></div>
 
-    <img id="foto" src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
-         alt="{{ alumno[0] }}"
-         class="w-44 h-44 rounded-full shadow-lg relative -top-10 opacity-0 z-30"
-         style="animation:drop .5s ease-out .75s forwards">
+    <!-- wrapper para heredar color -->
+    <div class="{{ txt_cls }}">
+      <img id="foto"
+           src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
+           alt="{{ alumno[0] }}"
+           class="w-52 h-52 rounded-full shadow-lg border-8"
+           style="border-color:currentColor;
+                  animation:drop .5s ease-out .75s forwards, swing 1s ease-in-out 2s infinite alternate;opacity:0">
+    </div>
   </div>
 
   <!-- puntos -->
@@ -100,45 +99,48 @@
 </div>
 
 <script>
-/* entrada continua */
-const name=`{{ alumno[0] }}`, nEl=document.getElementById('nombre');
-nEl.innerHTML=[...name].map((c,i)=>`<span style="animation-delay:${.4+i*.09}s">${c}</span>`).join('');
+/* ------- activar fase-2 de cada elemento -------- */
+const n=`{{ alumno[0] }}`, nEl=document.getElementById('nombre');
+nEl.innerHTML=[...n].map((c,i)=>`<span style="animation-delay:${.4+i*.08}s">${c}</span>`).join('');
 nEl.classList.remove('opacity-0');
 nEl.addEventListener('animationend',e=>{
   if(e.animationName==='pop') nEl.style.animation="bounce 1.6s ease-in-out infinite";
 },{once:true});
 
+const heart=document.getElementById('heart');
 heart.addEventListener('animationend',e=>{
-  if(e.animationName==='heartIn') heart.style.animation="pulse 6s ease-in-out infinite";
+  if(e.animationName==='heartPop') heart.style.animation="heartPulse 6s ease-in-out infinite";
 },{once:true});
 
-foto.addEventListener('animationend',e=>{
-  if(e.animationName==='drop') foto.style.animation+=", swing 1s ease-in-out infinite alternate";
-},{once:true});
-
+const pts=document.getElementById('pts');
 pts.addEventListener('animationend',e=>{
   if(e.animationName==='slideIn') pts.style.animation+=", ptsPulse 1.6s ease-in-out infinite";
 },{once:true});
 
-/* flash helper */
-function flash(cls,form,btn){
-  const f=document.getElementById('flash');
-  f.className='';          /* reset */
-  void f.offsetWidth;      /* reflow */
-  f.classList.add(cls);
-  setTimeout(()=>form.requestSubmit(btn),800); /* after burst */
+/* ------- aurora flash helper -------------------- */
+function flash(type){
+  const fx=document.createElement('div');
+  fx.className=`flash ${type}`;
+  document.body.appendChild(fx);
+  fx.addEventListener('animationend',()=>fx.remove(),{once:true});
 }
 
-const btnPlus=document.getElementById('btnPlus');
-btnPlus.addEventListener('click',e=>{
+/* ------- botones --------------------------------*/
+const btnP=document.getElementById('btnPlus');
+const btnM=document.getElementById('btnMinus');
+const fP  =document.getElementById('plusForm');
+const fM  =document.getElementById('minusForm');
+
+btnP.addEventListener('click',e=>{
   e.preventDefault();
-  flash('flashPlus',plusForm,btnPlus);
+  flash('plus');
+  setTimeout(()=>fP.requestSubmit(btnP),800);
 });
 
-const btnMinus=document.getElementById('btnMinus');
-btnMinus.addEventListener('click',e=>{
+btnM.addEventListener('click',e=>{
   e.preventDefault();
-  flash('flashMinus',minusForm,btnMinus);
+  flash('minus');
+  setTimeout(()=>fM.requestSubmit(btnM),800);
 });
 </script>
 </body>
