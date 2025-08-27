@@ -1,36 +1,68 @@
 # ───────────────────────────────────────────────────────────────────────────────
-#  app.py  – Euskara Ageria  (versión completa, lista para sustituir tu archivo)
+#  app.py – Euskara Ageria (versión robusta para Render)
 # ───────────────────────────────────────────────────────────────────────────────
 from flask import Flask, render_template, request, redirect, url_for
-import os
+import os, time
 import psycopg2
+from contextlib import closing
 from dotenv import load_dotenv
 
 # ─────────────── Config básica ────────────────────────────────────────────────
 app = Flask(__name__)
-load_dotenv()                               # En Render se ignora si ya hay vars
+load_dotenv()  # En Render se ignora si ya hay vars
 
-# ─────────────── Conexión a PostgreSQL ────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL")
+# ─────────────── Utilidades DB (lazy + reintentos) ────────────────────────────
+def _db_url() -> str:
+    url = os.getenv("DATABASE_URL", "")
+    # Render/Heroku dan postgres:// y psycopg2 quiere postgresql://
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+    if not url:
+        raise RuntimeError("DATABASE_URL no está definido en Render > Environment.")
+    return url
 
-# Render (y Heroku) dan el DSN como postgres:// → psycopg2 quiere postgresql://
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+def get_conn(max_tries: int = 10):
+    """Abre conexión con reintentos exponenciales. Se cierra en quien la usa."""
+    url = _db_url()
+    delay = 0.5
+    last = None
+    for _ in range(max_tries):
+        try:
+            conn = psycopg2.connect(
+                url,
+                sslmode="require",
+                keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=3,
+            )
+            conn.autocommit = False  # usaremos 'with conn:' para commit/rollback
+            return conn
+        except Exception as e:
+            last = e
+            time.sleep(delay)
+            delay = min(delay * 2, 5.0)
+    # último intento: si falla, que explote y lo veamos en logs
+    raise last or RuntimeError("No se pudo conectar a la base de datos.")
 
-# sslmode=require ya viene en la URL interna de Render, lo repetimos por si acaso
-conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-
-# Crear tabla si no existe
-with conn, conn.cursor() as cur:
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS puntos (
-            id      SERIAL PRIMARY KEY,
-            clase   TEXT NOT NULL,
-            nombre  TEXT NOT NULL,
-            puntos  INTEGER NOT NULL DEFAULT 0,
-            UNIQUE (clase, nombre)
-        );
-    """)
+_schema_ready = False
+def ensure_schema():
+    """Crea tabla si falta. Se ejecuta una vez por proceso."""
+    global _schema_ready
+    if _schema_ready:
+        return
+    try:
+        with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS puntos (
+                    id      SERIAL PRIMARY KEY,
+                    clase   TEXT NOT NULL,
+                    nombre  TEXT NOT NULL,
+                    puntos  INTEGER NOT NULL DEFAULT 0,
+                    UNIQUE (clase, nombre)
+                );
+            """)
+        _schema_ready = True
+    except Exception as e:
+        # No tumbar la app por esto: volveremos a intentar en la próxima petición
+        print("[WARN] init schema diferido:", repr(e))
 
 # Colores por clase (en minúsculas)
 color_map = {
@@ -50,19 +82,21 @@ def index():
 
 @app.route("/<clase>/<nombre>", methods=["GET", "POST"])
 def mostrar_alumno(clase: str, nombre: str):
-    clase_lower  = clase.lower()     # Normalizamos a minúsculas
+    ensure_schema()
+
+    clase_lower  = clase.lower()
     nombre_lower = nombre.lower()
 
     # ─── POST: +1 / -1 ────────────────────────────────────────────────────────
     if request.method == "POST":
-        accion = request.form.get("accion")          # "1" o "-1"
+        accion = request.form.get("accion")   # "1" o "-1"
         delta  = 1 if accion == "1" else -1
 
-        with conn, conn.cursor() as cur:
+        with closing(get_conn()) as conn, conn, conn.cursor() as cur:
             cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
                         (clase_lower, nombre_lower))
-            row     = cur.fetchone()
-            puntos  = max((row[0] if row else 0) + delta, 0)   # nunca < 0
+            row = cur.fetchone()
+            puntos = max((row[0] if row else 0) + delta, 0)  # nunca < 0
 
             if row:
                 cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s",
@@ -76,11 +110,11 @@ def mostrar_alumno(clase: str, nombre: str):
                                 clase=clase_lower, nombre=nombre_lower))
 
     # ─── GET: mostrar ficha ───────────────────────────────────────────────────
-    with conn.cursor() as cur:
+    with closing(get_conn()) as conn, conn.cursor() as cur:
         cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
                     (clase_lower, nombre_lower))
-        row     = cur.fetchone()
-        puntos  = row[0] if row else 0
+        row = cur.fetchone()
+        puntos = row[0] if row else 0
 
     # Foto (cualquier extensión) en static/photos/<clase_lower>/
     carpeta_foto   = os.path.join("static", "photos", clase_lower)
@@ -99,11 +133,17 @@ def mostrar_alumno(clase: str, nombre: str):
         txt_cls=txt_cls,
     )
 
-# Endpoint mínimo para UptimeRobot / BetterUptime
+# Healthcheck real (comprueba DB)
 @app.route("/ping")
 def ping():
-    return "pong", 200
+    try:
+        with closing(get_conn()) as conn, conn.cursor() as cur:
+            cur.execute("SELECT 1;")
+        return "ok", 200
+    except Exception as e:
+        return f"db_error: {e}", 500
 
 # ─────────────── Arranque local ───────────────────────────────────────────────
 if __name__ == "__main__":
-    app.run(debug=True)
+    # En local: flask dev server
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=True)
