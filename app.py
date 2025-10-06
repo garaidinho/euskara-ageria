@@ -1,51 +1,42 @@
 # ───────────────────────────────────────────────────────────────────────────────
-#  app.py – Euskara Ageria (versión robusta para nombres con espacios/puntos)
+#  app.py – Euskara Ageria (nombre mostrado = URL, foto por clave normalizada)
 # ───────────────────────────────────────────────────────────────────────────────
 from flask import Flask, render_template, request, redirect, url_for
-import os, time, re
-from urllib.parse import unquote
+import os, time, re, unicodedata
 import psycopg2
 from contextlib import closing
 from dotenv import load_dotenv
 
-# ─────────────── Config básica ────────────────────────────────────────────────
 app = Flask(__name__)
 load_dotenv()  # En Render se ignora si ya hay vars
 
-# ─────────────── Utilidades de nombre ─────────────────────────────────────────
+
+# ─────────────── Utilidades de normalización ──────────────────────────────────
+def strip_accents(s: str) -> str:
+    """Quita acentos/diacríticos."""
+    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+
 def normalize_key(s: str) -> str:
     """
-    Clave robusta para comparar nombres.
-    - Quita espacios, puntos, guiones y guiones bajos.
-    - Pasa todo a minúsculas.
+    Clave robusta para foto/DB: minúsculas, sin acentos, sin espacios, sin puntos
+    y solo alfanumérico.  'Antton e.' -> 'anttone'
     """
-    s = s.strip().lower()
-    s = re.sub(r'[\s._-]+', '', s)
-    s = s.replace('.', '')
+    s = strip_accents(s).lower()
+    s = re.sub(r"[^a-z0-9]+", "", s)  # elimina todo lo no alfanumérico
     return s
 
-def format_display_name(stem: str) -> str:
+def format_display_name(nombre_raw: str) -> str:
     """
-    Crea el nombre a mostrar a partir del nombre de archivo (sin extensión).
-    - '_' y '-' -> espacios
-    - Capitaliza palabras normales.
-    - Mantiene iniciales tipo 'm.' en minúscula.
+    Para mostrar bonito: respeta espacios e iniciales de la URL, capitaliza palabras.
+    'antton e.' -> 'Antton e.'
     """
-    s = stem.replace('_', ' ').replace('-', ' ').strip()
-    parts, out = s.split(), []
-    for p in parts:
-        if len(p) == 2 and p.endswith('.'):      # inicial tipo "m."
-            out.append(p.lower())
-        elif len(p) == 1:                        # letra suelta
-            out.append(p.upper())
-        else:
-            out.append(p.capitalize())
-    return ' '.join(out)
+    parts = re.split(r"\s+", nombre_raw.strip())
+    return " ".join(p.capitalize() for p in parts if p)
 
-# ─────────────── Utilidades DB (lazy + reintentos) ────────────────────────────
+
+# ─────────────── Config DB (lazy + reintentos) ────────────────────────────────
 def _db_url() -> str:
     url = os.getenv("DATABASE_URL", "")
-    # Render/Heroku dan postgres:// y psycopg2 quiere postgresql://
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
     if not url:
@@ -53,7 +44,6 @@ def _db_url() -> str:
     return url
 
 def get_conn(max_tries: int = 10):
-    """Abre conexión con reintentos exponenciales. Se cierra en quien la usa."""
     url = _db_url()
     delay = 0.5
     last = None
@@ -64,18 +54,17 @@ def get_conn(max_tries: int = 10):
                 sslmode="require",
                 keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=3,
             )
-            conn.autocommit = False  # usaremos 'with conn:' para commit/rollback
+            conn.autocommit = False
             return conn
         except Exception as e:
             last = e
             time.sleep(delay)
             delay = min(delay * 2, 5.0)
-    # último intento
     raise last or RuntimeError("No se pudo conectar a la base de datos.")
 
 _schema_ready = False
 def ensure_schema():
-    """Crea tabla si falta. Se ejecuta una vez por proceso."""
+    """Crea tabla si falta (una sola vez por proceso)."""
     global _schema_ready
     if _schema_ready:
         return
@@ -94,7 +83,8 @@ def ensure_schema():
     except Exception as e:
         print("[WARN] init schema diferido:", repr(e))
 
-# Colores por clase (en minúsculas)
+
+# ─────────────── Colores por clase ────────────────────────────────────────────
 color_map = {
     "lm1": ("bg-blue-200",   "text-blue-600"),
     "lm2": ("bg-yellow-200", "text-yellow-600"),
@@ -103,23 +93,25 @@ color_map = {
     "lm5": ("bg-purple-200", "text-purple-600"),
 }
 
+
 # ─────────────── Rutas ────────────────────────────────────────────────────────
 @app.route("/")
 def index():
-    """Página de bienvenida sencilla. Pásate a /LM1/amaia, por ejemplo."""
     clases = " | ".join(cls.upper() for cls in sorted(color_map))
     return f"<h1>Euskara Ageria</h1><p>Ir a /LM1/amaia (u otro alumno).<br>Clases: {clases}</p>"
 
+
 @app.route("/<clase>/<nombre>", methods=["GET", "POST"])
 def mostrar_alumno(clase: str, nombre: str):
+    """
+    - 'nombre' se usa tal cual para el TÍTULO (respeta espacios e iniciales).
+    - Para cargar la foto y para la clave de DB usamos normalize_key(nombre).
+    """
     ensure_schema()
 
-    # Decodifica por si viene con %20
-    clase_raw   = unquote(clase).strip()
-    nombre_raw  = unquote(nombre).strip()
-
-    clase_lower = clase_raw.lower()
-    key_nombre  = normalize_key(nombre_raw)  # clave robusta (para DB y matching de archivo)
+    clase_lower   = clase.lower()
+    nombre_raw    = nombre              # tal como llega en la URL (con espacios/inicial)
+    key_nombre    = normalize_key(nombre_raw)   # clave robusta para DB/foto
 
     # ─── POST: +1 / -1 ────────────────────────────────────────────────────────
     if request.method == "POST":
@@ -139,9 +131,8 @@ def mostrar_alumno(clase: str, nombre: str):
                 cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s,%s,%s)",
                             (clase_lower, key_nombre, puntos))
 
-        # Evitar reenvío de formulario (PRG pattern)
-        return redirect(url_for("mostrar_alumno",
-                                clase=clase_lower, nombre=nombre))
+        # PRG pattern
+        return redirect(url_for("mostrar_alumno", clase=clase_lower, nombre=nombre_raw))
 
     # ─── GET: mostrar ficha ───────────────────────────────────────────────────
     with closing(get_conn()) as conn, conn.cursor() as cur:
@@ -150,11 +141,9 @@ def mostrar_alumno(clase: str, nombre: str):
         row = cur.fetchone()
         puntos = row[0] if row else 0
 
-    # Foto (cualquier extensión) en static/photos/<clase_lower>/
+    # Foto en static/photos/<clase>/  (coincidencia por clave normalizada)
     carpeta_foto   = os.path.join("static", "photos", clase_lower)
     nombre_archivo = "default.jpg"
-    display_name   = nombre_raw  # fallback
-
     if os.path.isdir(carpeta_foto):
         for archivo in os.listdir(carpeta_foto):
             stem, ext = os.path.splitext(archivo)
@@ -162,8 +151,10 @@ def mostrar_alumno(clase: str, nombre: str):
                 continue
             if normalize_key(stem) == key_nombre:
                 nombre_archivo = archivo
-                display_name   = format_display_name(stem)
                 break
+
+    # IMPORTANTE: para MOSTRAR usamos SIEMPRE lo que vino en la URL
+    display_name = format_display_name(nombre_raw)
 
     bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
     return render_template(
@@ -172,6 +163,7 @@ def mostrar_alumno(clase: str, nombre: str):
         bg_cls=bg_cls,
         txt_cls=txt_cls,
     )
+
 
 # Healthcheck real (comprueba DB)
 @app.route("/ping")
@@ -183,7 +175,7 @@ def ping():
     except Exception as e:
         return f"db_error: {e}", 500
 
+
 # ─────────────── Arranque local ───────────────────────────────────────────────
 if __name__ == "__main__":
-    # En local: flask dev server
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=True)
