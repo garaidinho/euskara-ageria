@@ -1,8 +1,9 @@
 # ───────────────────────────────────────────────────────────────────────────────
-#  app.py – Euskara Ageria (versión robusta para Render)  [display name fiel al fichero]
+#  app.py – Euskara Ageria (versión robusta para nombres con espacios/puntos)
 # ───────────────────────────────────────────────────────────────────────────────
 from flask import Flask, render_template, request, redirect, url_for
-import os, time
+import os, time, re
+from urllib.parse import unquote
 import psycopg2
 from contextlib import closing
 from dotenv import load_dotenv
@@ -10,6 +11,36 @@ from dotenv import load_dotenv
 # ─────────────── Config básica ────────────────────────────────────────────────
 app = Flask(__name__)
 load_dotenv()  # En Render se ignora si ya hay vars
+
+# ─────────────── Utilidades de nombre ─────────────────────────────────────────
+def normalize_key(s: str) -> str:
+    """
+    Clave robusta para comparar nombres.
+    - Quita espacios, puntos, guiones y guiones bajos.
+    - Pasa todo a minúsculas.
+    """
+    s = s.strip().lower()
+    s = re.sub(r'[\s._-]+', '', s)
+    s = s.replace('.', '')
+    return s
+
+def format_display_name(stem: str) -> str:
+    """
+    Crea el nombre a mostrar a partir del nombre de archivo (sin extensión).
+    - '_' y '-' -> espacios
+    - Capitaliza palabras normales.
+    - Mantiene iniciales tipo 'm.' en minúscula.
+    """
+    s = stem.replace('_', ' ').replace('-', ' ').strip()
+    parts, out = s.split(), []
+    for p in parts:
+        if len(p) == 2 and p.endswith('.'):      # inicial tipo "m."
+            out.append(p.lower())
+        elif len(p) == 1:                        # letra suelta
+            out.append(p.upper())
+        else:
+            out.append(p.capitalize())
+    return ' '.join(out)
 
 # ─────────────── Utilidades DB (lazy + reintentos) ────────────────────────────
 def _db_url() -> str:
@@ -39,7 +70,7 @@ def get_conn(max_tries: int = 10):
             last = e
             time.sleep(delay)
             delay = min(delay * 2, 5.0)
-    # último intento: si falla, que explote y lo veamos en logs
+    # último intento
     raise last or RuntimeError("No se pudo conectar a la base de datos.")
 
 _schema_ready = False
@@ -61,7 +92,6 @@ def ensure_schema():
             """)
         _schema_ready = True
     except Exception as e:
-        # No tumbar la app por esto: volveremos a intentar en la próxima petición
         print("[WARN] init schema diferido:", repr(e))
 
 # Colores por clase (en minúsculas)
@@ -72,42 +102,6 @@ color_map = {
     "lm4": ("bg-green-200",  "text-green-600"),
     "lm5": ("bg-purple-200", "text-purple-600"),
 }
-
-# ─────────────── Helpers de fotos/nombres ─────────────────────────────────────
-def buscar_foto_y_display(clase_lower: str, nombre_param: str):
-    """
-    Devuelve (nombre_archivo, display_name, db_key)
-    - nombre_archivo: fichero encontrado (con extensión), p. ej. "Antton e..jpg"
-    - display_name: base exacta del fichero (tal cual), p. ej. "Antton e."
-    - db_key: clave normalizada para BD (minúsculas), p. ej. "antton e."
-    Si no hay foto, usa "default.jpg" y display del parámetro sin forzar.
-    """
-    carpeta = os.path.join("static", "photos", clase_lower)
-    if not os.path.isdir(carpeta):
-        return "default.jpg", nombre_param, nombre_param.lower()
-
-    # normalizamos la búsqueda por base en minúsculas
-    objetivo = os.path.splitext(nombre_param)[0].lower()
-
-    elegido = None
-    display = None
-    db_key  = objetivo
-
-    for archivo in os.listdir(carpeta):
-        base, ext = os.path.splitext(archivo)
-        if not ext.lower() in (".jpg", ".jpeg", ".png", ".webp"):
-            continue
-        if base.lower() == objetivo:
-            elegido = archivo           # nombre de archivo exacto (con ext)
-            display = base              # base exacta para mostrar (respeta espacios/puntos/mayus)
-            db_key  = base.lower()      # clave estable para BD
-            break
-
-    if elegido is None:
-        # No encontrada: devolvemos default y mostramos el nombre del parámetro tal cual
-        return "default.jpg", nombre_param, objetivo
-
-    return elegido, display, db_key
 
 # ─────────────── Rutas ────────────────────────────────────────────────────────
 @app.route("/")
@@ -120,10 +114,12 @@ def index():
 def mostrar_alumno(clase: str, nombre: str):
     ensure_schema()
 
-    clase_lower = clase.lower()
+    # Decodifica por si viene con %20
+    clase_raw   = unquote(clase).strip()
+    nombre_raw  = unquote(nombre).strip()
 
-    # Resolvemos foto y nombres basados en el fichero REAL
-    nombre_archivo, display_name, nombre_db = buscar_foto_y_display(clase_lower, nombre)
+    clase_lower = clase_raw.lower()
+    key_nombre  = normalize_key(nombre_raw)  # clave robusta (para DB y matching de archivo)
 
     # ─── POST: +1 / -1 ────────────────────────────────────────────────────────
     if request.method == "POST":
@@ -132,27 +128,42 @@ def mostrar_alumno(clase: str, nombre: str):
 
         with closing(get_conn()) as conn, conn, conn.cursor() as cur:
             cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
-                        (clase_lower, nombre_db))
+                        (clase_lower, key_nombre))
             row = cur.fetchone()
             puntos = max((row[0] if row else 0) + delta, 0)  # nunca < 0
 
             if row:
                 cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s",
-                            (puntos, clase_lower, nombre_db))
+                            (puntos, clase_lower, key_nombre))
             else:
                 cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s,%s,%s)",
-                            (clase_lower, nombre_db, puntos))
+                            (clase_lower, key_nombre, puntos))
 
-        # Evitar reenvío de formulario (PRG pattern) y redirigir con el DISPLAY exacto
+        # Evitar reenvío de formulario (PRG pattern)
         return redirect(url_for("mostrar_alumno",
-                                clase=clase_lower, nombre=display_name))
+                                clase=clase_lower, nombre=nombre))
 
     # ─── GET: mostrar ficha ───────────────────────────────────────────────────
     with closing(get_conn()) as conn, conn.cursor() as cur:
         cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
-                    (clase_lower, nombre_db))
+                    (clase_lower, key_nombre))
         row = cur.fetchone()
         puntos = row[0] if row else 0
+
+    # Foto (cualquier extensión) en static/photos/<clase_lower>/
+    carpeta_foto   = os.path.join("static", "photos", clase_lower)
+    nombre_archivo = "default.jpg"
+    display_name   = nombre_raw  # fallback
+
+    if os.path.isdir(carpeta_foto):
+        for archivo in os.listdir(carpeta_foto):
+            stem, ext = os.path.splitext(archivo)
+            if not ext:
+                continue
+            if normalize_key(stem) == key_nombre:
+                nombre_archivo = archivo
+                display_name   = format_display_name(stem)
+                break
 
     bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
     return render_template(
