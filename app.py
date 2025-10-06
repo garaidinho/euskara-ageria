@@ -1,5 +1,5 @@
 # ───────────────────────────────────────────────────────────────────────────────
-#  app.py – Euskara Ageria (versión robusta para Render)
+#  app.py – Euskara Ageria (versión robusta para Render)  [display name fiel al fichero]
 # ───────────────────────────────────────────────────────────────────────────────
 from flask import Flask, render_template, request, redirect, url_for
 import os, time
@@ -73,6 +73,42 @@ color_map = {
     "lm5": ("bg-purple-200", "text-purple-600"),
 }
 
+# ─────────────── Helpers de fotos/nombres ─────────────────────────────────────
+def buscar_foto_y_display(clase_lower: str, nombre_param: str):
+    """
+    Devuelve (nombre_archivo, display_name, db_key)
+    - nombre_archivo: fichero encontrado (con extensión), p. ej. "Antton e..jpg"
+    - display_name: base exacta del fichero (tal cual), p. ej. "Antton e."
+    - db_key: clave normalizada para BD (minúsculas), p. ej. "antton e."
+    Si no hay foto, usa "default.jpg" y display del parámetro sin forzar.
+    """
+    carpeta = os.path.join("static", "photos", clase_lower)
+    if not os.path.isdir(carpeta):
+        return "default.jpg", nombre_param, nombre_param.lower()
+
+    # normalizamos la búsqueda por base en minúsculas
+    objetivo = os.path.splitext(nombre_param)[0].lower()
+
+    elegido = None
+    display = None
+    db_key  = objetivo
+
+    for archivo in os.listdir(carpeta):
+        base, ext = os.path.splitext(archivo)
+        if not ext.lower() in (".jpg", ".jpeg", ".png", ".webp"):
+            continue
+        if base.lower() == objetivo:
+            elegido = archivo           # nombre de archivo exacto (con ext)
+            display = base              # base exacta para mostrar (respeta espacios/puntos/mayus)
+            db_key  = base.lower()      # clave estable para BD
+            break
+
+    if elegido is None:
+        # No encontrada: devolvemos default y mostramos el nombre del parámetro tal cual
+        return "default.jpg", nombre_param, objetivo
+
+    return elegido, display, db_key
+
 # ─────────────── Rutas ────────────────────────────────────────────────────────
 @app.route("/")
 def index():
@@ -84,8 +120,10 @@ def index():
 def mostrar_alumno(clase: str, nombre: str):
     ensure_schema()
 
-    clase_lower  = clase.lower()
-    nombre_lower = nombre.lower()
+    clase_lower = clase.lower()
+
+    # Resolvemos foto y nombres basados en el fichero REAL
+    nombre_archivo, display_name, nombre_db = buscar_foto_y_display(clase_lower, nombre)
 
     # ─── POST: +1 / -1 ────────────────────────────────────────────────────────
     if request.method == "POST":
@@ -94,41 +132,32 @@ def mostrar_alumno(clase: str, nombre: str):
 
         with closing(get_conn()) as conn, conn, conn.cursor() as cur:
             cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
-                        (clase_lower, nombre_lower))
+                        (clase_lower, nombre_db))
             row = cur.fetchone()
             puntos = max((row[0] if row else 0) + delta, 0)  # nunca < 0
 
             if row:
                 cur.execute("UPDATE puntos SET puntos=%s WHERE clase=%s AND nombre=%s",
-                            (puntos, clase_lower, nombre_lower))
+                            (puntos, clase_lower, nombre_db))
             else:
                 cur.execute("INSERT INTO puntos (clase, nombre, puntos) VALUES (%s,%s,%s)",
-                            (clase_lower, nombre_lower, puntos))
+                            (clase_lower, nombre_db, puntos))
 
-        # Evitar reenvío de formulario (PRG pattern)
+        # Evitar reenvío de formulario (PRG pattern) y redirigir con el DISPLAY exacto
         return redirect(url_for("mostrar_alumno",
-                                clase=clase_lower, nombre=nombre_lower))
+                                clase=clase_lower, nombre=display_name))
 
     # ─── GET: mostrar ficha ───────────────────────────────────────────────────
     with closing(get_conn()) as conn, conn.cursor() as cur:
         cur.execute("SELECT puntos FROM puntos WHERE clase=%s AND nombre=%s",
-                    (clase_lower, nombre_lower))
+                    (clase_lower, nombre_db))
         row = cur.fetchone()
         puntos = row[0] if row else 0
-
-    # Foto (cualquier extensión) en static/photos/<clase_lower>/
-    carpeta_foto   = os.path.join("static", "photos", clase_lower)
-    nombre_archivo = "default.jpg"
-    if os.path.isdir(carpeta_foto):
-        for archivo in os.listdir(carpeta_foto):
-            if os.path.splitext(archivo)[0].lower() == nombre_lower:
-                nombre_archivo = archivo
-                break
 
     bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
     return render_template(
         "alumno.html",
-        alumno=(nombre.capitalize(), nombre_archivo, clase_lower, puntos),
+        alumno=(display_name, nombre_archivo, clase_lower, puntos),
         bg_cls=bg_cls,
         txt_cls=txt_cls,
     )

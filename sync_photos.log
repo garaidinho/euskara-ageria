@@ -1,0 +1,72 @@
+
+====================================================
+[24/09/2025 10:59:02,15] INICIO sync_photos.bat 
+Raiz: C:\Users\garai\Desktop\euskara_ageria\ 
+====================================================
+[OK] git version 2.49.0.windows.1 
+[OK] Repo: C:/Users/garai/Desktop/euskara_ageria 
+D  static/photos/lm2/Amets.jpg
+A  static/photos/lm2/amane.jpg
+A  static/photos/lm2/cerice.jpg
+[INFO] Preparando altas/cambios de imagenes... 
+[INFO] Registrando borrados/renombres... 
+[INFO] Commit: "Actualiza fotos (24/09/2025 10:59:05,78)" 
+[main f071957] Actualiza fotos (24/09/2025 10:59:05,78)
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 static/photos/lm2/Amets.jpg
+ create mode 100644 static/photos/lm2/amane.jpg
+ create mode 100644 static/photos/lm2/cerice.jpg
+[INFO] git pull --rebase --autostash... 
+From https://github.com/garaidinho/euskara-ageria
+ * branch            main       -> FETCH_HEAD
+Current branch main is up to date.
+
+====================================================
+[24/09/2025 10:59:11,75] INICIO sync_photos.bat 
+Raiz: C:\Users\garai\Desktop\euskara_ageria\ 
+====================================================
+[OK] git version 2.49.0.windows.1 
+[OK] Repo: C:/Users/garai/Desktop/euskara_ageria 
+[INFO] Preparando altas/cambios de imagenes... 
+[INFO] Registrando borrados/renombres... 
+[INFO] No hay cambios staged tras preparar. 
+[INFO] git pull --rebase --autostash... 
+From https://github.com/garaidinho/euskara-ageria
+ * branch            main       -> FETCH_HEAD
+Current branch main is up to date.
+
+====================================================
+[24/09/2025 10:59:23,44] INICIO sync_photos.bat 
+Raiz: C:\Users\garai\Desktop\euskara_ageria\ 
+====================================================
+[OK] git version 2.49.0.windows.1 
+[OK] Repo: C:/Users/garai/Desktop/euskara_ageria 
+[INFO] Preparando altas/cambios de imagenes... 
+[INFO] Registrando borrados/renombres... 
+[INFO] No hay cambios staged tras preparar. 
+[INFO] git pull --rebase --autostash... 
+From https://github.com/garaidinho/euskara-ageria
+ * branch            main       -> FETCH_HEAD
+Current branch main is up to date.
+
+====================================================
+[24/09/2025 11:01:53,34] INICIO sync_photos.bat 
+Raiz: C:\Users\garai\Desktop\euskara_ageria\ 
+====================================================
+[OK] git version 2.49.0.windows.1 
+[OK] Repo: C:/Users/garai/Desktop/euskara_ageria 
+[INFO] Preparando altas/cambios de imagenes... 
+[INFO] Registrando borrados/renombres... 
+[INFO] No hay cambios staged tras preparar. 
+[INFO] git pull --rebase --autostash... 
+From https://github.com/garaidinho/euskara-ageria
+ * branch            main       -> FETCH_HEAD
+Current branch main is up to date.
+
+====================================================
+[24/09/2025 11:18:35,36] INICIO update_photos.bat 
+Raiz: C:\Users\garai\Desktop\euskara_ageria\ 
+====================================================
+[OK] git version 2.49.0.windows.1 
+[OK] Repo: C:/Users/garai/Desktop/euskara_ageria 
+[INFO] Preparando imagenes... 
