@@ -18,6 +18,8 @@
 @keyframes bounce{0%,100%{transform:translateX(-50%) scale(1)}
                   50%     {transform:translateX(-50%) scale(1.15)}}
 .nombre span{display:inline-block;opacity:0;animation:pop .35s forwards}
+/* ancho visual para espacios dentro del nombre animado */
+.nombre span.space{ width:.6em }
 
 /*──────── Corazón ───────────────*/
 .heart{position:absolute;width:230px;height:230px;transform:rotate(-45deg);opacity:.8;z-index:20}
@@ -109,9 +111,18 @@
 </div>
 
 <script>
-/* --- Nombre pop + rebote --- */
-const n=`{{ alumno[0] }}`, nEl=document.getElementById('nombre');
-nEl.innerHTML=[...n].map((c,i)=>`<span style="animation-delay:${.4+i*.08}s">${c}</span>`).join('');
+/* --- Nombre pop + rebote (conservando espacios) --- */
+const n = `{{ alumno[0] }}`;
+const nEl = document.getElementById('nombre');
+nEl.innerHTML = [...n].map((c,i)=>{
+  const delay = 0.4 + i*0.08;
+  if (c === ' ') {
+    return `<span class="space" style="animation-delay:${delay}s">&nbsp;</span>`;
+  }
+  // escapamos < y > por si acaso
+  const safe = c.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<span style="animation-delay:${delay}s">${safe}</span>`;
+}).join('');
 nEl.classList.remove('opacity-0');
 nEl.addEventListener('animationend',e=>{
   if(e.animationName==='pop') nEl.style.animation='bounce 1.6s ease-in-out infinite';
