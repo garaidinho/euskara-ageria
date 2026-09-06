@@ -8,3 +8,5 @@ venv/
 
 # Variables de entorno reales
 .env
+.DS_Store
+static/photos/archive_2025_2026/
