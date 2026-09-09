@@ -551,6 +551,50 @@
     }
   }
 
+
+  /* V20: intro ondoko reveal sekuentzia */
+  @keyframes pointsBigPop {
+    0%   { opacity:0; transform:scale(.68) translateY(18px); }
+    55%  { opacity:1; transform:scale(1.10) translateY(-3px); }
+    72%  { opacity:1; transform:scale(.97) translateY(0); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  @keyframes medalBigPop {
+    0%   { opacity:0; transform:scale(.52) translateY(16px); }
+    58%  { opacity:1; transform:scale(1.16) translateY(-2px); }
+    78%  { opacity:1; transform:scale(.95) translateY(0); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  body.intro-pop-pending .points-card{
+    opacity:0!important;
+    transform:scale(.68) translateY(18px)!important;
+  }
+
+  body.intro-pop-pending .medal-grid .medal-item{
+    opacity:0!important;
+    transform:scale(.52) translateY(16px)!important;
+  }
+
+  body.intro-pop-go .points-card{
+    animation:pointsBigPop .62s cubic-bezier(.2,.9,.2,1.08) forwards!important;
+    will-change:transform, opacity;
+  }
+
+  body.intro-pop-go .medal-grid .medal-item{
+    animation:medalBigPop .52s cubic-bezier(.2,.9,.2,1.08) forwards!important;
+    will-change:transform, opacity;
+  }
+
+  body.intro-pop-go .medal-grid .medal-item:nth-child(1){ animation-delay:.82s!important; }
+  body.intro-pop-go .medal-grid .medal-item:nth-child(2){ animation-delay:1.03s!important; }
+  body.intro-pop-go .medal-grid .medal-item:nth-child(3){ animation-delay:1.24s!important; }
+  body.intro-pop-go .medal-grid .medal-item:nth-child(4){ animation-delay:1.45s!important; }
+  body.intro-pop-go .medal-grid .medal-item:nth-child(5){ animation-delay:1.66s!important; }
+
+  /* Behin agertuta, badge-shell barruko pulsua V19tik mantentzen da */
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -733,6 +777,42 @@
 
   setTimeout(scheduleFit, 250);
   setTimeout(scheduleFit, 900);
+})();
+</script>
+
+
+<script>
+(() => {
+  function launchIntroPopSequence(){
+    const body = document.body;
+    const points = document.querySelector('.points-card');
+    const medals = document.querySelectorAll('.medal-grid .medal-item');
+    if (!body || !points || !medals.length) return;
+
+    if (body.dataset.introPopDone === '1') return;
+
+    body.classList.add('intro-pop-pending');
+
+    // "Woooow" sarrera igaro dadin denbora ematen diogu.
+    const introDelay = 1350;
+
+    setTimeout(() => {
+      body.classList.remove('intro-pop-pending');
+      body.classList.add('intro-pop-go');
+      body.dataset.introPopDone = '1';
+    }, introDelay);
+  }
+
+  document.addEventListener('DOMContentLoaded', launchIntroPopSequence);
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      // cachetik itzultzean ere berriz egin dezala
+      document.body.dataset.introPopDone = '';
+      document.body.classList.remove('intro-pop-go');
+      document.body.classList.remove('intro-pop-pending');
+      launchIntroPopSequence();
+    }
+  });
 })();
 </script>
 
