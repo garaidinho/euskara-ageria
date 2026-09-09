@@ -3,7 +3,7 @@
 # - Ikaslearen profila: irakurketa bakarrik (puntuak + medailak)
 # - Irakasleen plataforma: gelaka, puntuak aldatu, absentzia markatu, historikoa
 # ───────────────────────────────────────────────────────────────────────────────
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os, time, re, unicodedata
 from datetime import date, timedelta
 from contextlib import closing
@@ -671,6 +671,19 @@ def irakasle_ikaslea(clase: str, nombre: str):
         astea=astea,
         astea_amaiera=astea_amaiera,
     )
+
+
+
+@app.route("/service-worker.js")
+def service_worker():
+    response = send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "service-worker.js",
+        mimetype="application/javascript",
+    )
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
 
 
 @app.route("/ping")

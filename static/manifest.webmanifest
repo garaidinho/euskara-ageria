@@ -1,0 +1,26 @@
+{
+  "id": "/irakasle",
+  "name": "Euskal Ageria Kimua",
+  "short_name": "Euskal Ageria Kimua",
+  "description": "Kimua Ikastolako Euskara Ageriaren irakasleen panela",
+  "lang": "eu",
+  "start_url": "/irakasle",
+  "scope": "/irakasle",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#18181b",
+  "icons": [
+    {
+      "src": "/static/icons/kimua-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/kimua-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

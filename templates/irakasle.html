@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Irakasleak · Euskara Ageria</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="theme-color" content="#18181b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Euskal Ageria Kimua">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/icons/kimua-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -107,5 +114,13 @@
     <span class="h-1.5 w-1.5 rounded-full bg-[#2e7d32]"></span>
   </div>
 </main>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js', {scope: '/irakasle'})
+      .catch((err) => console.warn('Service worker:', err));
+  });
+}
+</script>
 </body>
 </html>
