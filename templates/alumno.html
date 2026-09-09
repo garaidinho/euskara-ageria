@@ -2,7 +2,7 @@
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
-<title>{{ alumno[0] }} · Euskal Ageria</title>
+<title>{{ alumno[0] }} · Euskara Ageria</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
@@ -440,6 +440,20 @@
     }
   }
 
+
+  /* V18: Euskara Ageria + helburua zentratuta */
+  .goal-head{
+    justify-content:center!important;
+    align-items:baseline!important;
+    text-align:center!important;
+  }
+  .goal-title{
+    text-align:center!important;
+  }
+  .goal-target{
+    justify-content:center!important;
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -485,7 +499,7 @@
     <img src="{{ url_for('static', filename='euskaraz.jpeg') }}" class="watermark absolute inset-0 m-auto h-[74%] pointer-events-none" alt="">
 
     <section class="profile-content relative z-10 px-4 sm:px-6 pt-7 sm:pt-8 pb-6 text-center">
-      <div class="profile-kicker inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-black uppercase tracking-[.24em] text-zinc-500 shadow-sm">Euskal Ageria</div>
+      <div class="profile-kicker inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-black uppercase tracking-[.24em] text-zinc-500 shadow-sm">Euskara Ageria</div>
       <h1 class="nombre {{ txt_cls }} mt-3 text-[2.45rem] sm:text-[3.25rem]">{{ alumno[0] }}</h1>
       <div class="profile-class mt-2 flex justify-center">
         <span class="rounded-full bg-white/80 px-3 py-1 text-xs font-black text-zinc-600 uppercase shadow-sm">{{ alumno[2] }}</span>
