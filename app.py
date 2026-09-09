@@ -317,9 +317,50 @@ def mostrar_alumno(clase: str, nombre: str):
 
 
 # ───────────────────────────── IRAKASLE PLATAFORMA ────────────────────────────
+def _ajax_request() -> bool:
+    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+
+def ensure_students_batch(cur, rows):
+    """Gela bateko ikasleak SQL bakarrean sortzen ditu falta badira."""
+    if not rows:
+        return
+    placeholders = []
+    params = []
+    for clase, key in rows:
+        placeholders.append("(%s,%s,%s,%s)")
+        params.extend([clase, key, START_POINTS, CURRENT_TERM])
+    cur.execute(
+        """
+        INSERT INTO ikasle_egoera (clase, nombre, puntuak, epea)
+        VALUES """ + ",".join(placeholders) + """
+        ON CONFLICT (clase, nombre) DO NOTHING
+        """,
+        params,
+    )
+
+
+def weekly_stats_for_student(cur, clase: str, key: str, astea: date):
+    amaiera = astea + timedelta(days=7)
+    cur.execute(
+        """
+        SELECT
+            COALESCE(SUM(delta), 0)::int,
+            COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0)::int,
+            COALESCE(SUM(CASE WHEN delta < 0 THEN -delta ELSE 0 END), 0)::int
+        FROM puntu_historia
+        WHERE clase=%s AND nombre=%s
+          AND sortua >= %s AND sortua < %s
+        """,
+        (clase, key, astea, amaiera),
+    )
+    row = cur.fetchone() or (0, 0, 0)
+    return int(row[0]), int(row[1]), int(row[2])
+
+
 @app.route("/irakasle")
 def irakasle_index():
-    initialize_all_students()
+    # Ez dugu datu-basea ukitzen: hasierako orria berehala kargatu behar da.
     gelak_view = []
     for key, g in GELAK.items():
         kop = sum(len(nombres) for _, nombres in g["taldeak"])
@@ -334,42 +375,101 @@ def irakasle_gela(gela_key: str):
     if not gela:
         return "Gela ez da existitzen", 404
 
-    initialize_all_students()
     astea = current_week_start()
+    astea_amaiera = astea + timedelta(days=6)
     taldeak_view = []
 
-    with closing(get_conn()) as conn, conn.cursor() as cur:
-        for clase, nombres in gela["taldeak"]:
-            ikasleak = []
-            for nombre in nombres:
-                key = normalize_key(nombre)
-                cur.execute(
-                    "SELECT puntuak FROM ikasle_egoera WHERE clase=%s AND nombre=%s",
-                    (clase.lower(), key),
-                )
-                row = cur.fetchone()
-                puntuak = row[0] if row else START_POINTS
-                cur.execute(
-                    "SELECT 1 FROM asteko_absentzia WHERE clase=%s AND nombre=%s AND astea=%s",
-                    (clase.lower(), key, astea),
-                )
-                absentzia = cur.fetchone() is not None
-                ikasleak.append({
-                    "clase": clase.lower(),
-                    "clase_label": clase.upper(),
-                    "nombre": nombre,
-                    "display": format_display_name(nombre),
-                    "foto": photo_for(clase, nombre),
-                    "puntuak": puntuak,
-                    "absentzia": absentzia,
-                })
-            taldeak_view.append((clase.upper(), ikasleak))
+    # Lehen 100+ SQL kontsulta egiten ziren gela bat zabaltzean.
+    # Orain: batch INSERT + 3 SELECT = 4 SQL kontsulta nagusi.
+    wanted = []
+    klaseak = []
+    for clase, nombres in gela["taldeak"]:
+        c = clase.lower()
+        klaseak.append(c)
+        for nombre in nombres:
+            wanted.append((c, normalize_key(nombre)))
+
+    with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+        ensure_students_batch(cur, wanted)
+
+        cur.execute(
+            "SELECT clase, nombre, puntuak FROM ikasle_egoera WHERE clase = ANY(%s)",
+            (klaseak,),
+        )
+        state_map = {(c, n): int(p) for c, n, p in cur.fetchall()}
+
+        cur.execute(
+            """
+            SELECT
+                clase,
+                nombre,
+                COALESCE(SUM(delta), 0)::int AS net,
+                COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0)::int AS plus,
+                COALESCE(SUM(CASE WHEN delta < 0 THEN -delta ELSE 0 END), 0)::int AS minus
+            FROM puntu_historia
+            WHERE clase = ANY(%s)
+              AND sortua >= %s AND sortua < %s
+            GROUP BY clase, nombre
+            """,
+            (klaseak, astea, astea + timedelta(days=7)),
+        )
+        week_map = {
+            (c, n): (int(net), int(plus), int(minus))
+            for c, n, net, plus, minus in cur.fetchall()
+        }
+
+        cur.execute(
+            """
+            SELECT clase, nombre
+            FROM asteko_absentzia
+            WHERE clase = ANY(%s) AND astea=%s
+            """,
+            (klaseak, astea),
+        )
+        absent_set = {(c, n) for c, n in cur.fetchall()}
+
+    aste_plus_total = 0
+    aste_minus_total = 0
+    absentzia_kop = 0
+
+    for clase, nombres in gela["taldeak"]:
+        c = clase.lower()
+        ikasleak = []
+        for nombre in nombres:
+            key = normalize_key(nombre)
+            puntuak = state_map.get((c, key), START_POINTS)
+            net, plus, minus = week_map.get((c, key), (0, 0, 0))
+            absentzia = (c, key) in absent_set
+
+            aste_plus_total += plus
+            aste_minus_total += minus
+            absentzia_kop += 1 if absentzia else 0
+
+            ikasleak.append({
+                "clase": c,
+                "clase_label": clase.upper(),
+                "nombre": nombre,
+                "display": format_display_name(nombre),
+                "foto": photo_for(clase, nombre),
+                "puntuak": puntuak,
+                "absentzia": absentzia,
+                "asteko_net": net,
+                "asteko_plus": plus,
+                "asteko_minus": minus,
+            })
+        taldeak_view.append((clase.upper(), ikasleak))
 
     return render_template(
         "gela.html",
         gela_key=gela_key,
         gela_izena=gela["izena"],
         taldeak=taldeak_view,
+        astea=astea,
+        astea_amaiera=astea_amaiera,
+        ikasle_kop=sum(len(n) for _, n in gela["taldeak"]),
+        aste_plus_total=aste_plus_total,
+        aste_minus_total=aste_minus_total,
+        absentzia_kop=absentzia_kop,
     )
 
 
@@ -380,17 +480,24 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
         delta = int(request.form.get("delta", "0"))
     except ValueError:
         delta = 0
-    delta = max(min(delta, 20), -20)  # akats handiak saihesteko segurtasun-muga teknikoa
+    delta = max(min(delta, 20), -20)
 
-    if delta != 0:
-        clase_lower = clase.lower()
-        with closing(get_conn()) as conn, conn, conn.cursor() as cur:
-            key = ensure_student(cur, clase_lower, nombre)
-            cur.execute(
-                "SELECT puntuak, epea FROM ikasle_egoera WHERE clase=%s AND nombre=%s FOR UPDATE",
-                (clase_lower, key),
-            )
-            puntuak, epea = cur.fetchone()
+    clase_lower = clase.lower()
+    astea = current_week_start()
+    berria = START_POINTS
+    medaila_berria = False
+    aste_net = aste_plus = aste_minus = 0
+
+    with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+        key = ensure_student(cur, clase_lower, nombre)
+        cur.execute(
+            "SELECT puntuak, epea FROM ikasle_egoera WHERE clase=%s AND nombre=%s FOR UPDATE",
+            (clase_lower, key),
+        )
+        puntuak, epea = cur.fetchone()
+        berria = puntuak
+
+        if delta != 0:
             berria = max(puntuak + delta, 0)
             benetako_delta = berria - puntuak
             if benetako_delta:
@@ -402,7 +509,19 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
                     "INSERT INTO puntu_historia (clase, nombre, epea, delta, mota) VALUES (%s,%s,%s,%s,'eskuz')",
                     (clase_lower, key, epea, benetako_delta),
                 )
-                maybe_award_medal(cur, clase_lower, key, epea, berria)
+                medaila_berria = maybe_award_medal(cur, clase_lower, key, epea, berria)
+
+        aste_net, aste_plus, aste_minus = weekly_stats_for_student(cur, clase_lower, key, astea)
+
+    if _ajax_request():
+        return {
+            "ok": True,
+            "puntuak": int(berria),
+            "asteko_net": aste_net,
+            "asteko_plus": aste_plus,
+            "asteko_minus": aste_minus,
+            "medaila_berria": bool(medaila_berria),
+        }
 
     next_url = request.form.get("next")
     return redirect(next_url or url_for("irakasle_index"))
@@ -413,6 +532,8 @@ def irakasle_absentzia(clase: str, nombre: str):
     ensure_schema()
     clase_lower = clase.lower()
     astea = current_week_start()
+    active = False
+
     with closing(get_conn()) as conn, conn, conn.cursor() as cur:
         key = ensure_student(cur, clase_lower, nombre)
         cur.execute(
@@ -424,11 +545,16 @@ def irakasle_absentzia(clase: str, nombre: str):
                 "DELETE FROM asteko_absentzia WHERE clase=%s AND nombre=%s AND astea=%s",
                 (clase_lower, key, astea),
             )
+            active = False
         else:
             cur.execute(
                 "INSERT INTO asteko_absentzia (clase, nombre, astea) VALUES (%s,%s,%s)",
                 (clase_lower, key, astea),
             )
+            active = True
+
+    if _ajax_request():
+        return {"ok": True, "absentzia": active}
 
     next_url = request.form.get("next")
     return redirect(next_url or url_for("irakasle_index"))
@@ -440,6 +566,7 @@ def irakasle_ikaslea(clase: str, nombre: str):
     clase_lower = clase.lower()
     key, puntuak, epea, medailak = student_state(clase_lower, nombre)
     astea = current_week_start()
+    astea_amaiera = astea + timedelta(days=6)
 
     with closing(get_conn()) as conn, conn.cursor() as cur:
         cur.execute(
@@ -458,6 +585,7 @@ def irakasle_ikaslea(clase: str, nombre: str):
             (clase_lower, key, astea),
         )
         absentzia = cur.fetchone() is not None
+        aste_net, aste_plus, aste_minus = weekly_stats_for_student(cur, clase_lower, key, astea)
 
     return render_template(
         "irakasle_ikaslea.html",
@@ -470,6 +598,11 @@ def irakasle_ikaslea(clase: str, nombre: str):
         medailak=medailak,
         historia=historia,
         absentzia=absentzia,
+        asteko_net=aste_net,
+        asteko_plus=aste_plus,
+        asteko_minus=aste_minus,
+        astea=astea,
+        astea_amaiera=astea_amaiera,
     )
 
 

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ display_name }} · Irakaslea</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
+  .brand-line{background:linear-gradient(90deg,#c62828 0 33.33%,#fff 33.33% 66.66%,#2e7d32 66.66%)}
+  .week-pill{display:inline-flex;align-items:center;border-radius:999px;padding:.45rem .75rem;font-size:.78rem;font-weight:900}
+  .positive{background:#dcfce7;color:#166534}.negative{background:#ffe4e6;color:#9f1239}.neutral{background:#f4f4f5;color:#71717a}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="brand-line h-2"></div>
+<main class="mx-auto max-w-2xl px-4 py-5 sm:py-7">
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <button onclick="history.back()" class="rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 font-black shadow-sm">← Itzuli</button>
+    <a href="{{ url_for('mostrar_alumno', clase=clase, nombre=nombre) }}" target="_blank" class="rounded-2xl bg-zinc-950 px-4 py-2.5 text-sm font-black text-white">Euskal Ageria ↗</a>
+  </div>
+
+  <section class="rounded-[1.8rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+    <div class="flex items-center gap-4">
+      <img src="{{ url_for('static', filename='photos/' ~ clase ~ '/' ~ foto) }}" class="h-24 w-24 rounded-3xl object-cover shadow-md" alt="{{ display_name }}">
+      <div class="min-w-0 flex-1">
+        <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-400">{{ clase|upper }} · {{ epea }}. epea</div>
+        <h1 class="mt-1 truncate text-3xl font-black text-zinc-950">{{ display_name }}</h1>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <span class="rounded-2xl bg-zinc-950 px-4 py-2 text-lg font-black text-white"><span id="detailPoints">{{ puntuak }}</span> puntu</span>
+          <span id="detailWeek" class="week-pill {{ 'positive' if asteko_net > 0 else 'negative' if asteko_net < 0 else 'neutral' }}">Aste honetan {{ '+' if asteko_net > 0 else '' }}{{ asteko_net }}</span>
+        </div>
+        <div class="mt-2 text-xs font-black text-zinc-400">{{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }} · <span id="detailBreakPlus" class="text-emerald-700">+{{ asteko_plus }}</span> · <span id="detailBreakMinus" class="text-rose-700">−{{ asteko_minus }}</span></div>
+      </div>
+    </div>
+
+    <form id="detailScoreForm" method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=clase, nombre=nombre) }}" class="mt-5 grid grid-cols-2 gap-2">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button name="delta" value="-1" class="rounded-2xl border border-rose-200 bg-rose-50 py-3 text-lg font-black text-rose-700">−1</button>
+      <button name="delta" value="1" class="rounded-2xl border border-emerald-200 bg-emerald-50 py-3 text-lg font-black text-emerald-700">+1</button>
+    </form>
+
+    <form id="detailAbsenceForm" method="post" action="{{ url_for('irakasle_absentzia', clase=clase, nombre=nombre) }}" class="mt-2">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button id="detailAbsence" class="w-full rounded-2xl border px-4 py-3 text-sm font-black {{ 'border-amber-400 bg-amber-50 text-amber-800' if absentzia else 'border-zinc-200 bg-zinc-50 text-zinc-500' }}">{% if absentzia %}✓ Absentzia aste honetan{% else %}Absentzia aste honetan{% endif %}</button>
+    </form>
+  </section>
+
+  <section class="mt-4 rounded-[1.8rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+    <div class="flex items-end justify-between gap-3">
+      <div>
+        <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-400">Jarraipena</div>
+        <h2 class="mt-1 text-2xl font-black text-zinc-950">Puntuen historikoa</h2>
+      </div>
+      <div class="text-xs font-black text-zinc-400">azken 50</div>
+    </div>
+
+    {% if historia %}
+    <div class="mt-5 space-y-2">
+      {% for delta, mota, sortua in historia %}
+      <div class="flex items-center justify-between gap-3 rounded-2xl bg-zinc-50 px-4 py-3">
+        <div class="flex items-center gap-3">
+          <div class="grid h-10 w-10 place-items-center rounded-xl {{ 'bg-emerald-100 text-emerald-700' if delta > 0 else 'bg-rose-100 text-rose-700' }} font-black">{{ '+' if delta > 0 else '' }}{{ delta }}</div>
+          <div>
+            <div class="text-sm font-black text-zinc-700">{{ 'Puntuak gehitu' if delta > 0 else 'Puntuak kendu' }}</div>
+            <div class="text-[10px] font-black uppercase tracking-wider text-zinc-400">{{ mota }}</div>
+          </div>
+        </div>
+        <div class="text-right text-xs font-bold text-zinc-400">{{ sortua.strftime('%d/%m') }}<br>{{ sortua.strftime('%H:%M') }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <div class="mt-5 rounded-2xl bg-zinc-50 p-5 text-center text-sm font-bold text-zinc-400">Oraindik ez dago mugimendurik.</div>
+    {% endif %}
+  </section>
+</main>
+
+<div id="detailToast" class="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 translate-y-3 rounded-2xl bg-zinc-950 px-4 py-3 text-sm font-black text-white opacity-0 shadow-xl transition"></div>
+<script>
+(() => {
+  const toast=document.getElementById('detailToast'); let t;
+  const say=m=>{clearTimeout(t);toast.textContent=m;toast.classList.remove('opacity-0','translate-y-3');t=setTimeout(()=>toast.classList.add('opacity-0','translate-y-3'),1400)};
+  async function post(url,data={}){const body=new URLSearchParams();Object.entries(data).forEach(([k,v])=>body.set(k,v));const r=await fetch(url,{method:'POST',body,headers:{'X-Requested-With':'XMLHttpRequest'}});if(!r.ok)throw new Error(r.status);return r.json()}
+  const form=document.getElementById('detailScoreForm');
+  form.addEventListener('submit',async e=>{e.preventDefault();if(!e.submitter)return;try{const d=await post(form.action,{delta:e.submitter.value});document.getElementById('detailPoints').textContent=d.puntuak;const w=document.getElementById('detailWeek');w.textContent='Aste honetan '+(d.asteko_net>0?'+':'')+d.asteko_net;w.className='week-pill '+(d.asteko_net>0?'positive':d.asteko_net<0?'negative':'neutral');document.getElementById('detailBreakPlus').textContent='+'+d.asteko_plus;document.getElementById('detailBreakMinus').textContent='−'+d.asteko_minus;say(d.medaila_berria?'🏅 Medaila desblokeatuta!':'Eguneratua')}catch(err){say('Errorea')}});
+  const af=document.getElementById('detailAbsenceForm');const ab=document.getElementById('detailAbsence');
+  af.addEventListener('submit',async e=>{e.preventDefault();try{const d=await post(af.action);ab.textContent=d.absentzia?'✓ Absentzia aste honetan':'Absentzia aste honetan';ab.className='w-full rounded-2xl border px-4 py-3 text-sm font-black '+(d.absentzia?'border-amber-400 bg-amber-50 text-amber-800':'border-zinc-200 bg-zinc-50 text-zinc-500');say('Absentzia eguneratua')}catch(err){say('Errorea')}});
+})();
+</script>
+</body>
+</html>
