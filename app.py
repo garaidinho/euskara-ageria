@@ -3,7 +3,7 @@
 # - Ikaslearen profila: irakurketa bakarrik (puntuak + medailak)
 # - Irakasleen plataforma: gelaka, puntuak aldatu, absentzia markatu, historikoa
 # ───────────────────────────────────────────────────────────────────────────────
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, abort
 import os, time, re, unicodedata
 from functools import lru_cache
 from datetime import date, timedelta
@@ -98,6 +98,15 @@ def all_students():
                 seen.add(key)
                 out.append((clase.lower(), nombre))
     return out
+
+
+def is_official_student(clase: str, nombre_raw: str) -> bool:
+    # GELAK zerrenda ofizialean dagoen ikaslea bakarrik onartu.
+    wanted = (clase.lower(), normalize_key(nombre_raw))
+    return any(
+        (c.lower(), normalize_key(n)) == wanted
+        for c, n in all_students()
+    )
 
 
 def _db_url() -> str:
@@ -329,6 +338,12 @@ def index():
 @app.route("/<clase>/<nombre>", methods=["GET"])
 def mostrar_alumno(clase: str, nombre: str):
     clase_lower = clase.lower()
+
+    # Ez utzi kanpoko URL/probe batek DBn "ikasle" faltsurik sortzen.
+    # Adib.: /.well-known/assetlinks.json
+    if not is_official_student(clase_lower, nombre):
+        abort(404)
+
     key, puntuak, epea, medailak = student_state(clase_lower, nombre)
     new_medal = consume_pending_medal_animation(clase_lower, key, epea)
     display_name = format_display_name(nombre)
