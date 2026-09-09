@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>{{ alumno[0] }} · Euskal Ageria</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -158,6 +158,147 @@
     .shape-5.badge-shell{width:60px;height:60px}
     .medal-grid{gap:.2rem}
   }
+
+  /* ───────── V15 · Mugikorrean profil osoa pantaila bakarrean ───────── */
+  .profile-fit-shell{
+    width:100%;
+    max-width:28rem;
+    display:flex;
+    justify-content:center;
+    transform-origin:top center;
+    will-change:transform;
+  }
+  .profile-fit-shell > .page{width:100%;max-width:28rem}
+
+  @media (max-width:600px){
+    html,body{
+      width:100%;
+      height:100%;
+      overscroll-behavior:none;
+    }
+    body{
+      min-height:100dvh!important;
+      height:100dvh!important;
+      overflow:hidden!important;
+      align-items:flex-start!important;
+      justify-content:center!important;
+      padding:4px!important;
+    }
+    .profile-fit-shell{
+      flex:none;
+      width:calc(100vw - 8px);
+      max-width:28rem;
+      margin:0 auto;
+    }
+    .profile-fit-shell > .page{
+      width:100%;
+      border-radius:1.55rem!important;
+    }
+
+    .profile-content{
+      padding:.62rem .9rem .55rem!important;
+    }
+    .profile-kicker{
+      padding:.2rem .65rem!important;
+      font-size:9px!important;
+      letter-spacing:.21em!important;
+    }
+    .nombre{
+      margin-top:.35rem!important;
+      font-size:2.15rem!important;
+    }
+    .profile-class{margin-top:.25rem!important}
+    .profile-class span{
+      padding:.2rem .65rem!important;
+      font-size:.65rem!important;
+    }
+
+    .photo-zone{margin-top:.55rem!important}
+    .photo-wrap{width:146px!important;height:146px!important}
+    .photo-ring{inset:14px!important}
+    .photo-img{
+      inset:24px!important;
+      width:calc(100% - 48px)!important;
+      height:calc(100% - 48px)!important;
+    }
+    .orbit-green{inset:6px!important}
+    .orbit-white{inset:12px!important}
+    .orbit-red span{width:12px!important;height:12px!important}
+    .orbit-green span{width:10px!important;height:10px!important}
+    .orbit-white span{width:9px!important;height:9px!important}
+
+    .term-marker{
+      margin-top:.42rem!important;
+      gap:.5rem!important;
+      font-size:.76rem!important;
+    }
+    .term-marker::before,.term-marker::after{
+      width:28px!important;
+      height:3px!important;
+    }
+
+    .points-card{
+      margin-top:.48rem!important;
+      gap:.22rem!important;
+      padding:.52rem 1.7rem!important;
+      border-radius:1.3rem!important;
+    }
+    .points-card > .relative:first-of-type{
+      font-size:9px!important;
+      letter-spacing:.2em!important;
+    }
+    .points-card .relative.flex span:first-child{
+      font-size:2.65rem!important;
+    }
+    .points-card .relative.flex span:last-child{
+      padding-bottom:.15rem!important;
+      font-size:.92rem!important;
+    }
+
+    .goal-zone{margin-top:.52rem!important}
+    .goal-card{
+      min-width:0!important;
+      max-width:315px!important;
+      padding:.48rem 1.15rem!important;
+      border-radius:1.15rem!important;
+    }
+    .goal-card > div:first-child{font-size:.65rem!important}
+    .goal-card > .mt-1{margin-top:.15rem!important}
+    .goal-number{font-size:1.7rem!important}
+    .goal-card .text-base{font-size:.82rem!important}
+    .progress-wrap{margin-top:.3rem!important}
+    .progress-track{height:8px!important}
+    .progress-copy{
+      margin-top:.22rem!important;
+      font-size:.64rem!important;
+    }
+
+    .medal-panel{
+      margin-top:.62rem!important;
+      padding:.55rem .5rem!important;
+      border-radius:1.25rem!important;
+    }
+    .medal-grid{gap:.12rem!important}
+    .medal-item{gap:.14rem!important}
+    .badge-shell{width:44px!important;height:44px!important}
+    .shape-5.badge-shell{width:50px!important;height:50px!important}
+    .badge-core{border-width:2px!important;font-size:.82rem!important}
+    .shape-5.badge-shell .badge-core{font-size:.92rem!important}
+    .badge-back{transform:translateY(4px)!important}
+    .shape-5.badge-shell .badge-back{transform:translateY(5px)!important}
+    .medal-label{font-size:8px!important}
+    .icon-glyph{font-size:.62rem!important}
+    .medals-caption{
+      margin-top:.38rem!important;
+      gap:.45rem!important;
+      font-size:.78rem!important;
+    }
+    .medals-caption::before,.medals-caption::after{
+      width:28px!important;
+      height:3px!important;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -192,21 +333,24 @@
     {% endif %}
   </div>
 
-  <main class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow" {% if new_medal %}style="animation-delay:5.05s"{% endif %}>
+  <div id="profileFitShell" class="profile-fit-shell">
+
+
+    <main id="studentProfile" class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow" {% if new_medal %}style="animation-delay:5.05s"{% endif %}>
     <div class="top-glow"></div>
     <div class="blob h-28 w-28 -top-8 -left-6 bg-white/35"></div>
     <div class="blob h-24 w-24 top-14 -right-8 bg-pink-200/55"></div>
     <div class="blob h-24 w-24 bottom-32 -left-8 bg-amber-100/65"></div>
     <img src="{{ url_for('static', filename='euskaraz.jpeg') }}" class="watermark absolute inset-0 m-auto h-[74%] pointer-events-none" alt="">
 
-    <section class="relative z-10 px-4 sm:px-6 pt-7 sm:pt-8 pb-6 text-center">
-      <div class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-black uppercase tracking-[.24em] text-zinc-500 shadow-sm">Euskal Ageria</div>
+    <section class="profile-content relative z-10 px-4 sm:px-6 pt-7 sm:pt-8 pb-6 text-center">
+      <div class="profile-kicker inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-black uppercase tracking-[.24em] text-zinc-500 shadow-sm">Euskal Ageria</div>
       <h1 class="nombre {{ txt_cls }} mt-3 text-[2.45rem] sm:text-[3.25rem]">{{ alumno[0] }}</h1>
-      <div class="mt-2 flex justify-center">
+      <div class="profile-class mt-2 flex justify-center">
         <span class="rounded-full bg-white/80 px-3 py-1 text-xs font-black text-zinc-600 uppercase shadow-sm">{{ alumno[2] }}</span>
       </div>
 
-      <div class="mt-6 flex justify-center">
+      <div class="photo-zone mt-6 flex justify-center">
         <div class="photo-wrap">
           <div class="orbit orbit-red"><span></span></div>
           <div class="orbit orbit-green"><span></span></div>
@@ -238,7 +382,7 @@
         </div>
       </div>
 
-      <div class="mt-4 flex justify-center">
+      <div class="goal-zone mt-4 flex justify-center">
         <div class="goal-card rounded-[1.4rem] px-6 py-3.5 text-center min-w-[235px] w-full max-w-[320px]">
           <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-500">Epeko helburua</div>
           <div class="mt-1 flex items-baseline justify-center gap-2">
@@ -280,5 +424,63 @@
       <div class="medals-caption mt-4">Urteko medailak</div>
     </section>
   </main>
+  </div>
+
+<script>
+(() => {
+  const shell = document.getElementById('profileFitShell');
+  if (!shell) return;
+
+  function fitStudentProfile(){
+    const mobile = window.matchMedia('(max-width:600px)').matches;
+    if (!mobile){
+      shell.style.transform = '';
+      shell.style.marginTop = '';
+      return;
+    }
+
+    const vv = window.visualViewport;
+    const viewportH = vv ? vv.height : window.innerHeight;
+    const availableH = Math.max(320, viewportH - 8);
+
+    shell.style.transform = 'none';
+    shell.style.marginTop = '0px';
+
+    const naturalH = shell.getBoundingClientRect().height;
+    let scale = Math.min(1, availableH / naturalH);
+
+    // Azken lerroa ere ez dadin moztu.
+    scale = Math.max(.64, scale * .985);
+
+    shell.style.transform = `scale(${scale})`;
+
+    const visualH = naturalH * scale;
+    const topSpace = Math.max(2, (availableH - visualH) / 2);
+    shell.style.marginTop = `${topSpace}px`;
+  }
+
+  let raf;
+  function scheduleFit(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(fitStudentProfile);
+  }
+
+  document.addEventListener('DOMContentLoaded', scheduleFit);
+  window.addEventListener('load', scheduleFit);
+  window.addEventListener('resize', scheduleFit);
+  window.addEventListener('orientationchange', () => setTimeout(scheduleFit, 120));
+
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', scheduleFit);
+  }
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(scheduleFit);
+  }
+
+  setTimeout(scheduleFit, 250);
+  setTimeout(scheduleFit, 900);
+})();
+</script>
+
 </body>
 </html>
