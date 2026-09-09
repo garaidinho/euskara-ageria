@@ -74,6 +74,12 @@ def format_display_name(nombre_raw: str) -> str:
     return " ".join(p.capitalize() for p in parts if p)
 
 
+def alphabetical_sort_key(nombre_raw: str):
+    # Izenak azentuak kontuan hartu gabe alfabetikoki ordenatzeko.
+    return strip_accents(nombre_raw).casefold()
+
+
+
 def current_week_start() -> date:
     today = date.today()
     return today - timedelta(days=today.weekday())
@@ -209,9 +215,22 @@ def initialize_all_students():
             ensure_student(cur, clase, nombre)
 
 
+PHOTO_OVERRIDES = {
+    ("lm2", "zoi"): "Paco.jpg",
+    ("lm2", "paco"): "Zoi.jpg",
+}
+
+
 def photo_for(clase: str, nombre_raw: str) -> str:
     clase_lower = clase.lower()
     key = normalize_key(nombre_raw)
+
+    override = PHOTO_OVERRIDES.get((clase_lower, key))
+    if override:
+        override_path = os.path.join("static", "photos", clase_lower, override)
+        if os.path.isfile(override_path):
+            return override
+
     carpeta = os.path.join("static", "photos", clase_lower)
     if os.path.isdir(carpeta):
         for archivo in os.listdir(carpeta):
@@ -360,32 +379,46 @@ def weekly_stats_for_student(cur, clase: str, key: str, astea: date):
 
 @app.route("/irakasle")
 def irakasle_index():
-    # Ez dugu datu-basea ukitzen: hasierako orria berehala kargatu behar da.
+    # Hasierako orriak ez du DB kontsultarik egiten: berehala irekitzen da.
     gelak_view = []
     for key, g in GELAK.items():
         kop = sum(len(nombres) for _, nombres in g["taldeak"])
         gelak_view.append({"key": key, "izena": g["izena"], "kop": kop})
-    return render_template("irakasle.html", gelak=gelak_view)
 
+    mailak_view = []
+    for zenbakia in range(1, 6):
+        maila = f"LM{zenbakia}"
+        kop = sum(
+            len(nombres)
+            for g in GELAK.values()
+            for clase, nombres in g["taldeak"]
+            if clase.upper() == maila
+        )
+        mailak_view.append({"key": maila, "izena": maila, "kop": kop})
 
-@app.route("/irakasle/gela/<gela_key>")
-def irakasle_gela(gela_key: str):
+    return render_template(
+        "irakasle.html",
+        gelak=gelak_view,
+        mailak=mailak_view,
+    )
+
+def _render_irakasle_taldeak(izenburua: str, taldeak):
+    # Gela edo maila baten ikasleak modu berean eta kontsulta gutxirekin kargatu.
     ensure_schema()
-    gela = GELAK.get(gela_key)
-    if not gela:
-        return "Gela ez da existitzen", 404
-
     astea = current_week_start()
     astea_amaiera = astea + timedelta(days=6)
-    taldeak_view = []
 
-    # Lehen 100+ SQL kontsulta egiten ziren gela bat zabaltzean.
-    # Orain: batch INSERT + 3 SELECT = 4 SQL kontsulta nagusi.
+    taldeak_ordenatuta = [
+        (clase.upper(), sorted(nombres, key=alphabetical_sort_key))
+        for clase, nombres in taldeak
+    ]
+
     wanted = []
     klaseak = []
-    for clase, nombres in gela["taldeak"]:
+    for clase, nombres in taldeak_ordenatuta:
         c = clase.lower()
-        klaseak.append(c)
+        if c not in klaseak:
+            klaseak.append(c)
         for nombre in nombres:
             wanted.append((c, normalize_key(nombre)))
 
@@ -428,11 +461,13 @@ def irakasle_gela(gela_key: str):
         )
         absent_set = {(c, n) for c, n in cur.fetchall()}
 
+    taldeak_view = []
     aste_plus_total = 0
     aste_minus_total = 0
     absentzia_kop = 0
+    ikasle_kop = 0
 
-    for clase, nombres in gela["taldeak"]:
+    for clase, nombres in taldeak_ordenatuta:
         c = clase.lower()
         ikasleak = []
         for nombre in nombres:
@@ -444,6 +479,7 @@ def irakasle_gela(gela_key: str):
             aste_plus_total += plus
             aste_minus_total += minus
             absentzia_kop += 1 if absentzia else 0
+            ikasle_kop += 1
 
             ikasleak.append({
                 "clase": c,
@@ -457,21 +493,52 @@ def irakasle_gela(gela_key: str):
                 "asteko_plus": plus,
                 "asteko_minus": minus,
             })
+
         taldeak_view.append((clase.upper(), ikasleak))
 
     return render_template(
         "gela.html",
-        gela_key=gela_key,
-        gela_izena=gela["izena"],
+        gela_izena=izenburua,
         taldeak=taldeak_view,
         astea=astea,
         astea_amaiera=astea_amaiera,
-        ikasle_kop=sum(len(n) for _, n in gela["taldeak"]),
+        ikasle_kop=ikasle_kop,
         aste_plus_total=aste_plus_total,
         aste_minus_total=aste_minus_total,
         absentzia_kop=absentzia_kop,
     )
 
+
+@app.route("/irakasle/gela/<gela_key>")
+def irakasle_gela(gela_key: str):
+    gela = GELAK.get(gela_key)
+    if not gela:
+        return "Gela ez da existitzen", 404
+    return _render_irakasle_taldeak(gela["izena"], gela["taldeak"])
+
+
+@app.route("/irakasle/maila/<maila>")
+def irakasle_maila(maila: str):
+    maila = maila.upper()
+    if maila not in {"LM1", "LM2", "LM3", "LM4", "LM5"}:
+        return "Maila ez da existitzen", 404
+
+    nombres = []
+    seen = set()
+    for gela in GELAK.values():
+        for clase, taldeko_izenak in gela["taldeak"]:
+            if clase.upper() != maila:
+                continue
+            for nombre in taldeko_izenak:
+                key = normalize_key(nombre)
+                if key not in seen:
+                    seen.add(key)
+                    nombres.append(nombre)
+
+    return _render_irakasle_taldeak(
+        f"{maila} · maila osoa",
+        [(maila, nombres)],
+    )
 
 @app.post("/irakasle/puntuak/<clase>/<nombre>")
 def irakasle_aldatu_puntuak(clase: str, nombre: str):

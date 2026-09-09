@@ -8,56 +8,100 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   *{box-sizing:border-box}
-  body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#1f2937}
+  body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
   .brand-line{background:linear-gradient(90deg,#c62828 0 33.33%,#fff 33.33% 66.66%,#2e7d32 66.66%)}
-  .room-card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-  @media (hover:hover){.room-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(15,23,42,.10)}}
+  .choice-card{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+  .choice-card:active{transform:scale(.985)}
+  @media (hover:hover){.choice-card:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(15,23,42,.09)}}
+  .level-dot{box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+  @media(max-width:420px){.teacher-name{font-size:.92rem}.card-count{font-size:.64rem}}
 </style>
 </head>
 <body class="min-h-screen">
 <div class="brand-line h-2 w-full"></div>
-<main class="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-9">
-  <header class="mb-7 sm:mb-9">
+
+<main class="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-6">
+  <header class="mb-4 sm:mb-6">
     <div class="flex items-center gap-3">
-      <div class="grid h-12 w-12 place-items-center rounded-2xl bg-zinc-950 text-xl font-black text-white shadow-sm">EA</div>
-      <div>
-        <div class="text-xs font-black uppercase tracking-[.22em] text-emerald-700">Euskara Ageria</div>
-        <h1 class="mt-1 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">Irakasleen panela</h1>
+      <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-zinc-950 text-lg font-black text-white shadow-sm">EA</div>
+      <div class="min-w-0">
+        <div class="text-[10px] font-black uppercase tracking-[.22em] text-emerald-700 sm:text-xs">Euskara Ageria</div>
+        <h1 class="truncate text-2xl font-black tracking-tight text-zinc-950 sm:text-4xl">Irakasleen panela</h1>
       </div>
     </div>
-    <p class="mt-4 max-w-2xl text-sm font-bold leading-relaxed text-zinc-500 sm:text-base">
-      Aukeratu gela. Puntuak, aste honetako bilakaera eta absentziak gela barruan kudeatuko dituzu.
-    </p>
   </header>
 
-  <section class="grid gap-4 sm:grid-cols-2">
-    {% set accents = [
-      ('#f59e0b','#fffbeb','G'),
-      ('#0ea5e9','#f0f9ff','B'),
-      ('#ec4899','#fdf2f8','F'),
-      ('#10b981','#ecfdf5','O')
-    ] %}
-    {% for g in gelak %}
-      {% set a = accents[loop.index0] %}
-      <a href="{{ url_for('irakasle_gela', gela_key=g.key) }}"
-         class="room-card group relative overflow-hidden rounded-[1.8rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-        <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-20" style="background:{{ a[0] }}"></div>
-        <div class="relative flex items-start justify-between gap-4">
-          <div class="flex min-w-0 items-center gap-4">
-            <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-2xl font-black" style="background:{{ a[1] }};color:{{ a[0] }}">{{ a[2] }}</div>
-            <div class="min-w-0">
-              <div class="truncate text-xl font-black text-zinc-950 sm:text-2xl">{{ g.izena }}</div>
-              <div class="mt-2 inline-flex rounded-full bg-zinc-100 px-3 py-1 text-xs font-black text-zinc-600">{{ g.kop }} ikasle</div>
-            </div>
-          </div>
-          <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-zinc-950 text-lg font-black text-white transition group-hover:translate-x-1">→</div>
-        </div>
-      </a>
-    {% endfor %}
-  </section>
+  <div class="grid grid-cols-2 gap-3 sm:gap-5">
+    <section class="min-w-0">
+      <div class="mb-2.5 flex items-center gap-2 sm:mb-3">
+        <div class="h-2.5 w-2.5 rounded-full bg-zinc-950"></div>
+        <h2 class="text-xs font-black uppercase tracking-[.18em] text-zinc-500 sm:text-sm">Gelak</h2>
+      </div>
 
-  <div class="mt-7 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-center text-xs font-bold text-zinc-400">
-    Hasierako orriak ez du datu-basea kargatzen: gela aukeraketa berehala ireki behar da.
+      <div class="grid gap-2.5 sm:gap-3">
+        {% set accents = [
+          ('#f59e0b','#fffbeb','G'),
+          ('#0ea5e9','#f0f9ff','B'),
+          ('#ec4899','#fdf2f8','F'),
+          ('#10b981','#ecfdf5','O')
+        ] %}
+        {% for g in gelak %}
+          {% set a = accents[loop.index0] %}
+          <a href="{{ url_for('irakasle_gela', gela_key=g.key) }}"
+             class="choice-card relative overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white p-3 shadow-sm sm:rounded-[1.65rem] sm:p-4">
+            <div class="absolute -right-5 -top-5 h-16 w-16 rounded-full opacity-20" style="background:{{ a[0] }}"></div>
+            <div class="relative flex items-center gap-2.5 sm:gap-3">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base font-black sm:h-12 sm:w-12 sm:rounded-2xl sm:text-xl"
+                   style="background:{{ a[1] }};color:{{ a[0] }}">{{ a[2] }}</div>
+              <div class="min-w-0 flex-1">
+                <div class="teacher-name leading-tight font-black text-zinc-950 sm:text-lg">{{ g.izena }}</div>
+                <div class="card-count mt-1 text-[10px] font-black text-zinc-400 sm:text-xs">{{ g.kop }} ikasle</div>
+              </div>
+              <div class="hidden text-base font-black text-zinc-300 sm:block">›</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="min-w-0">
+      <div class="mb-2.5 flex items-center gap-2 sm:mb-3">
+        <div class="h-2.5 w-2.5 rounded-full bg-emerald-600"></div>
+        <h2 class="text-xs font-black uppercase tracking-[.18em] text-zinc-500 sm:text-sm">Mailak</h2>
+      </div>
+
+      <div class="grid gap-2.5 sm:gap-3">
+        {% set levels = {
+          'LM1': ('#2563eb','#eff6ff'),
+          'LM2': ('#ca8a04','#fefce8'),
+          'LM3': ('#dc2626','#fef2f2'),
+          'LM4': ('#16a34a','#f0fdf4'),
+          'LM5': ('#7c3aed','#f5f3ff')
+        } %}
+        {% for m in mailak %}
+          {% set c = levels[m.key] %}
+          <a href="{{ url_for('irakasle_maila', maila=m.key) }}"
+             class="choice-card relative overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white p-3 shadow-sm sm:rounded-[1.65rem] sm:p-4">
+            <div class="absolute -right-5 -top-5 h-16 w-16 rounded-full opacity-20" style="background:{{ c[0] }}"></div>
+            <div class="relative flex items-center gap-2.5 sm:gap-3">
+              <div class="level-dot grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xs font-black text-white sm:h-12 sm:w-12 sm:rounded-2xl sm:text-sm"
+                   style="background:{{ c[0] }}">{{ m.izena }}</div>
+              <div class="min-w-0 flex-1">
+                <div class="text-base font-black leading-tight text-zinc-950 sm:text-xl">{{ m.izena }}</div>
+                <div class="card-count mt-1 text-[10px] font-black text-zinc-400 sm:text-xs">{{ m.kop }} ikasle</div>
+              </div>
+              <div class="hidden text-base font-black text-zinc-300 sm:block">›</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <div class="mt-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-zinc-400 sm:mt-5 sm:text-xs">
+    <span class="h-1.5 w-1.5 rounded-full bg-[#c62828]"></span>
+    <span>Aukeratu gela edo maila</span>
+    <span class="h-1.5 w-1.5 rounded-full bg-[#2e7d32]"></span>
   </div>
 </main>
 </body>
