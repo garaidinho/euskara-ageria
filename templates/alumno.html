@@ -299,6 +299,113 @@
     }
   }
 
+
+  /* ───────── V16 · Hierarkia + altueraren aprobetxamendua ───────── */
+  @media (max-width:600px){
+    .profile-fit-shell > .page,
+    .profile-content{
+      min-height:calc(100dvh - 64px);
+    }
+    .profile-content{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:.8rem .9rem .75rem!important;
+    }
+
+    .profile-kicker{padding:.22rem .68rem!important}
+    .nombre{
+      margin-top:.42rem!important;
+      font-size:2.22rem!important;
+    }
+    .profile-class{margin-top:.3rem!important}
+
+    .photo-zone{margin-top:.65rem!important}
+    .photo-wrap{
+      width:158px!important;
+      height:158px!important;
+    }
+    .photo-ring{inset:15px!important}
+    .photo-img{
+      inset:26px!important;
+      width:calc(100% - 52px)!important;
+      height:calc(100% - 52px)!important;
+    }
+    .orbit-green{inset:7px!important}
+    .orbit-white{inset:14px!important}
+
+    .term-marker{
+      margin-top:.52rem!important;
+      font-size:.8rem!important;
+    }
+
+    .points-card{
+      margin-top:.58rem!important;
+      padding:.62rem 1.9rem!important;
+    }
+    .points-card .relative.flex span:first-child{
+      font-size:2.85rem!important;
+    }
+    .points-card .relative.flex span:last-child{
+      font-size:.98rem!important;
+    }
+
+    .goal-zone{margin-top:.58rem!important}
+    .goal-card-compact{
+      width:90%!important;
+      max-width:305px!important;
+      min-width:0!important;
+      padding:.48rem .9rem .44rem!important;
+      border-radius:1rem!important;
+    }
+    .goal-card-compact::before,
+    .goal-card-compact::after{
+      width:4px!important;
+    }
+    .goal-head{min-height:29px}
+    .goal-title{
+      font-size:.62rem!important;
+      letter-spacing:.13em!important;
+      text-align:left;
+    }
+    .goal-target{line-height:1}
+    .goal-number{font-size:1.55rem!important}
+    .goal-unit{font-size:.72rem!important}
+    .goal-card-compact .progress-wrap{margin-top:.24rem!important}
+    .goal-card-compact .progress-track{height:7px!important}
+    .goal-card-compact .progress-copy{
+      margin-top:.2rem!important;
+      font-size:.61rem!important;
+    }
+
+    .medal-panel{
+      margin-top:.72rem!important;
+      padding:.66rem .6rem!important;
+    }
+    .badge-shell{
+      width:48px!important;
+      height:48px!important;
+    }
+    .shape-5.badge-shell{
+      width:55px!important;
+      height:55px!important;
+    }
+    .badge-core{font-size:.86rem!important}
+    .shape-5.badge-shell .badge-core{font-size:1rem!important}
+    .medal-label{font-size:8.5px!important}
+    .medals-caption{
+      margin-top:.52rem!important;
+      font-size:.82rem!important;
+    }
+  }
+
+  @media (max-width:600px) and (max-height:650px){
+    .profile-fit-shell > .page,
+    .profile-content{
+      min-height:0;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -383,11 +490,13 @@
       </div>
 
       <div class="goal-zone mt-4 flex justify-center">
-        <div class="goal-card rounded-[1.4rem] px-6 py-3.5 text-center min-w-[235px] w-full max-w-[320px]">
-          <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-500">Epeko helburua</div>
-          <div class="mt-1 flex items-baseline justify-center gap-2">
-            <span class="goal-number text-3xl">{{ medal_thresholds[epea] }}</span>
-            <span class="text-base font-black text-zinc-700">PUNTU</span>
+        <div class="goal-card goal-card-compact rounded-[1.4rem] px-6 py-3.5 text-center min-w-[235px] w-full max-w-[320px]">
+          <div class="goal-head flex items-center justify-between gap-3">
+            <span class="goal-title text-xs font-black uppercase tracking-[.16em] text-zinc-500">Epeko helburua</span>
+            <span class="goal-target flex items-baseline gap-1.5 whitespace-nowrap">
+              <span class="goal-number text-3xl">{{ medal_thresholds[epea] }}</span>
+              <span class="goal-unit text-base font-black text-zinc-700">PUNTU</span>
+            </span>
           </div>
           <div class="progress-wrap">
             <div class="progress-track">
