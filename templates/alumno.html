@@ -595,6 +595,28 @@
 
   /* Behin agertuta, badge-shell barruko pulsua V19tik mantentzen da */
 
+
+  /* V22: helburu kutxa bi aldiz gardenago */
+  .goal-card,
+  .goal-card-compact{
+    background:rgba(255,255,255,.21)!important;
+    border:1px solid rgba(255,255,255,.34)!important;
+    box-shadow:
+      0 6px 14px rgba(255,255,255,.08) inset,
+      0 6px 14px rgba(0,0,0,.025)!important;
+  }
+
+  @media (max-width:600px){
+    .goal-card,
+    .goal-card-compact{
+      background:rgba(255,255,255,.17)!important;
+      border:1px solid rgba(255,255,255,.28)!important;
+      box-shadow:
+        0 5px 12px rgba(255,255,255,.06) inset,
+        0 5px 12px rgba(0,0,0,.02)!important;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
