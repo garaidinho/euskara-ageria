@@ -5,6 +5,7 @@
 # ───────────────────────────────────────────────────────────────────────────────
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os, time, re, unicodedata
+from functools import lru_cache
 from datetime import date, timedelta
 from contextlib import closing
 
@@ -221,6 +222,7 @@ PHOTO_OVERRIDES = {
 }
 
 
+@lru_cache(maxsize=256)
 def photo_for(clase: str, nombre_raw: str) -> str:
     clase_lower = clase.lower()
     key = normalize_key(nombre_raw)
@@ -238,6 +240,21 @@ def photo_for(clase: str, nombre_raw: str) -> str:
             if ext and normalize_key(stem) == key:
                 return archivo
     return "default.jpg"
+
+
+
+@lru_cache(maxsize=256)
+def teacher_photo_path(clase: str, nombre_raw: str) -> str:
+    # Irakasleen interfazearentzat thumbnail arina; faltan bada jatorrizkoa.
+    clase_lower = clase.lower()
+    original = photo_for(clase_lower, nombre_raw)
+    stem = os.path.splitext(original)[0]
+    thumb_name = normalize_key(stem) + ".jpg"
+    thumb_rel = os.path.join("photos_thumb", clase_lower, thumb_name)
+    thumb_abs = os.path.join("static", thumb_rel)
+    if os.path.isfile(thumb_abs):
+        return thumb_rel
+    return os.path.join("photos", clase_lower, original)
 
 
 def maybe_award_medal(cur, clase: str, key: str, epea: int, puntuak: int):
@@ -487,6 +504,7 @@ def _render_irakasle_taldeak(izenburua: str, taldeak):
                 "nombre": nombre,
                 "display": format_display_name(nombre),
                 "foto": photo_for(clase, nombre),
+                "foto_path": teacher_photo_path(clase, nombre),
                 "puntuak": puntuak,
                 "absentzia": absentzia,
                 "asteko_net": net,
@@ -660,6 +678,7 @@ def irakasle_ikaslea(clase: str, nombre: str):
         display_name=format_display_name(nombre),
         clase=clase_lower,
         foto=photo_for(clase_lower, nombre),
+        foto_path=teacher_photo_path(clase_lower, nombre),
         puntuak=puntuak,
         epea=epea,
         medailak=medailak,

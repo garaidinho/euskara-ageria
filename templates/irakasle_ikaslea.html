@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ display_name }} · Irakaslea</title>
+<link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -24,7 +27,7 @@
 
   <section class="rounded-[1.8rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
     <div class="flex items-center gap-4">
-      <img src="{{ url_for('static', filename='photos/' ~ clase ~ '/' ~ foto) }}" class="h-24 w-24 rounded-3xl object-cover shadow-md" alt="{{ display_name }}">
+      <img src="{{ url_for('static', filename=foto_path) }}" decoding="async" class="h-24 w-24 rounded-3xl object-cover shadow-md" alt="{{ display_name }}">
       <div class="min-w-0 flex-1">
         <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-400">{{ clase|upper }} · {{ epea }}. epea</div>
         <h1 class="mt-1 truncate text-3xl font-black text-zinc-950">{{ display_name }}</h1>
