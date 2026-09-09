@@ -2,168 +2,71 @@
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
-<title>{{ alumno[0] }}</title>
+<title>{{ alumno[0] }} · Euskal Ageria</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-:root { --durFlash: .8s }
-
-/*──────── Letra con relieve ─────*/
-.nombre{
-  font-family:'Luckiest Guy',cursive;line-height:.9;
-  text-shadow:2px 2px 0 #fff,4px 4px 0 #000,6px 6px 0 rgb(0 0 0/.3)}
-@keyframes pop   {0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
-@keyframes bounce{0%,100%{transform:translateX(-50%) scale(1)}
-                  50%     {transform:translateX(-50%) scale(1.15)}}
-.nombre span{display:inline-block;opacity:0;animation:pop .35s forwards}
-/* ancho visual para espacios dentro del nombre animado */
-.nombre span.space{ width:.6em }
-
-/*──────── Corazón ───────────────*/
-.heart{position:absolute;width:230px;height:230px;transform:rotate(-45deg);opacity:.8;z-index:20}
-.heart,.heart:before,.heart:after{background:inherit}
-.heart:before,.heart:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%}
-.heart:before{top:-115px;left:0}
-.heart:after {top:0;left:115px}
-@keyframes heartPop   {from{transform:rotate(-45deg) scale(0)}
-                        to  {transform:rotate(-45deg) scale(1)}}
-@keyframes heartPulse {0%,100%{transform:rotate(-45deg) scale(.75)}
-                       50%     {transform:rotate(-45deg) scale(1)}}
-
-/*──────── Foto ──────────────────*/
-@keyframes drop {from{transform:translateY(-90px) scale(.5);opacity:0}
-                 to  {transform:translateY(0)      scale(1);opacity:1}}
-@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
-
-/*──────── Puntos & botones ─────*/
-@keyframes slideIn  {from{transform:translateY(80px);opacity:0}
-                     to  {transform:translateY(0);opacity:1}}
-@keyframes ptsPulse {0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-
-/*──────── Destello Aurora ──────*/
-.flash{position:fixed;inset:-10%;z-index:50;border-radius:50%;pointer-events:none;
-       animation:expand var(--durFlash) ease-out forwards}
-@keyframes expand{0%{transform:scale(0);opacity:.75}100%{transform:scale(12);opacity:0}}
-.flash.plus  {background:radial-gradient(circle at center,#00d2ff,#25d96f)}
-.flash.minus {background:radial-gradient(circle at center,#ff5858,#ffa55c)}
-
-/* helpers hide */
-@keyframes fadeOut{to{opacity:0}}
-@keyframes popHide{to{transform:scale(.25);opacity:0}}
-@keyframes slideOut{to{transform:translateY(80px);opacity:0}}
-.fade    {animation:fadeOut .3s forwards}
-.popHide {animation:popHide .25s forwards}
-.btnHide {animation:slideOut .3s forwards}
+  body{font-family:'Nunito',sans-serif}
+  .nombre{font-family:'Luckiest Guy',cursive;line-height:.95;text-shadow:2px 2px 0 #fff,4px 4px 0 #0002}
+  @keyframes pop{0%{transform:scale(.55);opacity:0}100%{transform:scale(1);opacity:1}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .medal{position:relative;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;border:4px solid rgba(255,255,255,.7);box-shadow:0 5px 0 rgba(0,0,0,.15);transition:.25s}
+  .medal:before,.medal:after{content:"";position:absolute;top:44px;width:17px;height:28px;background:inherit;z-index:-1}
+  .medal:before{left:10px;transform:rotate(13deg)}
+  .medal:after{right:10px;transform:rotate(-13deg)}
+  .locked{background:#27272a;color:#71717a;filter:grayscale(1);box-shadow:0 5px 0 #09090b}
+  .m1{background:linear-gradient(135deg,#f59e0b,#fde68a);color:#7c2d12}
+  .m2{background:linear-gradient(135deg,#14b8a6,#99f6e4);color:#134e4a}
+  .m3{background:linear-gradient(135deg,#8b5cf6,#ddd6fe);color:#4c1d95}
+  .m4{background:linear-gradient(135deg,#ef4444,#fecaca);color:#7f1d1d}
+  .m5{background:linear-gradient(135deg,#0ea5e9,#bae6fd);color:#0c4a6e}
 </style>
 </head>
+<body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-4">
+  <main class="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+    <img src="{{ url_for('static', filename='euskaraz.jpeg') }}" class="absolute inset-0 m-auto h-[70%] opacity-[.045] pointer-events-none" alt="">
 
-<body class="flex items-center justify-center min-h-screen {{ bg_cls }}">
-<div class="bg-white rounded-3xl shadow-xl p-8 pt-24 text-center max-w-sm w-full relative overflow-visible">
+    <section class="relative z-10 px-6 pt-9 pb-7 text-center">
+      <div class="text-sm font-black uppercase tracking-[.22em] text-zinc-400">Euskal Ageria</div>
+      <h1 class="nombre {{ txt_cls }} mt-3 text-5xl sm:text-6xl">{{ alumno[0] }}</h1>
 
-  <!-- Lema -->
-  <img src="{{ url_for('static', filename='euskaraz.jpeg') }}"
-       class="absolute inset-0 m-auto h-[85%] opacity-10 pointer-events-none" alt="">
+      <div class="mt-7 flex justify-center">
+        <div class="relative">
+          <div class="absolute inset-2 rounded-full {{ bg_cls }} scale-110"></div>
+          <img src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
+               alt="{{ alumno[0] }}"
+               class="relative h-48 w-48 rounded-full border-8 border-white object-cover shadow-xl"
+               style="animation:floaty 4s ease-in-out infinite">
+        </div>
+      </div>
 
-  <!-- Nombre -->
-  <h1 id="nombre"
-      class="nombre whitespace-nowrap text-6xl {{ txt_cls }}
-             absolute top-10 left-1/2 -translate-x-1/2 z-40 opacity-0"></h1>
+      <div class="mt-5 inline-flex items-end gap-2 rounded-3xl bg-zinc-950 px-7 py-4 text-white shadow-lg">
+        <span class="text-5xl font-black leading-none">{{ alumno[3] }}</span>
+        <span class="pb-1 text-lg font-extrabold tracking-wide">PUNTU</span>
+      </div>
 
-  <!-- Corazón + Foto -->
-  <div class="relative flex items-center justify-center z-30 mt-20 mb-4">
-    <div id="heart" class="heart {{ bg_cls }}"
-         style="animation:heartPop .35s ease-out forwards"></div>
+      <div class="mt-8 rounded-3xl bg-zinc-50 p-5">
+        <div class="mb-5 flex items-center justify-between">
+          <div class="text-left">
+            <div class="text-xs font-black uppercase tracking-[.18em] text-zinc-400">Urteko medailak</div>
+            <div class="mt-1 text-sm font-bold text-zinc-600">Desblokeatu epez epe</div>
+          </div>
+          <div class="rounded-full bg-white px-3 py-1 text-xs font-black text-zinc-500 shadow-sm">{{ epea }}. EPEA</div>
+        </div>
 
-    <!-- Foto (tamaño intermedio, borde del color del nombre, encima del corazón) -->
-    <div class="{{ txt_cls }} relative z-30">
-      <img id="foto"
-           src="{{ url_for('static', filename='photos/' ~ alumno[2] ~ '/' ~ alumno[1]) }}"
-           alt="{{ alumno[0] }}"
-           class="w-48 h-48 rounded-full shadow-lg border-8 border-current
-                  relative -top-12 opacity-0"
-           style="animation:drop .5s ease-out .75s forwards">
-    </div>
-  </div>
-
-  <!-- Puntos -->
-  <p id="pts" class="relative z-40 text-4xl font-bold mb-4 opacity-0"
-     style="animation:slideIn .4s ease-out .8s forwards">
-    <span>{{ alumno[3] }}</span> PUNTU
-  </p>
-
-  <!-- +1 -->
-  <form id="plusForm" method="post" class="relative z-40"
-        style="animation:slideIn .4s ease-out .8s forwards">
-    <button id="btnPlus" name="accion" value="1"
-            class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black
-                   bg-gradient-to-r from-cyan-400 to-emerald-400">+1 P.</button>
-  </form>
-
-  <!-- -1 -->
-  <form id="minusForm" method="post" class="relative z-40 mt-2"
-        style="animation:slideIn .4s ease-out .9s forwards">
-    <button id="btnMinus" name="accion" value="-1"
-            class="w-full rounded-full py-3 font-bold text-white text-xl shadow-md border-4 border-black
-                   bg-gradient-to-r from-rose-500 to-orange-400">-1 P.</button>
-  </form>
-</div>
-
-<script>
-/* --- Nombre pop + rebote (conservando espacios) --- */
-const n = `{{ alumno[0] }}`;
-const nEl = document.getElementById('nombre');
-nEl.innerHTML = [...n].map((c,i)=>{
-  const delay = 0.4 + i*0.08;
-  if (c === ' ') {
-    return `<span class="space" style="animation-delay:${delay}s">&nbsp;</span>`;
-  }
-  // escapamos < y > por si acaso
-  const safe = c.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return `<span style="animation-delay:${delay}s">${safe}</span>`;
-}).join('');
-nEl.classList.remove('opacity-0');
-nEl.addEventListener('animationend',e=>{
-  if(e.animationName==='pop') nEl.style.animation='bounce 1.6s ease-in-out infinite';
-},{once:true});
-
-/* --- Corazón late --- */
-const heart=document.getElementById('heart');
-heart.addEventListener('animationend',e=>{
-  if(e.animationName==='heartPop') heart.style.animation='heartPulse 6s ease-in-out infinite';
-},{once:true});
-
-/* --- Puntos pulsan --- */
-const pts=document.getElementById('pts');
-pts.addEventListener('animationend',e=>{
-  if(e.animationName==='slideIn') pts.style.animation+=', ptsPulse 1.6s ease-in-out infinite';
-},{once:true});
-
-/* --- Foto balancea --- */
-const foto=document.getElementById('foto');
-foto.addEventListener('animationend',e=>{
-  if(e.animationName==='drop') foto.style.animation+=', swing 1s ease-in-out infinite alternate';
-},{once:true});
-
-/* --- Destello Aurora --- */
-function flash(type){
-  const d=document.createElement('div'); d.className=`flash ${type}`;
-  document.body.appendChild(d);
-  d.addEventListener('animationend',()=>d.remove(),{once:true});
-}
-
-/* --- Botones --- */
-const btnPlus=document.getElementById('btnPlus');
-const btnMinus=document.getElementById('btnMinus');
-btnPlus.addEventListener('click',e=>{
-  e.preventDefault(); flash('plus');
-  setTimeout(()=>e.target.form.requestSubmit(btnPlus),800);
-});
-btnMinus.addEventListener('click',e=>{
-  e.preventDefault(); flash('minus');
-  setTimeout(()=>e.target.form.requestSubmit(btnMinus),800);
-});
-</script>
+        <div class="flex items-start justify-between gap-2">
+          {% for i in range(1,6) %}
+          <div class="flex flex-col items-center gap-3">
+            <div class="medal {% if i in medailak %}m{{ i }}{% else %}locked{% endif %}">
+              {% if i in medailak %}{{ i }}{% else %}●{% endif %}
+            </div>
+            <span class="text-[11px] font-black text-zinc-500">{{ i }}. epea</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ display_name }} · Historikoa</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:Nunito,sans-serif}</style>
+</head>
+<body class="min-h-screen bg-zinc-100 p-4">
+<main class="mx-auto max-w-xl">
+  <a href="javascript:history.back()" class="inline-flex rounded-full bg-white px-4 py-2 font-black shadow-sm">← Itzuli</a>
+
+  <section class="mt-4 rounded-[2rem] bg-white p-5 shadow-sm">
+    <div class="flex items-center gap-4">
+      <img src="{{ url_for('static', filename='photos/' ~ clase ~ '/' ~ foto) }}" class="h-24 w-24 rounded-3xl object-cover" alt="">
+      <div>
+        <h1 class="text-3xl font-black">{{ display_name }}</h1>
+        <div class="mt-2 inline-flex rounded-full bg-zinc-950 px-4 py-2 text-lg font-black text-white">{{ puntuak }} puntu</div>
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=clase, nombre=nombre) }}" class="mt-5 grid grid-cols-4 gap-2">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button name="delta" value="-1" class="rounded-2xl bg-rose-100 py-3 font-black text-rose-700">−1</button>
+      <button type="button" onclick="customDelta(this.form,-1)" class="rounded-2xl bg-rose-50 py-3 font-black text-rose-500">−?</button>
+      <button name="delta" value="1" class="rounded-2xl bg-emerald-100 py-3 font-black text-emerald-700">+1</button>
+      <button type="button" onclick="customDelta(this.form,1)" class="rounded-2xl bg-emerald-50 py-3 font-black text-emerald-600">+?</button>
+    </form>
+
+    <form method="post" action="{{ url_for('irakasle_absentzia', clase=clase, nombre=nombre) }}" class="mt-2">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button class="w-full rounded-2xl border-2 py-3 font-black {{ 'border-amber-500 bg-amber-100 text-amber-800' if absentzia else 'border-zinc-200 bg-zinc-50 text-zinc-500' }}">
+        {% if absentzia %}✓ Absentzia aste honetan{% else %}Absentzia aste honetan{% endif %}
+      </button>
+    </form>
+  </section>
+
+  <section class="mt-4 rounded-[2rem] bg-white p-5 shadow-sm">
+    <h2 class="text-xl font-black">Puntuen historikoa</h2>
+    {% if historia %}
+      <div class="mt-4 divide-y divide-zinc-100">
+        {% for delta, mota, sortua in historia %}
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="font-black {{ 'text-emerald-600' if delta > 0 else 'text-rose-600' }}">{{ '+' if delta > 0 else '' }}{{ delta }} puntu</div>
+              <div class="text-xs font-bold text-zinc-400">{{ mota }}</div>
+            </div>
+            <div class="text-right text-xs font-bold text-zinc-400">{{ sortua.strftime('%d/%m/%Y %H:%M') }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="mt-4 font-bold text-zinc-400">Oraindik ez dago mugimendurik.</p>
+    {% endif %}
+  </section>
+</main>
+<script>
+function customDelta(form, sign){
+  const raw = prompt(sign > 0 ? 'Zenbat puntu gehitu?' : 'Zenbat puntu kendu?');
+  if(raw === null) return;
+  const n = parseInt(raw, 10);
+  if(!Number.isInteger(n) || n <= 0) return;
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden'; hidden.name = 'delta'; hidden.value = String(sign*n);
+  form.appendChild(hidden); form.submit();
+}
+</script>
+</body>
+</html>

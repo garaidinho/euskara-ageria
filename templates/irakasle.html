@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Irakasleak · Euskara Ageria</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-zinc-100 p-5" style="font-family:Nunito,sans-serif">
+<main class="mx-auto max-w-3xl">
+  <header class="mb-7">
+    <div class="text-sm font-black uppercase tracking-[.2em] text-emerald-600">Euskara Ageria</div>
+    <h1 class="mt-1 text-4xl font-black text-zinc-900">Irakasleen plataforma</h1>
+    <p class="mt-2 font-bold text-zinc-500">Aukeratu gela bat puntuak azkar kudeatzeko.</p>
+  </header>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    {% set styles = ['bg-amber-200','bg-sky-200','bg-rose-200','bg-emerald-200'] %}
+    {% for g in gelak %}
+      <a href="{{ url_for('irakasle_gela', gela_key=g.key) }}"
+         class="{{ styles[loop.index0] }} rounded-[2rem] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+        <div class="text-2xl font-black text-zinc-900">{{ g.izena }}</div>
+        <div class="mt-2 inline-flex rounded-full bg-white/70 px-3 py-1 text-sm font-black text-zinc-600">{{ g.kop }} ikasle</div>
+        <div class="mt-8 text-right text-3xl">→</div>
+      </a>
+    {% endfor %}
+  </div>
+</main>
+</body>
+</html>
