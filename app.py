@@ -171,6 +171,10 @@ def ensure_schema():
                 );
             """)
             cur.execute("""
+                ALTER TABLE medailak
+                ADD COLUMN IF NOT EXISTS animazioa_ikusia BOOLEAN NOT NULL DEFAULT FALSE;
+            """)
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS asteko_absentzia (
                     clase       TEXT NOT NULL,
                     nombre      TEXT NOT NULL,
@@ -217,6 +221,50 @@ def photo_for(clase: str, nombre_raw: str) -> str:
     return "default.jpg"
 
 
+def maybe_award_medal(cur, clase: str, key: str, epea: int, puntuak: int):
+    """Medaila lortzen den unean gordetzen du; behin lortuta ez da galtzen."""
+    threshold = MEDAL_THRESHOLDS.get(epea)
+    if threshold is None or puntuak < threshold:
+        return False
+    cur.execute(
+        """
+        INSERT INTO medailak (clase, nombre, epea, lortua, animazioa_ikusia)
+        VALUES (%s, %s, %s, TRUE, FALSE)
+        ON CONFLICT (clase, nombre, epea) DO NOTHING
+        RETURNING epea;
+        """,
+        (clase, key, epea),
+    )
+    return cur.fetchone() is not None
+
+
+def consume_pending_medal_animation(clase: str, key: str, epea: int):
+    """Ikaslearen profil publikoak medaila berria behin bakarrik ospatzeko."""
+    with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT epea
+            FROM medailak
+            WHERE clase=%s AND nombre=%s AND epea=%s
+              AND lortua=TRUE AND animazioa_ikusia=FALSE
+            FOR UPDATE
+            """,
+            (clase, key, epea),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        cur.execute(
+            """
+            UPDATE medailak
+            SET animazioa_ikusia=TRUE
+            WHERE clase=%s AND nombre=%s AND epea=%s
+            """,
+            (clase, key, epea),
+        )
+        return row[0]
+
+
 def student_state(clase: str, nombre_raw: str):
     ensure_schema()
     clase_lower = clase.lower()
@@ -227,6 +275,7 @@ def student_state(clase: str, nombre_raw: str):
             (clase_lower, key),
         )
         puntuak, epea = cur.fetchone()
+        maybe_award_medal(cur, clase_lower, key, epea, puntuak)
         cur.execute(
             "SELECT epea FROM medailak WHERE clase=%s AND nombre=%s AND lortua=TRUE ORDER BY epea",
             (clase_lower, key),
@@ -244,17 +293,24 @@ def index():
 @app.route("/<clase>/<nombre>", methods=["GET"])
 def mostrar_alumno(clase: str, nombre: str):
     clase_lower = clase.lower()
-    _, puntuak, epea, medailak = student_state(clase_lower, nombre)
+    key, puntuak, epea, medailak = student_state(clase_lower, nombre)
+    new_medal = consume_pending_medal_animation(clase_lower, key, epea)
     display_name = format_display_name(nombre)
     nombre_archivo = photo_for(clase_lower, nombre)
     bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
+    threshold = MEDAL_THRESHOLDS[epea]
+    progress_pct = max(0, min(round((puntuak / threshold) * 100), 100))
+    remaining = max(threshold - puntuak, 0)
 
     return render_template(
         "alumno.html",
         alumno=(display_name, nombre_archivo, clase_lower, puntuak),
         epea=epea,
         medailak=medailak,
+        new_medal=new_medal,
         medal_thresholds=MEDAL_THRESHOLDS,
+        progress_pct=progress_pct,
+        remaining=remaining,
         bg_cls=bg_cls,
         txt_cls=txt_cls,
     )
@@ -346,6 +402,7 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
                     "INSERT INTO puntu_historia (clase, nombre, epea, delta, mota) VALUES (%s,%s,%s,%s,'eskuz')",
                     (clase_lower, key, epea, benetako_delta),
                 )
+                maybe_award_medal(cur, clase_lower, key, epea, berria)
 
     next_url = request.form.get("next")
     return redirect(next_url or url_for("irakasle_index"))

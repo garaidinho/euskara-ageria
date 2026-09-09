@@ -116,6 +116,41 @@
   .medals-caption::before,.medals-caption::after{content:"";height:4px;width:38px;border-radius:999px}
   .medals-caption::before{background:#16a34a}.medals-caption::after{background:#dc2626}
 
+  /* ───────── Progress to current medal ───────── */
+  .progress-wrap{margin-top:.7rem}
+  .progress-track{height:12px;border-radius:999px;background:rgba(17,24,39,.10);overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.10)}
+  .progress-fill{height:100%;border-radius:999px;position:relative;transition:width .7s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+  .progress-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);background-size:180% 100%;animation:shimmer 3.2s linear infinite}
+  .progress-low{background:linear-gradient(90deg,#ef4444,#fb7185)}
+  .progress-mid{background:linear-gradient(90deg,#14b8a6,#22c55e)}
+  .progress-done{background:linear-gradient(90deg,#16a34a,#84cc16,#facc15)}
+  .progress-copy{margin-top:.45rem;font-size:.74rem;font-weight:900;color:#4b5563}
+
+  /* 5. epea = final boss: locked state already tempts a little */
+  .shape-5.locked{filter:drop-shadow(0 5px 0 rgba(58,43,20,.42)) drop-shadow(0 0 10px rgba(250,204,21,.20))}
+  .shape-5.locked::after{content:"✦";position:absolute;right:-4px;top:-5px;color:#facc15;font-size:.8rem;text-shadow:0 0 9px rgba(250,204,21,.65);animation:haloPulse 2.4s ease-in-out infinite}
+  .shape-5.unlocked::after{content:"✦";position:absolute;right:-5px;top:-7px;color:#fff7ae;font-size:1rem;text-shadow:0 0 12px rgba(250,204,21,.9);animation:haloPulse 1.9s ease-in-out infinite}
+
+  /* ───────── First-time medal celebration ───────── */
+  @keyframes introAwayAward{0%,91%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
+  @keyframes awardStage{0%,8%{opacity:0}16%,88%{opacity:1}100%{opacity:0}}
+  @keyframes medalReveal{0%{transform:scale(.22) rotate(-20deg);filter:brightness(.05) grayscale(1);opacity:0}24%{opacity:1;transform:scale(.62) rotate(7deg);filter:brightness(.08) grayscale(1)}48%{transform:scale(1.18) rotate(-3deg);filter:brightness(1.25) grayscale(0)}64%{transform:scale(.98) rotate(1deg);filter:brightness(1) grayscale(0)}100%{transform:scale(1) rotate(0);filter:brightness(1) grayscale(0)}}
+  @keyframes awardText{0%,22%{opacity:0;transform:translateY(18px) scale(.9)}38%,88%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-8px) scale(1.03)}}
+  @keyframes sparkBurst{0%,30%{opacity:0;transform:translate(-50%,-50%) scale(.2)}48%{opacity:1}82%,100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1)}}
+  .intro.award{animation:introAwayAward 5.55s ease forwards}
+  .intro.award .portal{animation:portalOut 1.35s cubic-bezier(.16,.85,.2,1) forwards}
+  .intro.award .intro-copy{animation:awardIntroCopy 1.4s ease forwards}
+  @keyframes awardIntroCopy{0%,72%{opacity:1}100%{opacity:0}}
+  .award-stage{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,rgba(22,163,74,.22),transparent 30%),radial-gradient(circle at 50% 45%,rgba(250,204,21,.16),transparent 42%),linear-gradient(145deg,#07110c,#111827 58%,#1c0b0b);opacity:0;animation:awardStage 4.1s ease 1.2s forwards}
+  .award-rays{position:absolute;width:330px;height:330px;border-radius:999px;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.10) 0 7deg,transparent 7deg 18deg);animation:spinSlow 11s linear infinite;mask-image:radial-gradient(circle,black 0 46%,transparent 72%)}
+  .award-badge{width:150px!important;height:150px!important;z-index:3;animation:medalReveal 2.25s cubic-bezier(.18,.86,.25,1) 1.35s both;filter:drop-shadow(0 14px 0 rgba(0,0,0,.24)) drop-shadow(0 24px 34px rgba(0,0,0,.28))}
+  .award-badge .badge-back{transform:translateY(12px)}
+  .award-badge .badge-core{font-size:2.45rem;border-width:6px}
+  .award-badge .badge-core::before{inset:20px 28px auto 28px;height:24%}
+  .award-title{position:relative;z-index:4;margin-top:1.35rem;font-family:'Luckiest Guy',cursive;font-size:clamp(1.7rem,8vw,2.8rem);color:white;text-align:center;line-height:1;text-shadow:0 4px 18px rgba(0,0,0,.45);animation:awardText 3.2s ease 1.45s both}
+  .award-sub{position:relative;z-index:4;margin-top:.55rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#fde68a;font-size:.78rem;animation:awardText 3.2s ease 1.62s both}
+  .award-spark{position:absolute;left:50%;top:45%;width:10px;height:10px;border-radius:999px;background:#fff8b5;box-shadow:0 0 15px rgba(255,255,255,.9);animation:sparkBurst 2.5s ease 1.55s both}
+
   @media(max-width:420px){
     .photo-wrap{width:170px;height:170px}
     .photo-img{inset:29px;width:calc(100% - 58px);height:calc(100% - 58px)}
@@ -126,16 +161,38 @@
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
-  <div class="intro" aria-hidden="true">
+  <div class="intro {% if new_medal %}award{% endif %}" aria-hidden="true">
     <div class="portal"></div>
     <div class="intro-copy">
       <div class="intro-title">EUSKARA AGERIA</div>
       <div class="intro-sub">Euskaraz bizi!</div>
     </div>
     <div class="intro-flash"></div>
+
+    {% if new_medal %}
+    <div class="award-stage">
+      <div class="award-rays"></div>
+      <span class="award-spark" style="--x:-118px;--y:-112px"></span>
+      <span class="award-spark" style="--x:-52px;--y:-145px"></span>
+      <span class="award-spark" style="--x:48px;--y:-145px"></span>
+      <span class="award-spark" style="--x:120px;--y:-105px"></span>
+      <span class="award-spark" style="--x:145px;--y:-28px"></span>
+      <span class="award-spark" style="--x:128px;--y:70px"></span>
+      <span class="award-spark" style="--x:62px;--y:126px"></span>
+      <span class="award-spark" style="--x:-48px;--y:132px"></span>
+      <span class="award-spark" style="--x:-128px;--y:72px"></span>
+      <span class="award-spark" style="--x:-148px;--y:-18px"></span>
+      <div class="badge-shell unlocked shape-{{ new_medal }} award-badge">
+        <div class="badge-back"></div>
+        <div class="badge-core">{{ new_medal }}</div>
+      </div>
+      <div class="award-title">{{ new_medal }}. EPEKO MEDAILA</div>
+      <div class="award-sub">Lortu duzu!</div>
+    </div>
+    {% endif %}
   </div>
 
-  <main class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow">
+  <main class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow" {% if new_medal %}style="animation-delay:5.05s"{% endif %}>
     <div class="top-glow"></div>
     <div class="blob h-28 w-28 -top-8 -left-6 bg-white/35"></div>
     <div class="blob h-24 w-24 top-14 -right-8 bg-pink-200/55"></div>
@@ -182,11 +239,23 @@
       </div>
 
       <div class="mt-4 flex justify-center">
-        <div class="goal-card rounded-[1.4rem] px-6 py-3.5 text-center min-w-[210px]">
+        <div class="goal-card rounded-[1.4rem] px-6 py-3.5 text-center min-w-[235px] w-full max-w-[320px]">
           <div class="text-xs font-black uppercase tracking-[.16em] text-zinc-500">Epeko helburua</div>
           <div class="mt-1 flex items-baseline justify-center gap-2">
             <span class="goal-number text-3xl">{{ medal_thresholds[epea] }}</span>
             <span class="text-base font-black text-zinc-700">PUNTU</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-track">
+              <div class="progress-fill {% if remaining == 0 %}progress-done{% elif alumno[3] < 10 %}progress-low{% else %}progress-mid{% endif %}" style="width:{{ progress_pct }}%"></div>
+            </div>
+            <div class="progress-copy">
+              {% if remaining > 0 %}
+                {{ alumno[3] }} / {{ medal_thresholds[epea] }} · {{ remaining }} puntu falta
+              {% else %}
+                {{ alumno[3] }} / {{ medal_thresholds[epea] }} · Medaila lortuta! ✦
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
