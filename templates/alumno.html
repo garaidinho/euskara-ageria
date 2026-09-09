@@ -454,6 +454,103 @@
     justify-content:center!important;
   }
 
+
+  /* V19: zentratzea + glass helburua + medaila pop */
+  .profile-kicker{
+    display:inline-flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+    text-align:center!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    width:auto!important;
+    max-width:calc(100% - 28px)!important;
+    padding-left:1rem!important;
+    padding-right:1rem!important;
+  }
+
+  .goal-card,
+  .goal-card-compact{
+    background:rgba(255,255,255,.42)!important;
+    backdrop-filter:blur(12px)!important;
+    -webkit-backdrop-filter:blur(12px)!important;
+    border:1px solid rgba(255,255,255,.58)!important;
+    box-shadow:0 8px 18px rgba(255,255,255,.16) inset, 0 8px 20px rgba(0,0,0,.04)!important;
+  }
+
+  .medal-panel{
+    border:1.5px solid rgba(209,163,52,.58)!important;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.48) inset,
+      0 10px 22px rgba(209,163,52,.10),
+      0 4px 12px rgba(0,0,0,.04)!important;
+    position:relative;
+    overflow:hidden;
+  }
+  .medal-panel::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    border-radius:inherit;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0) 34%),
+      linear-gradient(315deg, rgba(237,197,85,.10), rgba(237,197,85,0) 42%);
+  }
+
+  @keyframes medalPopIn {
+    0%   { opacity:0; transform:scale(.72) translateY(9px); }
+    60%  { opacity:1; transform:scale(1.07) translateY(-1px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+  }
+  @keyframes medalPulseTiny {
+    0%,100% { transform:scale(1); }
+    50%     { transform:scale(1.045); }
+  }
+
+  .medal-grid .medal-item{
+    opacity:1!important;
+  }
+
+  .medal-grid .medal-item .badge-shell{
+    --delay:0s;
+    animation-name:medalPopIn, medalPulseTiny;
+    animation-duration:.52s, 2.3s;
+    animation-timing-function:cubic-bezier(.2,.9,.2,1.08), ease-in-out;
+    animation-delay:var(--delay), calc(var(--delay) + .62s);
+    animation-fill-mode:backwards, both;
+    animation-iteration-count:1, infinite;
+    transform-origin:center center;
+    will-change:transform, opacity;
+  }
+
+  .medal-grid .medal-item:nth-child(1) .badge-shell{ --delay:.04s; }
+  .medal-grid .medal-item:nth-child(2) .badge-shell{ --delay:.16s; }
+  .medal-grid .medal-item:nth-child(3) .badge-shell{ --delay:.28s; }
+  .medal-grid .medal-item:nth-child(4) .badge-shell{ --delay:.40s; }
+  .medal-grid .medal-item:nth-child(5) .badge-shell{ --delay:.52s; }
+
+  @media (max-width:600px){
+    .profile-kicker{
+      max-width:calc(100% - 18px)!important;
+      padding-left:.9rem!important;
+      padding-right:.9rem!important;
+    }
+    .goal-card,
+    .goal-card-compact{
+      background:rgba(255,255,255,.34)!important;
+      border:1px solid rgba(255,255,255,.50)!important;
+      box-shadow:0 6px 14px rgba(255,255,255,.12) inset, 0 6px 14px rgba(0,0,0,.035)!important;
+    }
+    .medal-panel{
+      border:1.5px solid rgba(214,171,62,.68)!important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.42) inset,
+        0 10px 18px rgba(214,171,62,.11),
+        0 4px 10px rgba(0,0,0,.035)!important;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
