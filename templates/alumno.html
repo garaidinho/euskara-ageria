@@ -65,9 +65,13 @@
   .spark{position:absolute;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 0 18px rgba(255,255,255,.55);animation:bob 3.5s ease-in-out infinite}
 
   /* ───────── Term / points / goal ───────── */
-  .term-pill{background:linear-gradient(135deg,#dc2626,#ef4444);color:white;box-shadow:0 9px 18px rgba(220,38,38,.22),inset 0 2px 0 rgba(255,255,255,.25)}
-  .term-pill::after{content:"";display:inline-block;width:7px;height:7px;margin-left:8px;border-radius:999px;background:#22c55e;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
-  .points-card{background:linear-gradient(145deg,#111827,#0f172a 58%,#1f2937);box-shadow:0 14px 24px rgba(15,23,42,.24);border-top:4px solid #16a34a;border-bottom:4px solid #dc2626}
+  .term-marker{display:flex;align-items:center;justify-content:center;gap:.65rem;color:#374151;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .term-marker::before,.term-marker::after{content:"";height:4px;width:34px;border-radius:999px}
+  .term-marker::before{background:#16a34a}.term-marker::after{background:#dc2626}
+  .points-card{box-shadow:0 14px 24px rgba(15,23,42,.22);border:1px solid rgba(255,255,255,.18);transition:background .35s ease}
+  .points-low{background:linear-gradient(145deg,#7f1d1d,#b91c1c 58%,#ef4444)}
+  .points-mid{background:linear-gradient(145deg,#0f766e,#0d9488 58%,#14b8a6)}
+  .points-medal{background:linear-gradient(145deg,#166534,#16a34a 58%,#22c55e)}
   .points-shine{background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);background-size:200% 100%;animation:shimmer 4s linear infinite}
   .goal-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#ecfdf5,#fff 58%,#fef2f2);box-shadow:0 10px 22px rgba(0,0,0,.09);border:1px solid rgba(22,163,74,.16)}
   .goal-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:#16a34a}
@@ -108,9 +112,9 @@
   .icon-glyph{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:.78rem;opacity:.26;font-weight:900;pointer-events:none}
   .medal-label{font-size:10px;line-height:1.1;text-align:center;font-weight:900;color:#6b7280}
   .medal-item.last .medal-label{color:#a16207}
-  .medals-title{display:flex;align-items:center;justify-content:center;gap:.55rem;font-weight:900;color:#374151}
-  .medals-title::before,.medals-title::after{content:"";height:3px;width:34px;border-radius:999px}
-  .medals-title::before{background:#16a34a}.medals-title::after{background:#dc2626}
+  .medals-caption{display:flex;align-items:center;justify-content:center;gap:.65rem;font-family:'Luckiest Guy',cursive;font-size:1.02rem;letter-spacing:.045em;color:#374151;text-shadow:1px 1px 0 rgba(255,255,255,.85)}
+  .medals-caption::before,.medals-caption::after{content:"";height:4px;width:38px;border-radius:999px}
+  .medals-caption::before{background:#16a34a}.medals-caption::after{background:#dc2626}
 
   @media(max-width:420px){
     .photo-wrap{width:170px;height:170px}
@@ -159,11 +163,16 @@
         </div>
       </div>
 
-      <div class="mt-4 flex justify-center">
-        <div class="term-pill rounded-full px-5 py-2 text-sm sm:text-base font-black shadow-lg">{{ epea }}. epea</div>
-      </div>
+      <div class="term-marker mt-4 text-sm sm:text-base">{{ epea }}. epea</div>
 
-      <div class="mt-4 inline-flex flex-col items-center gap-2 rounded-[1.7rem] points-card px-8 py-4 text-white relative overflow-hidden">
+      {% if alumno[3] < 10 %}
+        {% set points_class = 'points-low' %}
+      {% elif alumno[3] >= medal_thresholds[epea] %}
+        {% set points_class = 'points-medal' %}
+      {% else %}
+        {% set points_class = 'points-mid' %}
+      {% endif %}
+      <div class="mt-4 inline-flex flex-col items-center gap-2 rounded-[1.7rem] points-card {{ points_class }} px-8 py-4 text-white relative overflow-hidden">
         <div class="points-shine absolute inset-0"></div>
         <div class="relative text-[11px] font-black uppercase tracking-[.24em] text-white/70">Zure puntuak</div>
         <div class="relative flex items-end gap-2 leading-none">
@@ -198,8 +207,8 @@
           </div>
           {% endfor %}
         </div>
-        <div class="medals-title mt-5 text-sm sm:text-base">Urteko medailak</div>
       </div>
+      <div class="medals-caption mt-4">Urteko medailak</div>
     </section>
   </main>
 </body>
