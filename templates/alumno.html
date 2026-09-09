@@ -406,6 +406,40 @@
     }
   }
 
+
+  /* ───────── V17 · Helburu kutxa arindu + medailen etiketak jaitsi ───────── */
+  .goal-card,
+  .goal-card-compact{
+    background:rgba(255,255,255,.62)!important;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.72)!important;
+    box-shadow:0 8px 18px rgba(0,0,0,.06)!important;
+  }
+
+  .goal-card::before,
+  .goal-card::after,
+  .goal-card-compact::before,
+  .goal-card-compact::after{
+    display:none!important;
+    content:none!important;
+  }
+
+  .medal-label{
+    margin-top:.18rem!important;
+  }
+
+  @media (max-width:600px){
+    .goal-card,
+    .goal-card-compact{
+      background:rgba(255,255,255,.56)!important;
+      box-shadow:0 8px 16px rgba(0,0,0,.05)!important;
+    }
+    .medal-label{
+      margin-top:.24rem!important;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
