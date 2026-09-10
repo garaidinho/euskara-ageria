@@ -586,6 +586,7 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
     astea = current_week_start()
     berria = START_POINTS
     medaila_berria = False
+    historia_id = None
     aste_net = aste_plus = aste_minus = 0
 
     with closing(get_conn()) as conn, conn, conn.cursor() as cur:
@@ -606,9 +607,14 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
                     (berria, clase_lower, key),
                 )
                 cur.execute(
-                    "INSERT INTO puntu_historia (clase, nombre, epea, delta, mota) VALUES (%s,%s,%s,%s,'eskuz')",
+                    """
+                    INSERT INTO puntu_historia (clase, nombre, epea, delta, mota)
+                    VALUES (%s,%s,%s,%s,'eskuz')
+                    RETURNING id
+                    """,
                     (clase_lower, key, epea, benetako_delta),
                 )
+                historia_id = int(cur.fetchone()[0])
                 medaila_berria = maybe_award_medal(cur, clase_lower, key, epea, berria)
 
         aste_net, aste_plus, aste_minus = weekly_stats_for_student(cur, clase_lower, key, astea)
@@ -621,10 +627,96 @@ def irakasle_aldatu_puntuak(clase: str, nombre: str):
             "asteko_plus": aste_plus,
             "asteko_minus": aste_minus,
             "medaila_berria": bool(medaila_berria),
+            "historia_id": historia_id,
         }
 
     next_url = request.form.get("next")
     return redirect(next_url or url_for("irakasle_index"))
+
+
+@app.post("/irakasle/desegin/<int:historia_id>")
+def irakasle_desegin(historia_id: int):
+    """Azken puntu-aldaketa eskuzkoa benetan desegin, historikoa eta asteko estatistikak zikindu gabe."""
+    ensure_schema()
+    astea = current_week_start()
+
+    with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT clase, nombre, epea, delta, sortua
+            FROM puntu_historia
+            WHERE id=%s
+              AND mota='eskuz'
+              AND sortua >= NOW() - INTERVAL '2 minutes'
+            FOR UPDATE
+            """,
+            (historia_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            if _ajax_request():
+                return {"ok": False, "error": "ez_da_aurkitu"}, 404
+            return redirect(url_for("irakasle_index"))
+
+        clase_lower, key, epea, delta, sortua = row
+
+        # Segurtasuna: desegin daitekeen aldaketa ikasle horren azken puntu-mugimendua izan behar da.
+        cur.execute(
+            """
+            SELECT id
+            FROM puntu_historia
+            WHERE clase=%s AND nombre=%s
+            ORDER BY sortua DESC, id DESC
+            LIMIT 1
+            """,
+            (clase_lower, key),
+        )
+        latest = cur.fetchone()
+        if not latest or int(latest[0]) != int(historia_id):
+            if _ajax_request():
+                return {"ok": False, "error": "ez_da_azkena"}, 409
+            return redirect(url_for("irakasle_index"))
+
+        cur.execute(
+            "SELECT puntuak FROM ikasle_egoera WHERE clase=%s AND nombre=%s FOR UPDATE",
+            (clase_lower, key),
+        )
+        state = cur.fetchone()
+        if not state:
+            if _ajax_request():
+                return {"ok": False, "error": "ikaslea_ez_da_aurkitu"}, 404
+            return redirect(url_for("irakasle_index"))
+
+        berria = max(int(state[0]) - int(delta), 0)
+        cur.execute(
+            "UPDATE ikasle_egoera SET puntuak=%s, updated_at=NOW() WHERE clase=%s AND nombre=%s",
+            (berria, clase_lower, key),
+        )
+        cur.execute("DELETE FROM puntu_historia WHERE id=%s", (historia_id,))
+
+        # Klik oker honek medaila sortu bazuen, desegiteak medaila ere leheneratzen du.
+        threshold = MEDAL_THRESHOLDS.get(int(epea))
+        if int(delta) > 0 and threshold is not None and berria < threshold:
+            cur.execute(
+                """
+                DELETE FROM medailak
+                WHERE clase=%s AND nombre=%s AND epea=%s
+                  AND lortua_noiz >= %s
+                """,
+                (clase_lower, key, epea, sortua - timedelta(seconds=2)),
+            )
+
+        aste_net, aste_plus, aste_minus = weekly_stats_for_student(cur, clase_lower, key, astea)
+
+    if _ajax_request():
+        return {
+            "ok": True,
+            "puntuak": int(berria),
+            "asteko_net": aste_net,
+            "asteko_plus": aste_plus,
+            "asteko_minus": aste_minus,
+        }
+    return redirect(url_for("irakasle_index"))
 
 
 @app.post("/irakasle/absentzia/<clase>/<nombre>")

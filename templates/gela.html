@@ -4,138 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ gela_izena }} · Euskara Ageria</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="theme-color" content="#f4f6f4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script>
+try{if(localStorage.getItem('ea-compact-view')!=='0')document.documentElement.classList.add('compact-view')}catch(e){}
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   *{box-sizing:border-box}
   body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
-  .brand-line{background:linear-gradient(90deg,#c62828 0 33.33%,#fff 33.33% 66.66%,#2e7d32 66.66%)}
-  .student-card{box-shadow:0 7px 22px rgba(15,23,42,.06);transition:box-shadow .18s ease,transform .18s ease;content-visibility:auto;contain-intrinsic-size:290px}
-  @media (hover:hover){.student-card:hover{box-shadow:0 14px 32px rgba(15,23,42,.09)}}
-  .week-pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.42rem .7rem;font-size:.75rem;font-weight:900;white-space:nowrap}
+  .brand-line{height:6px;background:linear-gradient(90deg,#18181b 0 45%,#0f766e 45% 55%,#18181b 55% 100%)}
+  .student-card{box-shadow:0 6px 18px rgba(15,23,42,.055);transition:box-shadow .18s ease,transform .18s ease,opacity .18s ease;content-visibility:auto;contain-intrinsic-size:220px}
+  @media (hover:hover){.student-card:hover{box-shadow:0 12px 28px rgba(15,23,42,.085)}}
+  .student-photo{height:64px;width:64px;transition:.16s ease}
+  .score-box{min-width:58px;transition:.16s ease}
+  .week-pill{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.34rem .62rem;font-size:.69rem;font-weight:900;white-space:nowrap}
   .week-pill.positive{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
   .week-pill.negative{background:#ffe4e6;color:#9f1239;border:1px solid #fecdd3}
   .week-pill.neutral{background:#f4f4f5;color:#71717a;border:1px solid #e4e4e7}
   .break-plus{color:#15803d}.break-minus{color:#be123c}.break-neutral{color:#a1a1aa}
-  .score-main{min-height:46px;transition:transform .08s ease,opacity .15s ease}
-  .score-main:active{transform:scale(.98)}
+  .score-main{min-height:44px;transition:transform .08s ease,opacity .15s ease}
+  .score-main:active,.score-btn:active{transform:scale(.985)}
   .busy{opacity:.58;pointer-events:none}
   .absence-active{background:#fffbeb!important;color:#92400e!important;border-color:#f59e0b!important}
+  .absence-switch{position:relative;display:inline-block;width:30px;height:18px;border-radius:999px;background:#e4e4e7;transition:.18s ease;flex:0 0 auto}
+  .absence-switch::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.18s ease}
+  .absence-active .absence-switch{background:#f59e0b}
+  .absence-active .absence-switch::after{transform:translateX(12px)}
   dialog::backdrop{background:rgba(9,9,11,.58);backdrop-filter:blur(3px)}
   dialog{border:none;padding:0;background:transparent;max-width:none}
   .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:90;transition:.2s ease;max-width:calc(100vw - 32px)}
   .toast.show{opacity:1;transform:translate(-50%,0)}
+  .compact-view .student-card{padding:.72rem!important;border-radius:1.35rem!important}
+  .compact-view .student-photo{height:54px;width:54px;border-radius:1rem}
+  .compact-view .score-box{min-width:52px;padding:.5rem .65rem!important;border-radius:1rem!important}
+  .compact-view .score-box .js-total-points{font-size:1.1rem}
+  .compact-view .student-name{font-size:1rem!important}
+  .compact-view .student-meta{margin-top:.22rem!important}
+  .compact-view .week-row{margin-top:.45rem!important}
+  .compact-view .score-form{margin-top:.55rem!important}
+  .compact-view .score-main{min-height:39px;padding-top:.38rem!important;padding-bottom:.38rem!important}
+  .compact-view .secondary-row{margin-top:.4rem!important}
+  .compact-view .secondary-row>*{min-height:35px}
+  .compact-view .week-pill{padding:.28rem .55rem;font-size:.65rem}
+  @media(max-width:420px){
+    .toolbar-select{max-width:147px}
+    .summary-label{font-size:8px!important;letter-spacing:.08em!important}
+  }
 </style>
 </head>
 <body class="min-h-screen">
-<div class="brand-line h-2 w-full"></div>
+<div class="brand-line w-full"></div>
 
 <header class="sticky top-0 z-40 border-b border-zinc-200/90 bg-[#f4f6f4]/95 backdrop-blur">
-  <div class="mx-auto flex max-w-6xl items-center gap-3 px-3 py-3 sm:px-5 sm:py-4">
-    <a href="{{ url_for('irakasle_index') }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-zinc-200 bg-white text-xl font-black shadow-sm" aria-label="Gelak">←</a>
+  <div class="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2.5 sm:px-5 sm:py-4">
+    <a href="{{ url_for('irakasle_index') }}" class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-zinc-200 bg-white text-lg font-black shadow-sm" aria-label="Gelak">←</a>
     <div class="min-w-0 flex-1">
       <div class="truncate text-xl font-black tracking-tight text-zinc-950 sm:text-2xl">{{ gela_izena }}</div>
-      <div class="mt-0.5 text-xs font-bold text-zinc-500">Astea · {{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }}</div>
+      <div class="mt-0.5 text-[11px] font-bold text-zinc-500 sm:text-xs">Astea · {{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }}</div>
     </div>
-    <div class="hidden rounded-full bg-zinc-950 px-3 py-1.5 text-xs font-black text-white sm:block">Kudeaketa azkarra</div>
+    <button id="compactToggle" type="button" class="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[10px] font-black text-zinc-600 shadow-sm sm:text-xs" aria-pressed="true">Trinkoa</button>
   </div>
 </header>
 
-<main class="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
-  <section class="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
-    <div class="rounded-2xl border border-zinc-200 bg-white p-3 text-center shadow-sm sm:p-4">
-      <div class="text-[10px] font-black uppercase tracking-[.15em] text-zinc-400 sm:text-xs">Ikasleak</div>
-      <div class="mt-1 text-2xl font-black text-zinc-950">{{ ikasle_kop }}</div>
+<main id="teacherMain" data-undo-template="{{ url_for('irakasle_desegin', historia_id=999999) }}" class="mx-auto max-w-6xl px-3 py-3.5 sm:px-5 sm:py-6">
+  <section class="mb-3 grid grid-cols-4 gap-2 sm:gap-3">
+    <div class="rounded-2xl border border-zinc-200 bg-white px-2 py-2.5 text-center shadow-sm sm:p-4">
+      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-zinc-400 sm:text-xs">Ikasleak</div>
+      <div class="mt-0.5 text-xl font-black text-zinc-950 sm:text-2xl">{{ ikasle_kop }}</div>
     </div>
-    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-center shadow-sm sm:p-4">
-      <div class="text-[10px] font-black uppercase tracking-[.15em] text-emerald-600 sm:text-xs">Astean +</div>
-      <div id="summaryPlus" class="mt-1 text-2xl font-black text-emerald-700">+{{ aste_plus_total }}</div>
+    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
+      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-emerald-600 sm:text-xs">Astean +</div>
+      <div id="summaryPlus" class="mt-0.5 text-xl font-black text-emerald-700 sm:text-2xl">+{{ aste_plus_total }}</div>
     </div>
-    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-center shadow-sm sm:p-4">
-      <div class="text-[10px] font-black uppercase tracking-[.15em] text-rose-500 sm:text-xs">Astean −</div>
-      <div id="summaryMinus" class="mt-1 text-2xl font-black text-rose-700">−{{ aste_minus_total }}</div>
+    <div class="rounded-2xl border border-rose-200 bg-rose-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
+      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-rose-500 sm:text-xs">Astean −</div>
+      <div id="summaryMinus" class="mt-0.5 text-xl font-black text-rose-700 sm:text-2xl">−{{ aste_minus_total }}</div>
+    </div>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
+      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-amber-600 sm:text-xs">Absentzia</div>
+      <div id="absenceCount" class="mt-0.5 text-xl font-black text-amber-700 sm:text-2xl">{{ absentzia_kop }}</div>
     </div>
   </section>
 
-  <div class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-    <div class="min-w-0">
-      <div class="text-sm font-black text-zinc-800">Aste honetako puntuazioa</div>
-      <div class="mt-0.5 text-xs font-bold text-zinc-400">Ikasle bakoitzean astean metatutako +/− mugimendua ikusiko duzu.</div>
+  <section class="mb-4 rounded-2xl border border-zinc-200 bg-white p-2.5 shadow-sm sm:p-3">
+    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+      <div class="relative">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">⌕</span>
+        <input id="studentSearch" type="search" autocomplete="off" placeholder="Ikaslea bilatu…" class="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm font-extrabold text-zinc-800 outline-none transition focus:border-zinc-400 focus:bg-white">
+      </div>
+      <select id="studentSort" class="toolbar-select h-10 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-black text-zinc-600 outline-none focus:border-zinc-400">
+        <option value="name">Izenaren arabera</option>
+        <option value="score-asc">Puntu gutxienak</option>
+        <option value="score-desc">Puntu gehienak</option>
+        <option value="week-asc">Asteko saldo baxuena</option>
+        <option value="minus-desc">Astean − gehien</option>
+      </select>
     </div>
-    <div class="shrink-0 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-black text-amber-700"><span id="absenceCount">{{ absentzia_kop }}</span> absentzia</div>
-  </div>
+  </section>
+
+  <div id="emptySearch" class="mb-5 hidden rounded-2xl border border-dashed border-zinc-300 bg-white p-5 text-center text-sm font-black text-zinc-400">Ez da ikaslerik aurkitu.</div>
 
   {% for klasea, ikasleak in taldeak %}
-  <section class="mb-8">
-    <div class="mb-3 flex items-center gap-3">
-      <h2 class="rounded-full bg-zinc-950 px-3 py-1.5 text-xs font-black uppercase tracking-[.16em] text-white">{{ klasea }}</h2>
+  <section class="student-section mb-6" data-section>
+    <div class="mb-2.5 flex items-center gap-3">
+      <h2 class="rounded-full bg-zinc-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[.16em] text-white">{{ klasea }}</h2>
       <div class="h-px flex-1 bg-zinc-200"></div>
-      <div class="text-xs font-black text-zinc-400">{{ ikasleak|length }} ikasle</div>
+      <div class="section-count text-xs font-black text-zinc-400">{{ ikasleak|length }} ikasle</div>
     </div>
 
-    <div class="grid gap-3 md:grid-cols-2">
+    <div class="student-grid grid gap-2.5 md:grid-cols-2">
       {% for s in ikasleak %}
       <article class="student-card rounded-[1.55rem] border border-zinc-200 bg-white p-3.5 sm:p-4"
                data-week-plus="{{ s.asteko_plus }}"
                data-week-minus="{{ s.asteko_minus }}"
+               data-week-net="{{ s.asteko_net }}"
+               data-score="{{ s.puntuak }}"
                data-score-url="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}"
                data-student-name="{{ s.display }}">
-        <div class="flex items-start gap-3">
-          <a href="{{ url_for('mostrar_alumno', clase=s.clase, nombre=s.nombre) }}" target="_blank" class="shrink-0" title="Ikaslearen Euskal Ageria ireki">
-            <img src="{{ url_for('static', filename=s.foto_path) }}" loading="lazy" decoding="async" class="h-[72px] w-[72px] rounded-2xl border-2 border-white object-cover shadow-md" alt="{{ s.display }}">
+        <div class="flex items-start gap-2.5">
+          <a href="{{ url_for('mostrar_alumno', clase=s.clase, nombre=s.nombre) }}" target="_blank" class="shrink-0" title="Ikaslearen Euskara Ageria ireki">
+            <img src="{{ url_for('static', filename=s.foto_path) }}" loading="lazy" decoding="async" class="student-photo rounded-2xl border-2 border-white object-cover shadow-md" alt="{{ s.display }}">
           </a>
 
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="block truncate text-lg font-black leading-tight text-zinc-950 hover:underline sm:text-xl">{{ s.display }}</a>
-                <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                  <span class="rounded-full bg-zinc-100 px-2 py-1 text-[10px] font-black uppercase text-zinc-500">{{ s.clase_label }}</span>
-                  {% if s.absentzia %}<span class="js-absence-badge rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black text-amber-700">ABSENTZIA</span>{% else %}<span class="js-absence-badge hidden rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black text-amber-700">ABSENTZIA</span>{% endif %}
+              <div class="min-w-0 flex-1">
+                <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="student-name block truncate text-lg font-black leading-tight text-zinc-950 hover:underline sm:text-xl">{{ s.display }}</a>
+                <div class="student-meta mt-1 flex flex-wrap items-center gap-1.5">
+                  <span class="rounded-full bg-zinc-100 px-2 py-1 text-[9px] font-black uppercase text-zinc-500">{{ s.clase_label }}</span>
+                  {% if s.absentzia %}<span class="js-absence-badge rounded-full bg-amber-100 px-2 py-1 text-[9px] font-black text-amber-700">ABSENTZIA</span>{% else %}<span class="js-absence-badge hidden rounded-full bg-amber-100 px-2 py-1 text-[9px] font-black text-amber-700">ABSENTZIA</span>{% endif %}
                 </div>
               </div>
-              <div class="shrink-0 rounded-2xl bg-zinc-950 px-3 py-2 text-center text-white">
+              <div class="score-box shrink-0 rounded-2xl bg-zinc-900 px-3 py-2 text-center text-white">
                 <div class="js-total-points text-xl font-black leading-none">{{ s.puntuak }}</div>
-                <div class="mt-1 text-[9px] font-black uppercase tracking-wider text-white/60">puntu</div>
+                <div class="mt-1 text-[8px] font-black uppercase tracking-wider text-white/60">puntu</div>
               </div>
             </div>
 
-            <div class="mt-2.5 flex flex-wrap items-center gap-2">
+            <div class="week-row mt-2 flex flex-wrap items-center gap-1.5">
               <span class="js-week-pill week-pill {{ 'positive' if s.asteko_net > 0 else 'negative' if s.asteko_net < 0 else 'neutral' }}">
-                ASTE HONETAN <strong class="js-week-net">{{ '+' if s.asteko_net > 0 else '' }}{{ s.asteko_net }}</strong>
+                Astean <strong class="js-week-net">{{ '+' if s.asteko_net > 0 else '' }}{{ s.asteko_net }}</strong>
               </span>
-              <span class="js-week-breakdown text-xs font-black">
+              <span class="js-week-breakdown text-[11px] font-black">
                 {% if s.asteko_plus or s.asteko_minus %}
                   <span class="break-plus">+{{ s.asteko_plus }}</span><span class="text-zinc-300"> · </span><span class="break-minus">−{{ s.asteko_minus }}</span>
-                {% else %}
-                  <span class="break-neutral">mugimendurik ez</span>
                 {% endif %}
               </span>
             </div>
           </div>
         </div>
 
-        <form method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}" class="js-score-form mt-3 grid grid-cols-2 gap-2">
+        <form method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}" class="js-score-form score-form mt-2.5 grid grid-cols-2 gap-2">
           <input type="hidden" name="next" value="{{ request.path }}">
-          <button name="delta" value="-1" class="score-main score-btn rounded-2xl border border-rose-200 bg-rose-50 py-2.5 text-lg font-black text-rose-700">−1</button>
-          <button name="delta" value="1" class="score-main score-btn rounded-2xl border border-emerald-200 bg-emerald-50 py-2.5 text-lg font-black text-emerald-700">+1</button>
+          <button name="delta" value="-1" class="score-main score-btn rounded-2xl border border-rose-200 bg-rose-50 py-2 text-lg font-black text-rose-700">−1</button>
+          <button name="delta" value="1" class="score-main score-btn rounded-2xl border border-emerald-200 bg-emerald-50 py-2 text-lg font-black text-emerald-700">+1</button>
         </form>
 
-        <div class="mt-2 grid grid-cols-[1fr_1fr_auto] gap-2">
+        <div class="secondary-row mt-1.5 grid grid-cols-[1fr_1fr_1.5fr_auto] gap-1.5">
           <button type="button" data-sign="-1" class="js-custom score-btn rounded-xl bg-zinc-100 py-2 text-sm font-black text-rose-600">−?</button>
           <button type="button" data-sign="1" class="js-custom score-btn rounded-xl bg-zinc-100 py-2 text-sm font-black text-emerald-700">+?</button>
-          <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="grid min-w-[48px] place-items-center rounded-xl bg-zinc-100 px-3 text-lg text-zinc-500" aria-label="Historikoa" title="Historikoa">↗</a>
+          <form method="post" action="{{ url_for('irakasle_absentzia', clase=s.clase, nombre=s.nombre) }}" class="js-absence-form min-w-0">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button class="js-absence-btn score-btn flex h-full w-full items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-[10px] font-black {{ 'absence-active border-amber-400' if s.absentzia else 'border-zinc-200 bg-zinc-50 text-zinc-500' }}" aria-pressed="{{ 'true' if s.absentzia else 'false' }}">
+              <span class="absence-switch"></span><span>Absentzia</span>
+            </button>
+          </form>
+          <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="grid min-w-[42px] place-items-center rounded-xl bg-zinc-100 px-2 text-lg text-zinc-500" aria-label="Historikoa" title="Historikoa">↗</a>
         </div>
-
-        <form method="post" action="{{ url_for('irakasle_absentzia', clase=s.clase, nombre=s.nombre) }}" class="js-absence-form mt-2.5">
-          <input type="hidden" name="next" value="{{ request.path }}">
-          <button class="js-absence-btn score-btn w-full rounded-xl border px-3 py-2 text-xs font-black {{ 'absence-active border-amber-400' if s.absentzia else 'border-zinc-200 bg-zinc-50 text-zinc-500' }}">
-            <span class="js-absence-text">{% if s.absentzia %}✓ Absentzia aste honetan{% else %}Absentzia aste honetan{% endif %}</span>
-          </button>
-        </form>
       </article>
       {% endfor %}
     </div>
@@ -167,12 +210,26 @@
 (() => {
   const toast = document.getElementById('toast');
   let toastTimer;
-  function showToast(message, special=false){
+  function showToast(message, special=false, undoAction=null){
     clearTimeout(toastTimer);
-    toast.textContent = message;
+    toast.innerHTML = '';
+    const text = document.createElement('span');
+    text.textContent = message;
+    toast.appendChild(text);
+    if(undoAction){
+      const undo = document.createElement('button');
+      undo.type = 'button';
+      undo.textContent = 'Desegin';
+      undo.className = 'ml-3 rounded-lg bg-white/15 px-2.5 py-1 text-xs font-black text-white underline underline-offset-2';
+      undo.addEventListener('click', async () => {
+        undo.disabled = true;
+        await undoAction();
+      }, {once:true});
+      toast.appendChild(undo);
+    }
     toast.style.background = special ? '#166534' : '#18181b';
     toast.classList.add('show');
-    toastTimer = setTimeout(() => toast.classList.remove('show'), special ? 2600 : 1500);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), undoAction ? 4800 : special ? 2600 : 1500);
   }
 
   async function postData(url, data){
@@ -202,8 +259,9 @@
     if(data.asteko_plus || data.asteko_minus){
       breakdown.innerHTML = `<span class="break-plus">+${data.asteko_plus}</span><span class="text-zinc-300"> · </span><span class="break-minus">−${data.asteko_minus}</span>`;
     }else{
-      breakdown.innerHTML = '<span class="break-neutral">mugimendurik ez</span>';
+      breakdown.innerHTML = '';
     }
+    card.dataset.weekNet = data.asteko_net;
   }
 
   function updateSummary(card, data){
@@ -219,14 +277,39 @@
     card.dataset.weekMinus = data.asteko_minus;
   }
 
+  const undoTemplate = document.getElementById('teacherMain').dataset.undoTemplate;
+  function undoUrl(id){ return undoTemplate.replace('999999', String(id)); }
+
+  async function undoDelta(card, historiaId){
+    setBusy(card, true);
+    try{
+      const data = await postData(undoUrl(historiaId), {});
+      card.querySelector('.js-total-points').textContent = data.puntuak;
+      card.dataset.score = data.puntuak;
+      updateSummary(card, data);
+      renderWeek(card, data);
+      applyFilterAndSort();
+      showToast('Aldaketa deseginda');
+    }catch(err){
+      console.error(err);
+      showToast('Ezin izan da desegin; baliteke ondoren beste aldaketa bat egina izatea.');
+    }finally{
+      setBusy(card, false);
+    }
+  }
+
   async function applyDelta(card, delta){
     setBusy(card, true);
     try{
       const data = await postData(card.dataset.scoreUrl, {delta});
       card.querySelector('.js-total-points').textContent = data.puntuak;
+      card.dataset.score = data.puntuak;
       updateSummary(card, data);
       renderWeek(card, data);
-      showToast(data.medaila_berria ? '🏅 Medaila desblokeatuta! Txartela irekitzean animazioa ikusiko du.' : 'Puntuazioa eguneratua', data.medaila_berria);
+      applyFilterAndSort();
+      const message = data.medaila_berria ? '🏅 Medaila desblokeatuta!' : 'Puntuazioa eguneratua';
+      const undo = data.historia_id ? () => undoDelta(card, data.historia_id) : null;
+      showToast(message, data.medaila_berria, undo);
     }catch(err){
       console.error(err);
       showToast('Ezin izan da eguneratu. Saiatu berriz.');
@@ -292,7 +375,7 @@
         btn.classList.toggle('border-zinc-200', !data.absentzia);
         btn.classList.toggle('bg-zinc-50', !data.absentzia);
         btn.classList.toggle('text-zinc-500', !data.absentzia);
-        form.querySelector('.js-absence-text').textContent = data.absentzia ? '✓ Absentzia aste honetan' : 'Absentzia aste honetan';
+        btn.setAttribute('aria-pressed', data.absentzia ? 'true' : 'false');
         const badge = card.querySelector('.js-absence-badge');
         badge.classList.toggle('hidden', !data.absentzia);
         const count = document.getElementById('absenceCount');
@@ -303,6 +386,62 @@
       }finally{btn.disabled=false}
     });
   });
+
+  const searchInput = document.getElementById('studentSearch');
+  const sortSelect = document.getElementById('studentSort');
+  const emptySearch = document.getElementById('emptySearch');
+  const normalize = value => (value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+
+  function compareCards(a,b,mode){
+    const nameA = normalize(a.dataset.studentName), nameB = normalize(b.dataset.studentName);
+    const scoreA = Number(a.dataset.score || 0), scoreB = Number(b.dataset.score || 0);
+    const weekA = Number(a.dataset.weekNet || 0), weekB = Number(b.dataset.weekNet || 0);
+    const minusA = Number(a.dataset.weekMinus || 0), minusB = Number(b.dataset.weekMinus || 0);
+    if(mode==='score-asc') return scoreA-scoreB || nameA.localeCompare(nameB);
+    if(mode==='score-desc') return scoreB-scoreA || nameA.localeCompare(nameB);
+    if(mode==='week-asc') return weekA-weekB || nameA.localeCompare(nameB);
+    if(mode==='minus-desc') return minusB-minusA || nameA.localeCompare(nameB);
+    return nameA.localeCompare(nameB);
+  }
+
+  function applyFilterAndSort(){
+    const query = normalize(searchInput.value);
+    const mode = sortSelect.value;
+    let visibleTotal = 0;
+    document.querySelectorAll('[data-section]').forEach(section => {
+      const grid = section.querySelector('.student-grid');
+      const cards = Array.from(grid.querySelectorAll('.student-card'));
+      cards.sort((a,b)=>compareCards(a,b,mode)).forEach(card => grid.appendChild(card));
+      let visible = 0;
+      cards.forEach(card => {
+        const show = !query || normalize(card.dataset.studentName).includes(query);
+        card.hidden = !show;
+        if(show) visible++;
+      });
+      visibleTotal += visible;
+      section.hidden = visible===0;
+      const countNode = section.querySelector('.section-count');
+      if(countNode) countNode.textContent = `${visible} ikasle`;
+    });
+    emptySearch.classList.toggle('hidden', visibleTotal!==0);
+  }
+
+  searchInput.addEventListener('input', applyFilterAndSort);
+  sortSelect.addEventListener('change', applyFilterAndSort);
+
+  const compactToggle = document.getElementById('compactToggle');
+  function syncCompactLabel(){
+    const compact = document.documentElement.classList.contains('compact-view');
+    compactToggle.textContent = compact ? 'Trinkoa' : 'Osoa';
+    compactToggle.setAttribute('aria-pressed', compact ? 'true' : 'false');
+  }
+  compactToggle.addEventListener('click', () => {
+    const compact = document.documentElement.classList.toggle('compact-view');
+    try{localStorage.setItem('ea-compact-view', compact ? '1' : '0')}catch(e){}
+    syncCompactLabel();
+  });
+  syncCompactLabel();
+  applyFilterAndSort();
 })();
 </script>
 </body>

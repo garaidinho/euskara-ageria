@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Irakasleak · Euskara Ageria</title>
 <link rel="manifest" href="/static/manifest.webmanifest">
-<meta name="theme-color" content="#18181b">
+<meta name="theme-color" content="#f4f6f4">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -19,35 +19,51 @@
 <style>
   *{box-sizing:border-box}
   body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
-  .brand-line{background:linear-gradient(90deg,#c62828 0 33.33%,#fff 33.33% 66.66%,#2e7d32 66.66%)}
+  .brand-line{height:6px;background:linear-gradient(90deg,#18181b 0 45%,#0f766e 45% 55%,#18181b 55% 100%)}
   .choice-card{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
   .choice-card:active{transform:scale(.985)}
   @media (hover:hover){.choice-card:hover{transform:translateY(-2px);box-shadow:0 15px 34px rgba(15,23,42,.10)}}
   .level-dot{box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+  .home-grid{display:grid;grid-template-columns:minmax(0,1.09fr) minmax(0,.91fr);align-items:center;gap:14px}
+  .teacher-card{min-height:74px}
+  .level-card{min-height:84px}
+  @media(min-width:640px){
+    .home-grid{gap:28px;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+    .teacher-card{min-height:90px}
+    .level-card{min-height:100px}
+  }
   @media(max-width:420px){
-    .teacher-name{font-size:1rem}
-    .card-count{font-size:.7rem}
+    .teacher-name{font-size:.96rem}
+    .card-count{font-size:.71rem}
+    .home-grid{gap:10px}
+    .teacher-card{min-height:70px}
+    .level-card{min-height:80px}
+  }
+  @media(max-width:350px){
+    .home-grid{gap:8px}
+    .teacher-card,.level-card{padding:.72rem!important}
   }
 </style>
 </head>
 <body class="min-h-screen">
-<div class="brand-line h-2 w-full"></div>
+<div class="brand-line w-full"></div>
 
 <main class="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-6">
   <header class="mb-5 sm:mb-7">
     <div class="flex items-center gap-3">
       <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-zinc-950 text-xl font-black text-white shadow-sm">EA</div>
       <div class="min-w-0">
-        <div class="text-[10px] font-black uppercase tracking-[.22em] text-emerald-700 sm:text-xs">Euskara Ageria</div>
+        <div class="text-[10px] font-black uppercase tracking-[.22em] text-teal-700 sm:text-xs">Euskara Ageria</div>
         <h1 class="truncate text-2xl font-black tracking-tight text-zinc-950 sm:text-4xl">Irakasleen panela</h1>
+        <p class="mt-0.5 text-[11px] font-extrabold text-zinc-400 sm:text-sm">Aukeratu gela edo maila</p>
       </div>
     </div>
   </header>
 
-  <div class="grid grid-cols-2 gap-4 sm:gap-6">
-    <section class="min-w-0">
+  <div class="home-grid">
+    <section class="min-w-0 self-center">
       <div class="mb-3 flex items-center gap-2 sm:mb-4">
-        <div class="h-3 w-3 rounded-full bg-zinc-950"></div>
+        <div class="h-2.5 w-2.5 rounded-full bg-zinc-950"></div>
         <h2 class="text-sm font-black uppercase tracking-[.18em] text-zinc-500 sm:text-base">Gelak</h2>
       </div>
 
@@ -61,25 +77,24 @@
         {% for g in gelak %}
           {% set a = accents[loop.index0] %}
           <a href="{{ url_for('irakasle_gela', gela_key=g.key) }}"
-             class="choice-card relative min-h-[82px] overflow-hidden rounded-[1.55rem] border border-zinc-200 bg-white p-4 shadow-sm sm:min-h-[98px] sm:rounded-[1.85rem] sm:p-5">
-            <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-20 sm:h-24 sm:w-24" style="background:{{ a[0] }}"></div>
-            <div class="relative flex h-full items-center gap-3 sm:gap-4">
-              <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-lg font-black sm:h-16 sm:w-16 sm:text-2xl"
+             class="choice-card teacher-card relative overflow-hidden rounded-[1.45rem] border border-zinc-200 bg-white p-3.5 shadow-sm sm:rounded-[1.75rem] sm:p-4">
+            <div class="absolute -right-5 -top-6 h-16 w-16 rounded-full opacity-20 sm:h-20 sm:w-20" style="background:{{ a[0] }}"></div>
+            <div class="relative flex h-full items-center gap-2.5 sm:gap-3.5">
+              <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-base font-black sm:h-14 sm:w-14 sm:text-xl"
                    style="background:{{ a[1] }};color:{{ a[0] }}">{{ a[2] }}</div>
               <div class="min-w-0 flex-1">
                 <div class="teacher-name leading-tight font-black text-zinc-950 sm:text-xl">{{ g.izena }}</div>
-                <div class="card-count mt-1.5 text-[11px] font-black text-zinc-400 sm:text-sm">{{ g.kop }} ikasle</div>
+                <div class="card-count mt-1 text-[11px] font-black text-zinc-500 sm:text-sm">{{ g.kop }} ikasle</div>
               </div>
-              <div class="hidden text-xl font-black text-zinc-300 sm:block">›</div>
             </div>
           </a>
         {% endfor %}
       </div>
     </section>
 
-    <section class="min-w-0">
+    <section class="min-w-0 self-center">
       <div class="mb-3 flex items-center gap-2 sm:mb-4">
-        <div class="h-3 w-3 rounded-full bg-emerald-600"></div>
+        <div class="h-2.5 w-2.5 rounded-full bg-teal-600"></div>
         <h2 class="text-sm font-black uppercase tracking-[.18em] text-zinc-500 sm:text-base">Mailak</h2>
       </div>
 
@@ -94,27 +109,20 @@
         {% for m in mailak %}
           {% set c = levels[m.key] %}
           <a href="{{ url_for('irakasle_maila', maila=m.key) }}"
-             class="choice-card relative min-h-[82px] overflow-hidden rounded-[1.55rem] border border-zinc-200 bg-white p-4 shadow-sm sm:min-h-[98px] sm:rounded-[1.85rem] sm:p-5">
-            <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-20 sm:h-24 sm:w-24" style="background:{{ c[0] }}"></div>
-            <div class="relative flex h-full items-center gap-3 sm:gap-4">
-              <div class="level-dot grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-sm font-black text-white sm:h-16 sm:w-16 sm:text-base"
+             class="choice-card level-card relative overflow-hidden rounded-[1.45rem] border border-zinc-200 bg-white p-3.5 shadow-sm sm:rounded-[1.75rem] sm:p-4">
+            <div class="absolute -right-5 -top-6 h-16 w-16 rounded-full opacity-20 sm:h-20 sm:w-20" style="background:{{ c[0] }}"></div>
+            <div class="relative flex h-full items-center gap-2.5 sm:gap-3.5">
+              <div class="level-dot grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-[13px] font-black text-white sm:h-14 sm:w-14 sm:text-sm"
                    style="background:{{ c[0] }}">{{ m.izena }}</div>
               <div class="min-w-0 flex-1">
                 <div class="text-lg font-black leading-tight text-zinc-950 sm:text-2xl">{{ m.izena }}</div>
-                <div class="card-count mt-1.5 text-[11px] font-black text-zinc-400 sm:text-sm">{{ m.kop }} ikasle</div>
+                <div class="card-count mt-1 text-[11px] font-black text-zinc-500 sm:text-sm">{{ m.kop }} ikasle</div>
               </div>
-              <div class="hidden text-xl font-black text-zinc-300 sm:block">›</div>
             </div>
           </a>
         {% endfor %}
       </div>
     </section>
-  </div>
-
-  <div class="mt-5 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-zinc-400 sm:mt-6 sm:text-xs">
-    <span class="h-1.5 w-1.5 rounded-full bg-[#c62828]"></span>
-    <span>Aukeratu gela edo maila</span>
-    <span class="h-1.5 w-1.5 rounded-full bg-[#2e7d32]"></span>
   </div>
 </main>
 <script>

@@ -1,4 +1,4 @@
-const VERSION = 'v14';
+const VERSION = 'v23';
 const SHELL_CACHE = `euskal-ageria-shell-${VERSION}`;
 const ASSET_CACHE = `euskal-ageria-assets-${VERSION}`;
 
