@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/teacher-v24.css">
+<link rel="stylesheet" href="/static/teacher-v25.css">
 </head>
 <body>
 <main id="detailMain"
@@ -35,6 +35,16 @@
           <span id="detailWeek" class="detail-week {{ 'positive' if asteko_net > 0 else 'negative' if asteko_net < 0 else '' }}">Astean {{ '+' if asteko_net > 0 else '' }}{{ asteko_net }}</span>
         </div>
         <div class="detail-break">{{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }} · <span id="detailBreakPlus" class="break-plus">+{{ asteko_plus }}</span> · <span id="detailBreakMinus" class="break-minus">−{{ asteko_minus }}</span></div>
+        {% set medal_limits = {1:15, 2:15, 3:15, 4:15, 5:17} %}
+        {% set medal_limit = medal_limits.get(epea, 15) %}
+        {% set medal_pct = ((puntuak * 100 / medal_limit)|round|int) %}
+        <div class="medal-progress" data-medal-limit="{{ medal_limit }}">
+          <div class="medal-progress-head">
+            <span>Medaila · {{ medal_limit }} puntu</span>
+            <strong id="medalProgressText">{% if puntuak >= medal_limit %}Lortuta ✓{% else %}{{ medal_limit - puntuak }} falta{% endif %}</strong>
+          </div>
+          <div class="medal-track"><i id="medalProgressBar" style="width:{{ 100 if medal_pct > 100 else medal_pct }}%"></i></div>
+        </div>
       </div>
     </div>
 
@@ -56,11 +66,18 @@
       </div>
       <div class="history-limit">azken 50</div>
     </div>
+    {% if historia %}
+    <div class="history-filters" aria-label="Historikoa iragazi">
+      <button type="button" class="history-filter active" data-history-filter="all">Guztiak</button>
+      <button type="button" class="history-filter plus" data-history-filter="plus">+ Gehituta</button>
+      <button type="button" class="history-filter minus" data-history-filter="minus">− Kenduta</button>
+    </div>
+    {% endif %}
 
     {% if historia %}
     <div class="history-list">
       {% for delta, mota, sortua in historia %}
-      <div class="history-item">
+      <div class="history-item" data-history-sign="{{ 'plus' if delta > 0 else 'minus' }}">
         <div class="history-left">
           <div class="history-delta {{ 'plus' if delta > 0 else 'minus' }}">{{ '+' if delta > 0 else '' }}{{ delta }}</div>
           <div>
@@ -79,6 +96,6 @@
 </main>
 
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-<script src="/static/teacher-detail-v24.js" defer></script>
+<script src="/static/teacher-detail-v25.js" defer></script>
 </body>
 </html>
