@@ -5,179 +5,140 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ gela_izena }} · Euskara Ageria</title>
 <link rel="manifest" href="/static/manifest.webmanifest">
-<meta name="theme-color" content="#f4f6f4">
+<meta name="theme-color" content="#f6f4ef">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<script>
-try{if(localStorage.getItem('ea-compact-view')!=='0')document.documentElement.classList.add('compact-view')}catch(e){}
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  *{box-sizing:border-box}
-  body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
-  .brand-line{height:6px;background:linear-gradient(90deg,#18181b 0 45%,#0f766e 45% 55%,#18181b 55% 100%)}
-  .student-card{box-shadow:0 6px 18px rgba(15,23,42,.055);transition:box-shadow .18s ease,transform .18s ease,opacity .18s ease;content-visibility:auto;contain-intrinsic-size:220px}
-  @media (hover:hover){.student-card:hover{box-shadow:0 12px 28px rgba(15,23,42,.085)}}
-  .student-photo{height:64px;width:64px;transition:.16s ease}
-  .score-box{min-width:58px;transition:.16s ease}
-  .week-pill{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.34rem .62rem;font-size:.69rem;font-weight:900;white-space:nowrap}
-  .week-pill.positive{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
-  .week-pill.negative{background:#ffe4e6;color:#9f1239;border:1px solid #fecdd3}
-  .week-pill.neutral{background:#f4f4f5;color:#71717a;border:1px solid #e4e4e7}
-  .break-plus{color:#15803d}.break-minus{color:#be123c}.break-neutral{color:#a1a1aa}
-  .score-main{min-height:44px;transition:transform .08s ease,opacity .15s ease}
-  .score-main:active,.score-btn:active{transform:scale(.985)}
-  .busy{opacity:.58;pointer-events:none}
-  .absence-active{background:#fffbeb!important;color:#92400e!important;border-color:#f59e0b!important}
-  .absence-switch{position:relative;display:inline-block;width:30px;height:18px;border-radius:999px;background:#e4e4e7;transition:.18s ease;flex:0 0 auto}
-  .absence-switch::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.18s ease}
-  .absence-active .absence-switch{background:#f59e0b}
-  .absence-active .absence-switch::after{transform:translateX(12px)}
-  dialog::backdrop{background:rgba(9,9,11,.58);backdrop-filter:blur(3px)}
-  dialog{border:none;padding:0;background:transparent;max-width:none}
-  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:90;transition:.2s ease;max-width:calc(100vw - 32px)}
-  .toast.show{opacity:1;transform:translate(-50%,0)}
-  .compact-view .student-card{padding:.72rem!important;border-radius:1.35rem!important}
-  .compact-view .student-photo{height:54px;width:54px;border-radius:1rem}
-  .compact-view .score-box{min-width:52px;padding:.5rem .65rem!important;border-radius:1rem!important}
-  .compact-view .score-box .js-total-points{font-size:1.1rem}
-  .compact-view .student-name{font-size:1rem!important}
-  .compact-view .student-meta{margin-top:.22rem!important}
-  .compact-view .week-row{margin-top:.45rem!important}
-  .compact-view .score-form{margin-top:.55rem!important}
-  .compact-view .score-main{min-height:39px;padding-top:.38rem!important;padding-bottom:.38rem!important}
-  .compact-view .secondary-row{margin-top:.4rem!important}
-  .compact-view .secondary-row>*{min-height:35px}
-  .compact-view .week-pill{padding:.28rem .55rem;font-size:.65rem}
-  @media(max-width:420px){
-    .toolbar-select{max-width:147px}
-    .summary-label{font-size:8px!important;letter-spacing:.08em!important}
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('ea-compact-view')!=='0')document.documentElement.classList.add('compact-view')}catch(e){document.documentElement.classList.add('compact-view')}</script>
+<link rel="stylesheet" href="/static/teacher-v24.css">
 </head>
-<body class="min-h-screen">
-<div class="brand-line w-full"></div>
-
-<header class="sticky top-0 z-40 border-b border-zinc-200/90 bg-[#f4f6f4]/95 backdrop-blur">
-  <div class="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2.5 sm:px-5 sm:py-4">
-    <a href="{{ url_for('irakasle_index') }}" class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-zinc-200 bg-white text-lg font-black shadow-sm" aria-label="Gelak">←</a>
-    <div class="min-w-0 flex-1">
-      <div class="truncate text-xl font-black tracking-tight text-zinc-950 sm:text-2xl">{{ gela_izena }}</div>
-      <div class="mt-0.5 text-[11px] font-bold text-zinc-500 sm:text-xs">Astea · {{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }}</div>
+<body>
+<header class="teacher-top">
+  <div class="teacher-top-inner">
+    <a href="{{ url_for('irakasle_index') }}" class="back-btn" aria-label="Hasierara itzuli">←</a>
+    <div class="kimua-mark small" aria-hidden="true"><img src="/static/icons/kimua-192.png" width="32" height="32" alt=""></div>
+    <div class="teacher-heading">
+      <h1>{{ gela_izena }}</h1>
+      <p>Astea · {{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }}</p>
     </div>
-    <button id="compactToggle" type="button" class="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[10px] font-black text-zinc-600 shadow-sm sm:text-xs" aria-pressed="true">Trinkoa</button>
+    <button id="compactToggle" type="button" class="view-toggle" aria-pressed="true">Ikuspegia: Trinkoa</button>
   </div>
 </header>
 
-<main id="teacherMain" data-undo-template="{{ url_for('irakasle_desegin', historia_id=999999) }}" class="mx-auto max-w-6xl px-3 py-3.5 sm:px-5 sm:py-6">
-  <section class="mb-3 grid grid-cols-4 gap-2 sm:gap-3">
-    <div class="rounded-2xl border border-zinc-200 bg-white px-2 py-2.5 text-center shadow-sm sm:p-4">
-      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-zinc-400 sm:text-xs">Ikasleak</div>
-      <div class="mt-0.5 text-xl font-black text-zinc-950 sm:text-2xl">{{ ikasle_kop }}</div>
+<main id="teacherMain"
+      class="dashboard"
+      data-undo-template="{{ url_for('irakasle_desegin', historia_id=999999) }}">
+
+  <section class="summary-grid" aria-label="Asteko laburpena">
+    <div class="summary-card">
+      <span class="summary-label">Ikasleak</span>
+      <span class="summary-value">{{ ikasle_kop }}</span>
     </div>
-    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
-      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-emerald-600 sm:text-xs">Astean +</div>
-      <div id="summaryPlus" class="mt-0.5 text-xl font-black text-emerald-700 sm:text-2xl">+{{ aste_plus_total }}</div>
+    <div class="summary-card green">
+      <span class="summary-label">Astean +</span>
+      <span id="summaryPlus" class="summary-value">+{{ aste_plus_total }}</span>
     </div>
-    <div class="rounded-2xl border border-rose-200 bg-rose-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
-      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-rose-500 sm:text-xs">Astean −</div>
-      <div id="summaryMinus" class="mt-0.5 text-xl font-black text-rose-700 sm:text-2xl">−{{ aste_minus_total }}</div>
+    <div class="summary-card rose">
+      <span class="summary-label">Astean −</span>
+      <span id="summaryMinus" class="summary-value">−{{ aste_minus_total }}</span>
     </div>
-    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-2 py-2.5 text-center shadow-sm sm:p-4">
-      <div class="summary-label text-[9px] font-black uppercase tracking-[.12em] text-amber-600 sm:text-xs">Absentzia</div>
-      <div id="absenceCount" class="mt-0.5 text-xl font-black text-amber-700 sm:text-2xl">{{ absentzia_kop }}</div>
+    <div class="summary-card amber">
+      <span class="summary-label">Absentzia</span>
+      <span id="absenceCount" class="summary-value">{{ absentzia_kop }}</span>
     </div>
   </section>
 
-  <section class="mb-4 rounded-2xl border border-zinc-200 bg-white p-2.5 shadow-sm sm:p-3">
-    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-      <div class="relative">
-        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">⌕</span>
-        <input id="studentSearch" type="search" autocomplete="off" placeholder="Ikaslea bilatu…" class="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm font-extrabold text-zinc-800 outline-none transition focus:border-zinc-400 focus:bg-white">
-      </div>
-      <select id="studentSort" class="toolbar-select h-10 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-black text-zinc-600 outline-none focus:border-zinc-400">
-        <option value="name">Izenaren arabera</option>
-        <option value="score-asc">Puntu gutxienak</option>
-        <option value="score-desc">Puntu gehienak</option>
-        <option value="week-asc">Asteko saldo baxuena</option>
-        <option value="minus-desc">Astean − gehien</option>
-      </select>
+  <section class="toolbar" aria-label="Ikasleak bilatu eta ordenatu">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input id="studentSearch" class="search-input" type="search" autocomplete="off" placeholder="Ikaslea bilatu…">
     </div>
+    <select id="studentSort" class="sort-select" aria-label="Ordenatu ikasleak">
+      <option value="name">Izenaren arabera</option>
+      <option value="score-asc">Puntu gutxienak</option>
+      <option value="score-desc">Puntu gehienak</option>
+      <option value="week-asc">Asteko saldo baxuena</option>
+      <option value="minus-desc">Astean − gehien</option>
+      <option value="absence-desc">Absentziadunak lehenik</option>
+    </select>
   </section>
 
-  <div id="emptySearch" class="mb-5 hidden rounded-2xl border border-dashed border-zinc-300 bg-white p-5 text-center text-sm font-black text-zinc-400">Ez da ikaslerik aurkitu.</div>
+  <div id="emptySearch" class="empty-state hidden">Ez da ikaslerik aurkitu.</div>
 
+  {% set level_colors = {'LM1':'#2c6ee8','LM2':'#d39300','LM3':'#e32626','LM4':'#1ca85d','LM5':'#7d3ee8'} %}
   {% for klasea, ikasleak in taldeak %}
-  <section class="student-section mb-6" data-section>
-    <div class="mb-2.5 flex items-center gap-3">
-      <h2 class="rounded-full bg-zinc-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[.16em] text-white">{{ klasea }}</h2>
-      <div class="h-px flex-1 bg-zinc-200"></div>
-      <div class="section-count text-xs font-black text-zinc-400">{{ ikasleak|length }} ikasle</div>
+  <section class="student-section" data-section style="--level-color:{{ level_colors.get(klasea, '#333') }}">
+    <div class="section-head">
+      <h2 class="section-pill">{{ klasea }}</h2>
+      <div class="section-line"></div>
+      <div class="section-count">{{ ikasleak|length }} ikasle</div>
     </div>
 
-    <div class="student-grid grid gap-2.5 md:grid-cols-2">
+    <div class="student-grid">
       {% for s in ikasleak %}
-      <article class="student-card rounded-[1.55rem] border border-zinc-200 bg-white p-3.5 sm:p-4"
+      <article class="student-card"
                data-week-plus="{{ s.asteko_plus }}"
                data-week-minus="{{ s.asteko_minus }}"
                data-week-net="{{ s.asteko_net }}"
                data-score="{{ s.puntuak }}"
+               data-absence="{{ '1' if s.absentzia else '0' }}"
                data-score-url="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}"
-               data-student-name="{{ s.display }}">
-        <div class="flex items-start gap-2.5">
-          <a href="{{ url_for('mostrar_alumno', clase=s.clase, nombre=s.nombre) }}" target="_blank" class="shrink-0" title="Ikaslearen Euskara Ageria ireki">
-            <img src="{{ url_for('static', filename=s.foto_path) }}" loading="lazy" decoding="async" class="student-photo rounded-2xl border-2 border-white object-cover shadow-md" alt="{{ s.display }}">
+               data-student-name="{{ s.display }}"
+               style="--level-color:{{ level_colors.get(s.clase_label, '#333') }}">
+        <div class="student-head">
+          <a href="{{ url_for('mostrar_alumno', clase=s.clase, nombre=s.nombre) }}" target="_blank" rel="noopener" title="Ikaslearen Euskara Ageria ireki">
+            <img src="{{ url_for('static', filename=s.foto_path) }}"
+                 {% if loop.index <= 2 %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                 decoding="async" width="60" height="60" class="student-photo" alt="{{ s.display }}">
           </a>
 
-          <div class="min-w-0 flex-1">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="student-name block truncate text-lg font-black leading-tight text-zinc-950 hover:underline sm:text-xl">{{ s.display }}</a>
-                <div class="student-meta mt-1 flex flex-wrap items-center gap-1.5">
-                  <span class="rounded-full bg-zinc-100 px-2 py-1 text-[9px] font-black uppercase text-zinc-500">{{ s.clase_label }}</span>
-                  {% if s.absentzia %}<span class="js-absence-badge rounded-full bg-amber-100 px-2 py-1 text-[9px] font-black text-amber-700">ABSENTZIA</span>{% else %}<span class="js-absence-badge hidden rounded-full bg-amber-100 px-2 py-1 text-[9px] font-black text-amber-700">ABSENTZIA</span>{% endif %}
+          <div class="student-main">
+            <div class="student-title-row">
+              <div style="min-width:0;flex:1">
+                <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="student-name">{{ s.display }}</a>
+                <div class="student-tags">
+                  <span class="level-tag">{{ s.clase_label }}</span>
+                  <span class="js-absence-badge absence-badge {{ '' if s.absentzia else 'hidden' }}">ABSENTZIA</span>
                 </div>
               </div>
-              <div class="score-box shrink-0 rounded-2xl bg-zinc-900 px-3 py-2 text-center text-white">
-                <div class="js-total-points text-xl font-black leading-none">{{ s.puntuak }}</div>
-                <div class="mt-1 text-[8px] font-black uppercase tracking-wider text-white/60">puntu</div>
+              <div class="score-box" aria-label="{{ s.puntuak }} puntu">
+                <div class="js-total-points score-number">{{ s.puntuak }}</div>
+                <div class="score-label">puntu</div>
               </div>
             </div>
 
-            <div class="week-row mt-2 flex flex-wrap items-center gap-1.5">
-              <span class="js-week-pill week-pill {{ 'positive' if s.asteko_net > 0 else 'negative' if s.asteko_net < 0 else 'neutral' }}">
+            <div class="week-row">
+              <span class="js-week-pill week-pill {{ 'positive' if s.asteko_net > 0 else 'negative' if s.asteko_net < 0 else '' }}">
                 Astean <strong class="js-week-net">{{ '+' if s.asteko_net > 0 else '' }}{{ s.asteko_net }}</strong>
               </span>
-              <span class="js-week-breakdown text-[11px] font-black">
+              <span class="js-week-breakdown week-breakdown">
                 {% if s.asteko_plus or s.asteko_minus %}
-                  <span class="break-plus">+{{ s.asteko_plus }}</span><span class="text-zinc-300"> · </span><span class="break-minus">−{{ s.asteko_minus }}</span>
+                  <span class="break-plus">+{{ s.asteko_plus }}</span> · <span class="break-minus">−{{ s.asteko_minus }}</span>
                 {% endif %}
               </span>
             </div>
           </div>
         </div>
 
-        <form method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}" class="js-score-form score-form mt-2.5 grid grid-cols-2 gap-2">
+        <form method="post" action="{{ url_for('irakasle_aldatu_puntuak', clase=s.clase, nombre=s.nombre) }}" class="js-score-form score-form">
           <input type="hidden" name="next" value="{{ request.path }}">
-          <button name="delta" value="-1" class="score-main score-btn rounded-2xl border border-rose-200 bg-rose-50 py-2 text-lg font-black text-rose-700">−1</button>
-          <button name="delta" value="1" class="score-main score-btn rounded-2xl border border-emerald-200 bg-emerald-50 py-2 text-lg font-black text-emerald-700">+1</button>
+          <button name="delta" value="-1" class="score-btn score-main minus" aria-label="Puntu bat kendu">−1</button>
+          <button name="delta" value="1" class="score-btn score-main plus" aria-label="Puntu bat gehitu">+1</button>
         </form>
 
-        <div class="secondary-row mt-1.5 grid grid-cols-[1fr_1fr_1.5fr_auto] gap-1.5">
-          <button type="button" data-sign="-1" class="js-custom score-btn rounded-xl bg-zinc-100 py-2 text-sm font-black text-rose-600">−?</button>
-          <button type="button" data-sign="1" class="js-custom score-btn rounded-xl bg-zinc-100 py-2 text-sm font-black text-emerald-700">+?</button>
-          <form method="post" action="{{ url_for('irakasle_absentzia', clase=s.clase, nombre=s.nombre) }}" class="js-absence-form min-w-0">
+        <div class="secondary-row">
+          <button type="button" data-sign="-1" class="js-custom score-btn secondary-btn minus" aria-label="Hainbat puntu kendu">−?</button>
+          <button type="button" data-sign="1" class="js-custom score-btn secondary-btn plus" aria-label="Hainbat puntu gehitu">+?</button>
+          <form method="post" action="{{ url_for('irakasle_absentzia', clase=s.clase, nombre=s.nombre) }}" class="js-absence-form">
             <input type="hidden" name="next" value="{{ request.path }}">
-            <button class="js-absence-btn score-btn flex h-full w-full items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-[10px] font-black {{ 'absence-active border-amber-400' if s.absentzia else 'border-zinc-200 bg-zinc-50 text-zinc-500' }}" aria-pressed="{{ 'true' if s.absentzia else 'false' }}">
-              <span class="absence-switch"></span><span>Absentzia</span>
+            <button type="submit" class="js-absence-btn absence-btn {{ 'absence-active' if s.absentzia else '' }}" aria-pressed="{{ 'true' if s.absentzia else 'false' }}">
+              <span class="absence-switch" aria-hidden="true"></span><span>Absentzia</span>
             </button>
           </form>
-          <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="grid min-w-[42px] place-items-center rounded-xl bg-zinc-100 px-2 text-lg text-zinc-500" aria-label="Historikoa" title="Historikoa">↗</a>
+          <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="history-btn" aria-label="{{ s.display }}: historikoa" title="Historikoa">↗</a>
         </div>
       </article>
       {% endfor %}
@@ -187,262 +148,24 @@ try{if(localStorage.getItem('ea-compact-view')!=='0')document.documentElement.cl
 </main>
 
 <dialog id="deltaDialog">
-  <form method="dialog" id="deltaDialogForm" class="mx-4 w-[calc(100vw-32px)] max-w-sm rounded-[1.75rem] bg-white p-5 shadow-2xl">
-    <div class="flex items-start justify-between gap-3">
+  <form method="dialog" id="deltaDialogForm" class="delta-dialog">
+    <div class="dialog-head">
       <div>
-        <div id="dialogEyebrow" class="text-xs font-black uppercase tracking-[.15em] text-zinc-400">Puntu aldaketa</div>
-        <h3 id="dialogTitle" class="mt-1 text-2xl font-black text-zinc-950">Zenbat puntu?</h3>
+        <div id="dialogEyebrow" class="dialog-eyebrow">Puntu aldaketa</div>
+        <h3 id="dialogTitle" class="dialog-title">Zenbat puntu?</h3>
       </div>
-      <button type="button" id="dialogClose" class="grid h-10 w-10 place-items-center rounded-full bg-zinc-100 text-lg font-black text-zinc-500">×</button>
+      <button type="button" id="dialogClose" class="dialog-close" aria-label="Itxi">×</button>
     </div>
-    <label for="customAmount" class="mt-5 block text-sm font-black text-zinc-600">Kopurua</label>
-    <input id="customAmount" type="number" inputmode="numeric" min="1" max="20" value="2" class="mt-2 h-14 w-full rounded-2xl border-2 border-zinc-200 px-4 text-center text-2xl font-black outline-none focus:border-zinc-900">
-    <div class="mt-3 grid grid-cols-4 gap-2">
-      {% for n in [2,3,5,10] %}<button type="button" class="js-preset rounded-xl bg-zinc-100 py-2 text-sm font-black text-zinc-600" data-value="{{ n }}">{{ n }}</button>{% endfor %}
+    <label for="customAmount" class="dialog-label">Kopurua</label>
+    <input id="customAmount" class="dialog-input" type="number" inputmode="numeric" min="1" max="20" value="2">
+    <div class="preset-grid">
+      {% for n in [2,3,5,10] %}<button type="button" class="js-preset preset-btn" data-value="{{ n }}">{{ n }}</button>{% endfor %}
     </div>
-    <button id="dialogConfirm" type="button" class="mt-4 w-full rounded-2xl bg-zinc-950 py-3.5 text-base font-black text-white">Aplikatu</button>
+    <button id="dialogConfirm" type="button" class="dialog-confirm">Aplikatu</button>
   </form>
 </dialog>
 
-<div id="toast" class="toast rounded-2xl bg-zinc-950 px-4 py-3 text-center text-sm font-black text-white shadow-2xl" role="status" aria-live="polite"></div>
-
-<script>
-(() => {
-  const toast = document.getElementById('toast');
-  let toastTimer;
-  function showToast(message, special=false, undoAction=null){
-    clearTimeout(toastTimer);
-    toast.innerHTML = '';
-    const text = document.createElement('span');
-    text.textContent = message;
-    toast.appendChild(text);
-    if(undoAction){
-      const undo = document.createElement('button');
-      undo.type = 'button';
-      undo.textContent = 'Desegin';
-      undo.className = 'ml-3 rounded-lg bg-white/15 px-2.5 py-1 text-xs font-black text-white underline underline-offset-2';
-      undo.addEventListener('click', async () => {
-        undo.disabled = true;
-        await undoAction();
-      }, {once:true});
-      toast.appendChild(undo);
-    }
-    toast.style.background = special ? '#166534' : '#18181b';
-    toast.classList.add('show');
-    toastTimer = setTimeout(() => toast.classList.remove('show'), undoAction ? 4800 : special ? 2600 : 1500);
-  }
-
-  async function postData(url, data){
-    const body = new URLSearchParams();
-    Object.entries(data).forEach(([k,v]) => body.set(k, String(v)));
-    const response = await fetch(url, {
-      method: 'POST',
-      body,
-      headers: {'X-Requested-With':'XMLHttpRequest'}
-    });
-    if(!response.ok) throw new Error('HTTP ' + response.status);
-    return response.json();
-  }
-
-  function setBusy(card, busy){
-    card.classList.toggle('busy', busy);
-    card.querySelectorAll('.score-btn').forEach(b => b.disabled = busy);
-  }
-
-  function renderWeek(card, data){
-    const pill = card.querySelector('.js-week-pill');
-    const net = card.querySelector('.js-week-net');
-    const breakdown = card.querySelector('.js-week-breakdown');
-    pill.classList.remove('positive','negative','neutral');
-    pill.classList.add(data.asteko_net > 0 ? 'positive' : data.asteko_net < 0 ? 'negative' : 'neutral');
-    net.textContent = (data.asteko_net > 0 ? '+' : '') + data.asteko_net;
-    if(data.asteko_plus || data.asteko_minus){
-      breakdown.innerHTML = `<span class="break-plus">+${data.asteko_plus}</span><span class="text-zinc-300"> · </span><span class="break-minus">−${data.asteko_minus}</span>`;
-    }else{
-      breakdown.innerHTML = '';
-    }
-    card.dataset.weekNet = data.asteko_net;
-  }
-
-  function updateSummary(card, data){
-    const oldPlus = Number(card.dataset.weekPlus || 0);
-    const oldMinus = Number(card.dataset.weekMinus || 0);
-    const plusNode = document.getElementById('summaryPlus');
-    const minusNode = document.getElementById('summaryMinus');
-    const currentPlus = Number((plusNode.textContent || '0').replace(/[^0-9]/g,'')) || 0;
-    const currentMinus = Number((minusNode.textContent || '0').replace(/[^0-9]/g,'')) || 0;
-    plusNode.textContent = '+' + Math.max(0, currentPlus + data.asteko_plus - oldPlus);
-    minusNode.textContent = '−' + Math.max(0, currentMinus + data.asteko_minus - oldMinus);
-    card.dataset.weekPlus = data.asteko_plus;
-    card.dataset.weekMinus = data.asteko_minus;
-  }
-
-  const undoTemplate = document.getElementById('teacherMain').dataset.undoTemplate;
-  function undoUrl(id){ return undoTemplate.replace('999999', String(id)); }
-
-  async function undoDelta(card, historiaId){
-    setBusy(card, true);
-    try{
-      const data = await postData(undoUrl(historiaId), {});
-      card.querySelector('.js-total-points').textContent = data.puntuak;
-      card.dataset.score = data.puntuak;
-      updateSummary(card, data);
-      renderWeek(card, data);
-      applyFilterAndSort();
-      showToast('Aldaketa deseginda');
-    }catch(err){
-      console.error(err);
-      showToast('Ezin izan da desegin; baliteke ondoren beste aldaketa bat egina izatea.');
-    }finally{
-      setBusy(card, false);
-    }
-  }
-
-  async function applyDelta(card, delta){
-    setBusy(card, true);
-    try{
-      const data = await postData(card.dataset.scoreUrl, {delta});
-      card.querySelector('.js-total-points').textContent = data.puntuak;
-      card.dataset.score = data.puntuak;
-      updateSummary(card, data);
-      renderWeek(card, data);
-      applyFilterAndSort();
-      const message = data.medaila_berria ? '🏅 Medaila desblokeatuta!' : 'Puntuazioa eguneratua';
-      const undo = data.historia_id ? () => undoDelta(card, data.historia_id) : null;
-      showToast(message, data.medaila_berria, undo);
-    }catch(err){
-      console.error(err);
-      showToast('Ezin izan da eguneratu. Saiatu berriz.');
-    }finally{
-      setBusy(card, false);
-    }
-  }
-
-  document.querySelectorAll('.js-score-form').forEach(form => {
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const submitter = e.submitter;
-      if(!submitter) return;
-      const card = form.closest('.student-card');
-      applyDelta(card, Number(submitter.value));
-    });
-  });
-
-  const dialog = document.getElementById('deltaDialog');
-  const amount = document.getElementById('customAmount');
-  const dialogTitle = document.getElementById('dialogTitle');
-  const dialogEyebrow = document.getElementById('dialogEyebrow');
-  let customCard = null;
-  let customSign = 1;
-
-  function openCustom(card, sign){
-    customCard = card; customSign = sign;
-    amount.value = 2;
-    dialogEyebrow.textContent = sign > 0 ? 'Puntuak gehitu' : 'Puntuak kendu';
-    dialogEyebrow.style.color = sign > 0 ? '#047857' : '#be123c';
-    dialogTitle.textContent = card.dataset.studentName;
-    if(typeof dialog.showModal === 'function'){
-      dialog.showModal(); setTimeout(() => amount.focus(), 60);
-    }else{
-      const raw = prompt(sign > 0 ? 'Zenbat puntu gehitu?' : 'Zenbat puntu kendu?', '2');
-      const n = Number(raw);
-      if(Number.isInteger(n) && n > 0 && n <= 20) applyDelta(card, sign*n);
-    }
-  }
-
-  document.querySelectorAll('.js-custom').forEach(btn => {
-    btn.addEventListener('click', () => openCustom(btn.closest('.student-card'), Number(btn.dataset.sign)));
-  });
-  document.querySelectorAll('.js-preset').forEach(btn => btn.addEventListener('click', () => amount.value = btn.dataset.value));
-  document.getElementById('dialogClose').addEventListener('click', () => dialog.close());
-  document.getElementById('dialogConfirm').addEventListener('click', () => {
-    const n = Math.min(20, Math.max(1, parseInt(amount.value,10) || 0));
-    if(!customCard || !n) return;
-    dialog.close();
-    applyDelta(customCard, customSign*n);
-  });
-
-  document.querySelectorAll('.js-absence-form').forEach(form => {
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const card = form.closest('.student-card');
-      const btn = form.querySelector('.js-absence-btn');
-      btn.disabled = true;
-      try{
-        const data = await postData(form.action, {});
-        const wasActive = btn.classList.contains('absence-active');
-        btn.classList.toggle('absence-active', data.absentzia);
-        btn.classList.toggle('border-zinc-200', !data.absentzia);
-        btn.classList.toggle('bg-zinc-50', !data.absentzia);
-        btn.classList.toggle('text-zinc-500', !data.absentzia);
-        btn.setAttribute('aria-pressed', data.absentzia ? 'true' : 'false');
-        const badge = card.querySelector('.js-absence-badge');
-        badge.classList.toggle('hidden', !data.absentzia);
-        const count = document.getElementById('absenceCount');
-        count.textContent = Math.max(0, Number(count.textContent || 0) + (data.absentzia && !wasActive ? 1 : !data.absentzia && wasActive ? -1 : 0));
-        showToast(data.absentzia ? 'Absentzia markatua' : 'Absentzia kendua');
-      }catch(err){
-        console.error(err); showToast('Ezin izan da absentzia eguneratu.');
-      }finally{btn.disabled=false}
-    });
-  });
-
-  const searchInput = document.getElementById('studentSearch');
-  const sortSelect = document.getElementById('studentSort');
-  const emptySearch = document.getElementById('emptySearch');
-  const normalize = value => (value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-
-  function compareCards(a,b,mode){
-    const nameA = normalize(a.dataset.studentName), nameB = normalize(b.dataset.studentName);
-    const scoreA = Number(a.dataset.score || 0), scoreB = Number(b.dataset.score || 0);
-    const weekA = Number(a.dataset.weekNet || 0), weekB = Number(b.dataset.weekNet || 0);
-    const minusA = Number(a.dataset.weekMinus || 0), minusB = Number(b.dataset.weekMinus || 0);
-    if(mode==='score-asc') return scoreA-scoreB || nameA.localeCompare(nameB);
-    if(mode==='score-desc') return scoreB-scoreA || nameA.localeCompare(nameB);
-    if(mode==='week-asc') return weekA-weekB || nameA.localeCompare(nameB);
-    if(mode==='minus-desc') return minusB-minusA || nameA.localeCompare(nameB);
-    return nameA.localeCompare(nameB);
-  }
-
-  function applyFilterAndSort(){
-    const query = normalize(searchInput.value);
-    const mode = sortSelect.value;
-    let visibleTotal = 0;
-    document.querySelectorAll('[data-section]').forEach(section => {
-      const grid = section.querySelector('.student-grid');
-      const cards = Array.from(grid.querySelectorAll('.student-card'));
-      cards.sort((a,b)=>compareCards(a,b,mode)).forEach(card => grid.appendChild(card));
-      let visible = 0;
-      cards.forEach(card => {
-        const show = !query || normalize(card.dataset.studentName).includes(query);
-        card.hidden = !show;
-        if(show) visible++;
-      });
-      visibleTotal += visible;
-      section.hidden = visible===0;
-      const countNode = section.querySelector('.section-count');
-      if(countNode) countNode.textContent = `${visible} ikasle`;
-    });
-    emptySearch.classList.toggle('hidden', visibleTotal!==0);
-  }
-
-  searchInput.addEventListener('input', applyFilterAndSort);
-  sortSelect.addEventListener('change', applyFilterAndSort);
-
-  const compactToggle = document.getElementById('compactToggle');
-  function syncCompactLabel(){
-    const compact = document.documentElement.classList.contains('compact-view');
-    compactToggle.textContent = compact ? 'Trinkoa' : 'Osoa';
-    compactToggle.setAttribute('aria-pressed', compact ? 'true' : 'false');
-  }
-  compactToggle.addEventListener('click', () => {
-    const compact = document.documentElement.classList.toggle('compact-view');
-    try{localStorage.setItem('ea-compact-view', compact ? '1' : '0')}catch(e){}
-    syncCompactLabel();
-  });
-  syncCompactLabel();
-  applyFilterAndSort();
-})();
-</script>
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script src="/static/teacher-gela-v24.js" defer></script>
 </body>
 </html>

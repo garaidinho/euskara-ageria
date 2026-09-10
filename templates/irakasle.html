@@ -5,131 +5,101 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Irakasleak · Euskara Ageria</title>
 <link rel="manifest" href="/static/manifest.webmanifest">
-<meta name="theme-color" content="#f4f6f4">
+<meta name="theme-color" content="#f6f4ef">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Euskal Ageria Kimua">
 <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/kimua-180.png">
-<link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  *{box-sizing:border-box}
-  body{font-family:Nunito,sans-serif;background:#f4f6f4;color:#18181b}
-  .brand-line{height:6px;background:linear-gradient(90deg,#18181b 0 45%,#0f766e 45% 55%,#18181b 55% 100%)}
-  .choice-card{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
-  .choice-card:active{transform:scale(.985)}
-  @media (hover:hover){.choice-card:hover{transform:translateY(-2px);box-shadow:0 15px 34px rgba(15,23,42,.10)}}
-  .level-dot{box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
-  .home-grid{display:grid;grid-template-columns:minmax(0,1.09fr) minmax(0,.91fr);align-items:center;gap:14px}
-  .teacher-card{min-height:74px}
-  .level-card{min-height:84px}
-  @media(min-width:640px){
-    .home-grid{gap:28px;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
-    .teacher-card{min-height:90px}
-    .level-card{min-height:100px}
-  }
-  @media(max-width:420px){
-    .teacher-name{font-size:.96rem}
-    .card-count{font-size:.71rem}
-    .home-grid{gap:10px}
-    .teacher-card{min-height:70px}
-    .level-card{min-height:80px}
-  }
-  @media(max-width:350px){
-    .home-grid{gap:8px}
-    .teacher-card,.level-card{padding:.72rem!important}
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/teacher-v24.css">
 </head>
-<body class="min-h-screen">
-<div class="brand-line w-full"></div>
-
-<main class="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-6">
-  <header class="mb-5 sm:mb-7">
-    <div class="flex items-center gap-3">
-      <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-zinc-950 text-xl font-black text-white shadow-sm">EA</div>
-      <div class="min-w-0">
-        <div class="text-[10px] font-black uppercase tracking-[.22em] text-teal-700 sm:text-xs">Euskara Ageria</div>
-        <h1 class="truncate text-2xl font-black tracking-tight text-zinc-950 sm:text-4xl">Irakasleen panela</h1>
-        <p class="mt-0.5 text-[11px] font-extrabold text-zinc-400 sm:text-sm">Aukeratu gela edo maila</p>
-      </div>
+<body>
+<main class="home-shell">
+  <header class="ea-header">
+    <div class="kimua-mark" aria-hidden="true">
+      <img src="/static/icons/kimua-192.png" width="48" height="48" alt="">
+    </div>
+    <div>
+      <div class="ea-eyebrow">Euskara Ageria · Kimua</div>
+      <h1 class="ea-title">Irakasleen panela</h1>
+      <p class="ea-subtitle">Aukeratu gela edo maila</p>
+      <div class="ea-brand-spark" aria-hidden="true"><i></i><i></i></div>
     </div>
   </header>
 
   <div class="home-grid">
-    <section class="min-w-0 self-center">
-      <div class="mb-3 flex items-center gap-2 sm:mb-4">
-        <div class="h-2.5 w-2.5 rounded-full bg-zinc-950"></div>
-        <h2 class="text-sm font-black uppercase tracking-[.18em] text-zinc-500 sm:text-base">Gelak</h2>
+    <section class="home-column" aria-labelledby="gelak-title">
+      <div class="home-section-head">
+        <span class="dot"></span>
+        <h2 id="gelak-title">Gelak</h2>
       </div>
-
-      <div class="grid gap-3 sm:gap-4">
+      <div class="home-stack">
         {% set accents = [
-          ('#f59e0b','#fffbeb','G'),
-          ('#0ea5e9','#f0f9ff','B'),
-          ('#ec4899','#fdf2f8','F'),
-          ('#10b981','#ecfdf5','O')
+          ('#e5a009','#fff7db','G'),
+          ('#1aa7cf','#eaf8fc','B'),
+          ('#e94f9c','#fff0f7','F'),
+          ('#18ad8a','#e9faf5','O')
         ] %}
         {% for g in gelak %}
           {% set a = accents[loop.index0] %}
           <a href="{{ url_for('irakasle_gela', gela_key=g.key) }}"
-             class="choice-card teacher-card relative overflow-hidden rounded-[1.45rem] border border-zinc-200 bg-white p-3.5 shadow-sm sm:rounded-[1.75rem] sm:p-4">
-            <div class="absolute -right-5 -top-6 h-16 w-16 rounded-full opacity-20 sm:h-20 sm:w-20" style="background:{{ a[0] }}"></div>
-            <div class="relative flex h-full items-center gap-2.5 sm:gap-3.5">
-              <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-base font-black sm:h-14 sm:w-14 sm:text-xl"
-                   style="background:{{ a[1] }};color:{{ a[0] }}">{{ a[2] }}</div>
-              <div class="min-w-0 flex-1">
-                <div class="teacher-name leading-tight font-black text-zinc-950 sm:text-xl">{{ g.izena }}</div>
-                <div class="card-count mt-1 text-[11px] font-black text-zinc-500 sm:text-sm">{{ g.kop }} ikasle</div>
+             class="choice-card teacher-card"
+             style="--accent:{{ a[0] }};--accent-soft:{{ a[1] }}">
+            <div class="choice-inner">
+              <div class="choice-icon">{{ a[2] }}</div>
+              <div class="choice-text">
+                <div class="choice-name">{{ g.izena }}</div>
+                <div class="choice-count">{{ g.kop }} ikasle</div>
               </div>
+              <span class="choice-arrow">›</span>
             </div>
           </a>
         {% endfor %}
       </div>
     </section>
 
-    <section class="min-w-0 self-center">
-      <div class="mb-3 flex items-center gap-2 sm:mb-4">
-        <div class="h-2.5 w-2.5 rounded-full bg-teal-600"></div>
-        <h2 class="text-sm font-black uppercase tracking-[.18em] text-zinc-500 sm:text-base">Mailak</h2>
+    <section class="home-column" aria-labelledby="mailak-title">
+      <div class="home-section-head">
+        <span class="dot teal"></span>
+        <h2 id="mailak-title">Mailak</h2>
       </div>
-
-      <div class="grid gap-3 sm:gap-4">
+      <div class="home-stack">
         {% set levels = {
-          'LM1': ('#2563eb','#eff6ff'),
-          'LM2': ('#ca8a04','#fefce8'),
-          'LM3': ('#dc2626','#fef2f2'),
-          'LM4': ('#16a34a','#f0fdf4'),
-          'LM5': ('#7c3aed','#f5f3ff')
+          'LM1': ('#2c6ee8','#eff5ff'),
+          'LM2': ('#d39300','#fff8df'),
+          'LM3': ('#e32626','#fff0f0'),
+          'LM4': ('#1ca85d','#eefbf3'),
+          'LM5': ('#7d3ee8','#f5efff')
         } %}
         {% for m in mailak %}
           {% set c = levels[m.key] %}
           <a href="{{ url_for('irakasle_maila', maila=m.key) }}"
-             class="choice-card level-card relative overflow-hidden rounded-[1.45rem] border border-zinc-200 bg-white p-3.5 shadow-sm sm:rounded-[1.75rem] sm:p-4">
-            <div class="absolute -right-5 -top-6 h-16 w-16 rounded-full opacity-20 sm:h-20 sm:w-20" style="background:{{ c[0] }}"></div>
-            <div class="relative flex h-full items-center gap-2.5 sm:gap-3.5">
-              <div class="level-dot grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-[13px] font-black text-white sm:h-14 sm:w-14 sm:text-sm"
-                   style="background:{{ c[0] }}">{{ m.izena }}</div>
-              <div class="min-w-0 flex-1">
-                <div class="text-lg font-black leading-tight text-zinc-950 sm:text-2xl">{{ m.izena }}</div>
-                <div class="card-count mt-1 text-[11px] font-black text-zinc-500 sm:text-sm">{{ m.kop }} ikasle</div>
+             class="choice-card level"
+             style="--accent:{{ c[0] }};--accent-soft:{{ c[1] }}">
+            <div class="choice-inner">
+              <div class="choice-icon">{{ m.izena }}</div>
+              <div class="choice-text">
+                <div class="choice-name">{{ m.izena }}</div>
+                <div class="choice-count">{{ m.kop }} ikasle</div>
               </div>
+              <span class="choice-arrow">›</span>
             </div>
           </a>
         {% endfor %}
       </div>
     </section>
   </div>
+
+  <div class="home-foot"><i></i><span>Aukeratu · kudeatu · jarraitu</span><i></i></div>
 </main>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js', {scope: '/irakasle'})
-      .catch((err) => console.warn('Service worker:', err));
+      .catch(() => {});
   });
 }
 </script>

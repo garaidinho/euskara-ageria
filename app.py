@@ -457,41 +457,45 @@ def _render_irakasle_taldeak(izenburua: str, taldeak):
     with closing(get_conn()) as conn, conn, conn.cursor() as cur:
         ensure_students_batch(cur, wanted)
 
-        cur.execute(
-            "SELECT clase, nombre, puntuak FROM ikasle_egoera WHERE clase = ANY(%s)",
-            (klaseak,),
-        )
-        state_map = {(c, n): int(p) for c, n, p in cur.fetchall()}
+        # V24: dashboard datuak SQL bakarrean irakurri.
+        # Lehen 3 SELECT bereizi ziren; orain egoera + astea + absentzia batera datoz.
+        pair_placeholders = ",".join(["(%s,%s)"] * len(wanted))
+        pair_params = []
+        for c, key in wanted:
+            pair_params.extend([c, key])
 
         cur.execute(
-            """
+            f"""
             SELECT
-                clase,
-                nombre,
-                COALESCE(SUM(delta), 0)::int AS net,
-                COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0)::int AS plus,
-                COALESCE(SUM(CASE WHEN delta < 0 THEN -delta ELSE 0 END), 0)::int AS minus
-            FROM puntu_historia
-            WHERE clase = ANY(%s)
-              AND sortua >= %s AND sortua < %s
-            GROUP BY clase, nombre
+                e.clase,
+                e.nombre,
+                e.puntuak,
+                COALESCE(w.net, 0)::int AS net,
+                COALESCE(w.plus, 0)::int AS plus,
+                COALESCE(w.minus, 0)::int AS minus,
+                (a.nombre IS NOT NULL) AS absentzia
+            FROM ikasle_egoera e
+            LEFT JOIN (
+                SELECT
+                    clase,
+                    nombre,
+                    COALESCE(SUM(delta), 0)::int AS net,
+                    COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0)::int AS plus,
+                    COALESCE(SUM(CASE WHEN delta < 0 THEN -delta ELSE 0 END), 0)::int AS minus
+                FROM puntu_historia
+                WHERE sortua >= %s AND sortua < %s
+                GROUP BY clase, nombre
+            ) w ON w.clase=e.clase AND w.nombre=e.nombre
+            LEFT JOIN asteko_absentzia a
+              ON a.clase=e.clase AND a.nombre=e.nombre AND a.astea=%s
+            WHERE (e.clase, e.nombre) IN ({pair_placeholders})
             """,
-            (klaseak, astea, astea + timedelta(days=7)),
+            [astea, astea + timedelta(days=7), astea, *pair_params],
         )
-        week_map = {
-            (c, n): (int(net), int(plus), int(minus))
-            for c, n, net, plus, minus in cur.fetchall()
+        row_map = {
+            (c, n): (int(p), int(net), int(plus), int(minus), bool(absentzia))
+            for c, n, p, net, plus, minus, absentzia in cur.fetchall()
         }
-
-        cur.execute(
-            """
-            SELECT clase, nombre
-            FROM asteko_absentzia
-            WHERE clase = ANY(%s) AND astea=%s
-            """,
-            (klaseak, astea),
-        )
-        absent_set = {(c, n) for c, n in cur.fetchall()}
 
     taldeak_view = []
     aste_plus_total = 0
@@ -504,9 +508,9 @@ def _render_irakasle_taldeak(izenburua: str, taldeak):
         ikasleak = []
         for nombre in nombres:
             key = normalize_key(nombre)
-            puntuak = state_map.get((c, key), START_POINTS)
-            net, plus, minus = week_map.get((c, key), (0, 0, 0))
-            absentzia = (c, key) in absent_set
+            puntuak, net, plus, minus, absentzia = row_map.get(
+                (c, key), (START_POINTS, 0, 0, 0, False)
+            )
 
             aste_plus_total += plus
             aste_minus_total += minus
@@ -647,7 +651,7 @@ def irakasle_desegin(historia_id: int):
             FROM puntu_historia
             WHERE id=%s
               AND mota='eskuz'
-              AND sortua >= NOW() - INTERVAL '2 minutes'
+              AND sortua >= NOW() - INTERVAL '15 minutes'
             FOR UPDATE
             """,
             (historia_id,),
@@ -754,13 +758,27 @@ def irakasle_absentzia(clase: str, nombre: str):
 
 @app.route("/irakasle/ikaslea/<clase>/<nombre>")
 def irakasle_ikaslea(clase: str, nombre: str):
+    # V24: xehetasun orri osoa DB konexio bakarrean.
     ensure_schema()
     clase_lower = clase.lower()
-    key, puntuak, epea, medailak = student_state(clase_lower, nombre)
     astea = current_week_start()
     astea_amaiera = astea + timedelta(days=6)
 
-    with closing(get_conn()) as conn, conn.cursor() as cur:
+    with closing(get_conn()) as conn, conn, conn.cursor() as cur:
+        key = ensure_student(cur, clase_lower, nombre)
+        cur.execute(
+            "SELECT puntuak, epea FROM ikasle_egoera WHERE clase=%s AND nombre=%s",
+            (clase_lower, key),
+        )
+        puntuak, epea = cur.fetchone()
+        maybe_award_medal(cur, clase_lower, key, epea, puntuak)
+
+        cur.execute(
+            "SELECT epea FROM medailak WHERE clase=%s AND nombre=%s AND lortua=TRUE ORDER BY epea",
+            (clase_lower, key),
+        )
+        medailak = {row[0] for row in cur.fetchall()}
+
         cur.execute(
             """
             SELECT delta, mota, sortua
@@ -772,6 +790,7 @@ def irakasle_ikaslea(clase: str, nombre: str):
             (clase_lower, key),
         )
         historia = cur.fetchall()
+
         cur.execute(
             "SELECT 1 FROM asteko_absentzia WHERE clase=%s AND nombre=%s AND astea=%s",
             (clase_lower, key, astea),

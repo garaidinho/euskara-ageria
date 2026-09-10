@@ -1,4 +1,4 @@
-const VERSION = 'v23';
+const VERSION = 'v24';
 const SHELL_CACHE = `euskal-ageria-shell-${VERSION}`;
 const ASSET_CACHE = `euskal-ageria-assets-${VERSION}`;
 
@@ -7,7 +7,10 @@ const SHELL_ASSETS = [
   '/static/manifest.webmanifest',
   '/static/icons/kimua-180.png',
   '/static/icons/kimua-192.png',
-  '/static/icons/kimua-512.png'
+  '/static/icons/kimua-512.png',
+  '/static/teacher-v24.css',
+  '/static/teacher-gela-v24.js',
+  '/static/teacher-detail-v24.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -78,6 +81,7 @@ self.addEventListener('fetch', (event) => {
     (
       url.pathname.startsWith('/static/photos_thumb/') ||
       url.pathname.startsWith('/static/icons/') ||
+      url.pathname.startsWith('/static/teacher-') ||
       url.pathname === '/static/manifest.webmanifest'
     )
   ) {
