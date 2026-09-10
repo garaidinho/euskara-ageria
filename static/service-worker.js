@@ -1,4 +1,4 @@
-const VERSION = 'v25';
+const VERSION = 'v28b';
 const SHELL_CACHE = `euskal-ageria-shell-${VERSION}`;
 const ASSET_CACHE = `euskal-ageria-assets-${VERSION}`;
 
@@ -8,9 +8,9 @@ const SHELL_ASSETS = [
   '/static/icons/kimua-180.png',
   '/static/icons/kimua-192.png',
   '/static/icons/kimua-512.png',
-  '/static/teacher-v25.css',
-  '/static/teacher-gela-v25.js',
-  '/static/teacher-detail-v25.js'
+  '/static/teacher-v26.css',
+  '/static/teacher-gela-v26.js',
+  '/static/teacher-detail-v26.js'
 ];
 
 self.addEventListener('install', (event) => {

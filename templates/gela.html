@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="eu">
+<html lang="eu" class="compact-view">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-<script>try{if(localStorage.getItem('ea-compact-view')!=='0')document.documentElement.classList.add('compact-view')}catch(e){document.documentElement.classList.add('compact-view')}</script>
-<link rel="stylesheet" href="/static/teacher-v25.css">
+
+<link rel="stylesheet" href="/static/teacher-v26.css">
 </head>
 <body>
 <header class="teacher-top">
@@ -24,7 +24,6 @@
       <h1>{{ gela_izena }}</h1>
       <p>Astea · {{ astea.strftime('%d/%m') }}–{{ astea_amaiera.strftime('%d/%m') }}</p>
     </div>
-    <button id="compactToggle" type="button" class="view-toggle" aria-pressed="true">Ikuspegia: Trinkoa</button>
   </div>
 </header>
 
@@ -166,6 +165,6 @@
 </dialog>
 
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-<script src="/static/teacher-gela-v25.js" defer></script>
+<script src="/static/teacher-gela-v26.js" defer></script>
 </body>
 </html>

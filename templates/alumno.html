@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Euskara Ageria · Student profile V27 HYBRID -->
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
@@ -617,6 +618,219 @@
     }
   }
 
+
+  /* ====================================================================== */
+  /* V27 · HYBRID: V22 profil luzea + V26 argazki apaindura + medaila kutxa */
+  /* ====================================================================== */
+
+  .photo-wrap{position:relative!important}
+  .photo-ring{
+    inset:10px!important;border-radius:999px!important;background:#fff!important;
+    box-shadow:0 12px 26px rgba(0,0,0,.13),inset 0 0 0 4px rgba(255,255,255,.78)!important
+  }
+  .orbit-red{
+    inset:0!important;border:0!important;border-radius:999px!important;
+    background:conic-gradient(from 8deg,#0f8b6d 0deg 78deg,rgba(255,255,255,.98) 78deg 146deg,#d73a3a 146deg 230deg,rgba(255,255,255,.98) 230deg 304deg,#0f8b6d 304deg 360deg)!important;
+    opacity:.82!important;
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))!important;
+    mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))!important;
+    animation:spinSlow 11s linear infinite!important
+  }
+  .orbit-red span{display:none!important}
+  .orbit-green,.orbit-white{inset:0!important;border:0!important;animation:none!important;pointer-events:none!important}
+  .orbit-green span,.orbit-white span{
+    display:block!important;position:absolute!important;transform:none!important;border:0!important;
+    box-shadow:0 3px 9px rgba(0,0,0,.20)!important
+  }
+  .orbit-green span{
+    left:4px!important;top:27px!important;width:14px!important;height:14px!important;background:#0f8b6d!important
+  }
+  .orbit-white span{
+    left:auto!important;right:5px!important;top:auto!important;bottom:27px!important;
+    width:15px!important;height:15px!important;background:#d73a3a!important
+  }
+  .photo-img{
+    inset:20px!important;width:calc(100% - 40px)!important;height:calc(100% - 40px)!important;
+    border:4px solid #fff!important;box-shadow:0 8px 20px rgba(0,0,0,.16)!important
+  }
+  .spark{display:none!important}
+
+  .medal-panel{
+    position:relative!important;overflow:hidden!important;margin-top:.72rem!important;
+    padding:.72rem .68rem .62rem!important;border-radius:1.28rem!important;
+    background:linear-gradient(145deg,rgba(255,252,238,.94),rgba(255,255,255,.86))!important;
+    border:1.5px solid rgba(211,166,47,.54)!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.48) inset,0 9px 20px rgba(211,166,47,.10),0 4px 10px rgba(0,0,0,.035)!important
+  }
+  .medal-panel::after{
+    content:""!important;display:block!important;position:absolute!important;inset:0!important;pointer-events:none!important;
+    background:linear-gradient(135deg,rgba(255,255,255,.24),transparent 34%),linear-gradient(315deg,rgba(237,197,85,.10),transparent 42%)!important
+  }
+  .v27-medals-head{
+    position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:.62rem;
+    margin:0 0 .5rem;color:#5f5c63;font-size:.66rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase
+  }
+  .v27-medals-head::before,.v27-medals-head::after{content:"";width:30px;height:3px;border-radius:999px}
+  .v27-medals-head::before{background:#0f8b6d}
+  .v27-medals-head::after{background:#d73a3a}
+
+  .medal-grid{position:relative;z-index:2!important;gap:.28rem!important}
+  .medal-item{gap:.18rem!important}
+  .badge-shell{width:50px!important;height:50px!important;filter:drop-shadow(0 5px 7px rgba(0,0,0,.14))!important}
+  .shape-5.badge-shell{width:50px!important;height:50px!important}
+  .badge-core,.badge-back{
+    clip-path:polygon(50% 0,90% 18%,100% 58%,73% 93%,27% 93%,0 58%,10% 18%)!important;
+    border-radius:7px!important
+  }
+  .badge-back{transform:translateY(4px)!important;background:#16171c!important;opacity:.96!important}
+  .badge-core{
+    border:0!important;background:linear-gradient(145deg,#292930,#484851)!important;
+    color:#96959c!important;font-size:.92rem!important;text-shadow:none!important
+  }
+  .badge-core::before,.badge-core::after{display:none!important}
+  .icon-glyph{display:none!important}
+
+  .medal-item:nth-child(1) .badge-shell.unlocked .badge-core{background:linear-gradient(145deg,#e4ad21,#ffe28a 52%,#b9770e)!important;color:#fff!important}
+  .medal-item:nth-child(2) .badge-shell.unlocked .badge-core{background:linear-gradient(145deg,#0f8b83,#78ead5 58%,#0f766e)!important;color:#fff!important}
+  .medal-item:nth-child(3) .badge-shell.unlocked .badge-core{background:linear-gradient(145deg,#7043d6,#c4b5fd 58%,#5424a8)!important;color:#fff!important}
+  .medal-item:nth-child(4) .badge-shell.unlocked .badge-core{background:linear-gradient(145deg,#d73a3a,#ff9c9c 58%,#a91f1f)!important;color:#fff!important}
+  .medal-item:nth-child(5) .badge-shell.unlocked .badge-core{background:linear-gradient(145deg,#d59c13,#ffe28c 45%,#68a8ef)!important;color:#fff!important}
+  .medal-item:nth-child(5) .badge-shell.locked .badge-core{background:linear-gradient(145deg,#292930,#484851)!important;color:#96959c!important}
+  .shape-5.badge-shell::before,.shape-5.locked::after,.shape-5.unlocked::after{display:none!important}
+  .medal-label{margin-top:.08rem!important;font-size:8.5px!important;color:#77747b!important}
+  .medal-item.last .medal-label{color:#77747b!important}
+  .medals-caption{display:none!important}
+
+  @media(max-width:600px){
+    .photo-wrap{width:158px!important;height:158px!important}
+    .photo-ring{inset:9px!important}
+    .photo-img{inset:19px!important;width:calc(100% - 38px)!important;height:calc(100% - 38px)!important}
+    .orbit-green span{left:4px!important;top:29px!important;width:13px!important;height:13px!important}
+    .orbit-white span{right:5px!important;bottom:29px!important;width:14px!important;height:14px!important}
+    .medal-panel{padding:.62rem .55rem .55rem!important}
+    .v27-medals-head{font-size:.61rem;margin-bottom:.42rem}
+    .badge-shell,.shape-5.badge-shell{width:46px!important;height:46px!important}
+    .badge-core{font-size:.85rem!important}
+    .medal-label{font-size:8px!important}
+  }
+
+
+/* V28_THEME_START */
+:root{
+  --ea-bg-a:#f7f7f4;
+  --ea-bg-b:#efefe9;
+  --ea-name:#111827;
+  --ea-glow:rgba(255,255,255,.42);
+  --ea-goal-a:#f7faf7;
+  --ea-goal-b:#fff9f9;
+  --ea-goal-border:rgba(17,24,39,.08);
+  --ea-wash:transparent;
+}
+
+body{
+  background-color:var(--ea-bg-a)!important;
+  background-image:
+    radial-gradient(circle at 12% 14%, rgba(255,255,255,.42), transparent 23%),
+    radial-gradient(circle at 86% 16%, rgba(255,255,255,.28), transparent 21%),
+    radial-gradient(circle at 14% 88%, rgba(255,255,255,.20), transparent 20%),
+    linear-gradient(180deg,var(--ea-bg-a),var(--ea-bg-b))!important;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 24% 12%, var(--ea-wash), transparent 32%),
+    radial-gradient(circle at 78% 82%, rgba(255,255,255,.10), transparent 30%);
+  z-index:0;
+}
+
+.page{position:relative;z-index:1}
+
+.nombre{
+  color:var(--ea-name)!important;
+  text-shadow:
+    2px 2px 0 rgba(255,255,255,.96),
+    4px 4px 0 rgba(0,0,0,.10)!important;
+}
+
+.top-glow{
+  background:linear-gradient(
+    180deg,
+    var(--ea-glow),
+    rgba(255,255,255,0)
+  )!important;
+}
+
+.goal-card{
+  background:
+    linear-gradient(
+      135deg,
+      var(--ea-goal-a),
+      #ffffff 54%,
+      var(--ea-goal-b)
+    )!important;
+  border:1px solid var(--ea-goal-border)!important;
+}
+
+.ea-theme-lm1{
+  --ea-bg-a:#eef4ff;
+  --ea-bg-b:#e4ecfb;
+  --ea-name:#2f66d0;
+  --ea-glow:rgba(121,167,255,.30);
+  --ea-goal-a:#edf5ff;
+  --ea-goal-b:#eef2ff;
+  --ea-goal-border:rgba(47,102,208,.16);
+  --ea-wash:rgba(160,196,255,.18);
+}
+
+.ea-theme-lm2{
+  --ea-bg-a:#fbf4d6;
+  --ea-bg-b:#f4e9c3;
+  --ea-name:#c08a00;
+  --ea-glow:rgba(240,199,87,.25);
+  --ea-goal-a:#fff8dd;
+  --ea-goal-b:#fff2cb;
+  --ea-goal-border:rgba(192,138,0,.17);
+  --ea-wash:rgba(245,217,121,.20);
+}
+
+.ea-theme-lm3{
+  --ea-bg-a:#fff0f2;
+  --ea-bg-b:#fbe3e7;
+  --ea-name:#dc3854;
+  --ea-glow:rgba(244,114,142,.24);
+  --ea-goal-a:#fff1f4;
+  --ea-goal-b:#fff5f6;
+  --ea-goal-border:rgba(220,56,84,.16);
+  --ea-wash:rgba(255,176,192,.18);
+}
+
+.ea-theme-lm4{
+  --ea-bg-a:#eef8f0;
+  --ea-bg-b:#e1f0e5;
+  --ea-name:#159552;
+  --ea-glow:rgba(78,201,123,.23);
+  --ea-goal-a:#effbf2;
+  --ea-goal-b:#f3fff5;
+  --ea-goal-border:rgba(21,149,82,.16);
+  --ea-wash:rgba(157,230,181,.18);
+}
+
+.ea-theme-lm5{
+  --ea-bg-a:#f3edff;
+  --ea-bg-b:#e9dfff;
+  --ea-name:#7445d3;
+  --ea-glow:rgba(168,130,255,.25);
+  --ea-goal-a:#f5efff;
+  --ea-goal-b:#f8f3ff;
+  --ea-goal-border:rgba(116,69,211,.16);
+  --ea-wash:rgba(201,177,255,.18);
+}
+/* V28_THEME_END */
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -725,6 +939,7 @@
       </div>
 
       <div class="medal-panel mt-7 rounded-[1.75rem] p-4 sm:p-5">
+        <div class="v27-medals-head">Urteko medailak</div>
         <div class="medal-grid">
           {% set icons = ['◆','✦','★','⬟','✸'] %}
           {% for i in range(1,6) %}
@@ -837,6 +1052,50 @@
   });
 })();
 </script>
+
+
+<!-- V28_THEME_SCRIPT_START -->
+<script>
+(function(){
+  const THEMES = {
+    LM1: "ea-theme-lm1",
+    LM2: "ea-theme-lm2",
+    LM3: "ea-theme-lm3",
+    LM4: "ea-theme-lm4",
+    LM5: "ea-theme-lm5"
+  };
+
+  function detectLevel(){
+    const candidates = document.querySelectorAll(".profile-class span, span");
+    for (const el of candidates){
+      const text = (el.textContent || "").trim().toUpperCase();
+      if (/^LM[1-5]$/.test(text)) return text;
+    }
+    return null;
+  }
+
+  function applyTheme(){
+    document.body.classList.remove(
+      "ea-theme-lm1",
+      "ea-theme-lm2",
+      "ea-theme-lm3",
+      "ea-theme-lm4",
+      "ea-theme-lm5"
+    );
+    const level = detectLevel();
+    if (level && THEMES[level]){
+      document.body.classList.add(THEMES[level]);
+    }
+  }
+
+  if (document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", applyTheme, {once:true});
+  } else {
+    applyTheme();
+  }
+})();
+</script>
+<!-- V28_THEME_SCRIPT_END -->
 
 </body>
 </html>
