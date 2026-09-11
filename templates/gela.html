@@ -98,8 +98,16 @@
             <div class="student-title-row">
               <div style="min-width:0;flex:1">
                 <a href="{{ url_for('irakasle_ikaslea', clase=s.clase, nombre=s.nombre) }}" class="student-name">{{ s.display }}</a>
-                <div class="student-tags">
+                <div class="student-tags student-status-row">
                   <span class="level-tag">{{ s.clase_label }}</span>
+                  <span class="js-week-pill week-pill {{ 'positive' if s.asteko_net > 0 else 'negative' if s.asteko_net < 0 else '' }}">
+                    Astean <strong class="js-week-net">{{ '+' if s.asteko_net > 0 else '' }}{{ s.asteko_net }}</strong>
+                  </span>
+                  <span class="js-week-breakdown week-breakdown">
+                    {% if s.asteko_plus or s.asteko_minus %}
+                      <span class="break-plus">+{{ s.asteko_plus }}</span> · <span class="break-minus">−{{ s.asteko_minus }}</span>
+                    {% endif %}
+                  </span>
                   <span class="js-absence-badge absence-badge {{ '' if s.absentzia else 'hidden' }}">ABSENTZIA</span>
                 </div>
               </div>
@@ -109,16 +117,6 @@
               </div>
             </div>
 
-            <div class="week-row">
-              <span class="js-week-pill week-pill {{ 'positive' if s.asteko_net > 0 else 'negative' if s.asteko_net < 0 else '' }}">
-                Astean <strong class="js-week-net">{{ '+' if s.asteko_net > 0 else '' }}{{ s.asteko_net }}</strong>
-              </span>
-              <span class="js-week-breakdown week-breakdown">
-                {% if s.asteko_plus or s.asteko_minus %}
-                  <span class="break-plus">+{{ s.asteko_plus }}</span> · <span class="break-minus">−{{ s.asteko_minus }}</span>
-                {% endif %}
-              </span>
-            </div>
           </div>
         </div>
 

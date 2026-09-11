@@ -326,3 +326,54 @@ dialog::backdrop{background:rgba(17,17,18,.5);backdrop-filter:blur(4px)}
   .compact-view .score-main{min-height:37px!important}
 }
 /* V29_COMPACT_END */
+
+/* V30_STATUS_ROW_START */
+.compact-view .student-status-row{
+  margin-top:3px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  flex-wrap:wrap!important;
+  min-height:19px!important;
+  padding-right:1px!important;
+}
+.compact-view .student-status-row .level-tag{
+  flex:0 0 auto!important;
+}
+.compact-view .student-status-row .week-pill{
+  flex:0 0 auto!important;
+  padding:2px 6px!important;
+  font-size:9px!important;
+  line-height:1.25!important;
+}
+.compact-view .student-status-row .week-breakdown{
+  flex:0 0 auto!important;
+  font-size:9.5px!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+}
+.compact-view .student-status-row .absence-badge{
+  flex:0 0 auto!important;
+}
+.compact-view .week-row{
+  display:none!important;
+}
+.compact-view .score-form{
+  margin-top:6px!important;
+}
+@media(max-width:430px){
+  .compact-view .student-status-row{
+    gap:3px!important;
+  }
+  .compact-view .student-status-row .level-tag{
+    padding:2px 5px!important;
+  }
+  .compact-view .student-status-row .week-pill{
+    padding:2px 5px!important;
+    font-size:8.7px!important;
+  }
+  .compact-view .student-status-row .week-breakdown{
+    font-size:9px!important;
+  }
+}
+/* V30_STATUS_ROW_END */
