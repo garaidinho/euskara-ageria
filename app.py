@@ -37,7 +37,7 @@ GELAK = {
         ],
     },
     "florianne": {
-        "izena": "Floriannen gela",
+        "izena": "Florianeren gela",
         "taldeak": [
             ("LM2", ["Nina", "Zoi", "Paco", "Andoni", "Jeanne", "Eneko", "Emile", "Lola", "Nino"]),
             ("LM5", ["Gabi", "Ilho", "Andoni C", "Izei", "Andoni L", "Andoni M", "Alaia", "Gilen"]),
