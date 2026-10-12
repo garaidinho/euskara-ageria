@@ -339,6 +339,35 @@ def index():
 
 
 # ───────────────────────────── IKASLEAREN PROFILA ─────────────────────────────
+@app.route("/proba/medaila/<int:epea>/<clase>/<nombre>", methods=["GET"])
+def proba_medaila(epea: int, clase: str, nombre: str):
+    """Benetako ikasle profila + medaila animazioa, DBa ukitu gabe."""
+    clase_lower = clase.lower()
+    if epea not in (2, 3, 4, 5):
+        abort(404)
+    if not is_official_student(clase_lower, nombre):
+        abort(404)
+
+    puntuak = MEDAL_THRESHOLDS[epea]
+    medailak = set(range(2, epea + 1))
+    display_name = format_display_name(nombre)
+    nombre_archivo = photo_for(clase_lower, nombre)
+    bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
+
+    return render_template(
+        "alumno.html",
+        alumno=(display_name, nombre_archivo, clase_lower, puntuak),
+        epea=epea,
+        medailak=medailak,
+        new_medal=epea,
+        medal_thresholds=MEDAL_THRESHOLDS,
+        progress_pct=100,
+        remaining=0,
+        bg_cls=bg_cls,
+        txt_cls=txt_cls,
+    )
+
+
 @app.route("/<clase>/<nombre>", methods=["GET"])
 def mostrar_alumno(clase: str, nombre: str):
     clase_lower = clase.lower()
