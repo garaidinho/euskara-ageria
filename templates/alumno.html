@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Euskara Ageria · Student profile V33 -->
+<!-- Euskara Ageria · Student profile V34 -->
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
@@ -1010,7 +1010,7 @@ body::before{
 
 
 </style>
-<link rel="stylesheet" href="{{ url_for('static', filename='medal-cinema-v1.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='medal-cinema-v2.css') }}">
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
   {% set medal_icons = {2:'◆', 3:'★', 4:'⬟', 5:'✸'} %}
@@ -1031,15 +1031,20 @@ body::before{
     <div class="cinema-dark"></div>
     <div class="cinema-aura"></div>
     <div class="cinema-rays"></div>
+    <div class="cinema-bloom"></div>
     <div class="cinema-flare"></div>
+    <div class="cinema-streak streak-1"></div>
+    <div class="cinema-streak streak-2"></div>
     <div class="cinema-ring r1"></div>
     <div class="cinema-ring r2"></div>
     <div class="cinema-ring r3"></div>
+    <div class="cinema-motes"></div>
     <div class="cinema-particles"></div>
     <div class="cinema-medal badge-shell locked shape-{{ new_medal }}">
       <div class="badge-back"></div>
       <div class="badge-core">
         <span class="icon-glyph">{{ medal_icons[new_medal] }}</span>
+        <span class="cinema-jewel-swipe"></span>
       </div>
     </div>
     <div class="cinema-caption">
@@ -1288,7 +1293,7 @@ body::before{
 </script>
 <!-- V28_THEME_SCRIPT_END -->
 
-<script defer src="{{ url_for('static', filename='medal-cinema-v1.js') }}"></script>
+<script defer src="{{ url_for('static', filename='medal-cinema-v2.js') }}"></script>
 
 </body>
 </html>
