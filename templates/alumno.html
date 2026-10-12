@@ -81,7 +81,7 @@
 
   /* ───────── Medals ───────── */
   .medal-panel{background:linear-gradient(155deg,rgba(255,253,245,.96),rgba(255,255,255,.93) 58%,rgba(240,253,244,.94));box-shadow:0 12px 26px rgba(0,0,0,.09);border:1px solid rgba(217,119,6,.10)}
-  .medal-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.45rem}
+  .medal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem}
   .medal-item{display:flex;flex-direction:column;align-items:center;gap:.45rem;min-width:0;animation:tempting 4.5s ease-in-out infinite}
   .medal-item:nth-child(2){animation-delay:.18s}.medal-item:nth-child(3){animation-delay:.36s}.medal-item:nth-child(4){animation-delay:.54s}.medal-item:nth-child(5){animation-delay:.72s}
   .badge-shell{width:60px;height:60px;display:grid;place-items:center;position:relative;isolation:isolate}
@@ -960,7 +960,7 @@ body::before{
               {% if remaining > 0 %}
                 {{ alumno[3] }} / {{ medal_thresholds[epea] }} · {{ remaining }} puntu falta
               {% else %}
-                {{ alumno[3] }} / {{ medal_thresholds[epea] }} · Medaila lortuta! ✦
+                {{ alumno[3] }} / {{ medal_thresholds[epea] }} · {% if epea == 1 %}Helburua lortuta! ✦{% else %}Medaila lortuta! ✦{% endif %}
               {% endif %}
             </div>
           </div>
@@ -971,7 +971,7 @@ body::before{
         <div class="v27-medals-head">Urteko medailak</div>
         <div class="medal-grid">
           {% set icons = ['◆','✦','★','⬟','✸'] %}
-          {% for i in range(1,6) %}
+          {% for i in range(2,6) %}
           <div class="medal-item {% if i == 5 %}last{% endif %}">
             <div class="badge-shell {% if i in medailak %}unlocked{% else %}locked{% endif %} shape-{{ i }}">
               <div class="badge-back"></div>
