@@ -268,6 +268,8 @@ def teacher_photo_path(clase: str, nombre_raw: str) -> str:
 
 def maybe_award_medal(cur, clase: str, key: str, epea: int, puntuak: int):
     """Medaila lortzen den unean gordetzen du; behin lortuta ez da galtzen."""
+    if epea < 2:
+        return False
     threshold = MEDAL_THRESHOLDS.get(epea)
     if threshold is None or puntuak < threshold:
         return False
@@ -285,6 +287,8 @@ def maybe_award_medal(cur, clase: str, key: str, epea: int, puntuak: int):
 
 def consume_pending_medal_animation(clase: str, key: str, epea: int):
     """Ikaslearen profil publikoak medaila berria behin bakarrik ospatzeko."""
+    if epea < 2:
+        return None
     with closing(get_conn()) as conn, conn, conn.cursor() as cur:
         cur.execute(
             """
