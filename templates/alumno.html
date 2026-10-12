@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Euskara Ageria · Student profile V32 -->
+<!-- Euskara Ageria · Student profile V33 -->
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
@@ -1009,157 +1009,8 @@ body::before{
 }
 
 
-/* ====================================================================== */
-/* V32 · MEDAILA DESBLOKEATZEA PERFILAREN BARRUAN                         */
-/* ====================================================================== */
-@keyframes focusMedalBreath{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.055)}
-}
-@keyframes inlineUnlockMedal{
-  0%,18%{
-    transform:scale(1);
-    filter:grayscale(1) brightness(.58) drop-shadow(0 5px 7px rgba(0,0,0,.18));
-  }
-  34%{
-    transform:scale(1.34) rotate(-3deg);
-    filter:grayscale(1) brightness(.72) drop-shadow(0 8px 10px rgba(0,0,0,.20));
-  }
-  42%{
-    transform:scale(1.48) rotate(2deg);
-    filter:grayscale(.75) brightness(3.3) drop-shadow(0 0 18px rgba(255,236,143,.95));
-  }
-  49%{
-    transform:scale(.72) rotate(-2deg);
-    filter:grayscale(0) brightness(1.65) drop-shadow(0 0 16px rgba(255,226,102,.88));
-  }
-  61%{
-    transform:scale(1.18) rotate(1deg);
-    filter:grayscale(0) brightness(1.08) drop-shadow(0 9px 12px rgba(0,0,0,.18));
-  }
-  76%{transform:scale(.96);filter:grayscale(0) brightness(1)}
-  100%{transform:scale(1);filter:grayscale(0) brightness(1)}
-}
-@keyframes inlineUnlockBurst{
-  0%,30%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(0)}
-  39%{opacity:1;transform:translate(-50%,-50%) scale(.72) rotate(8deg)}
-  58%{opacity:.72;transform:translate(-50%,-50%) scale(1.34) rotate(24deg)}
-  82%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.72) rotate(38deg)}
-}
-@keyframes inlineUnlockRing{
-  0%,34%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
-  43%{opacity:1}
-  76%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.62)}
-}
-@keyframes inlineUnlockSpark{
-  0%,35%{opacity:0;transform:translate(-50%,-50%) scale(.15)}
-  44%{opacity:1}
-  78%,100%{opacity:0;transform:translate(calc(-50% + var(--sx)),calc(-50% + var(--sy))) scale(1)}
-}
-
-/* Uneko hurrengo medaila: pixka bat handiagoa, baina ez gehiegi. */
-.medal-item.focus .badge-shell{
-  width:62px!important;
-  height:62px!important;
-  animation:focusMedalBreath 2.2s ease-in-out infinite!important;
-  filter:drop-shadow(0 7px 0 rgba(0,0,0,.20)) drop-shadow(0 0 14px rgba(213,156,19,.30))!important;
-}
-.medal-item.focus .medal-label{
-  color:#4b5563!important;
-  font-weight:1000!important;
-}
-.medal-item.focus .medal-label::before{
-  content:"•";
-  margin-right:.22rem;
-  color:#d59c13;
-}
-.medal-item.current:not(.focus) .badge-shell{animation:none!important}
-.medal-item.current:not(.focus) .medal-label::before{content:none!important}
-
-/* Lortu berri den medaila: bere tokian bertan egiten du PAF efektua. */
-.medal-item.just-unlocked{
-  position:relative!important;
-  z-index:8!important;
-  overflow:visible!important;
-}
-/* Sarrerako medaila-pop orokorrak ez dezala desblokeatze berezia zapaldu. */
-body.intro-pop-go .medal-grid .medal-item.just-unlocked{
-  animation:none!important;
-  opacity:1!important;
-  transform:none!important;
-}
-.medal-item.just-unlocked .badge-shell{
-  animation:inlineUnlockMedal 1.45s cubic-bezier(.16,.9,.22,1) 1.55s both!important;
-  transform-origin:center!important;
-  overflow:visible!important;
-}
-.medal-item.just-unlocked .unlock-burst{
-  position:absolute;
-  left:50%;
-  top:27px;
-  width:92px;
-  height:92px;
-  pointer-events:none;
-  z-index:-1;
-  opacity:0;
-  border-radius:999px;
-  background:
-    repeating-conic-gradient(
-      from 0deg,
-      rgba(255,247,187,.98) 0 4deg,
-      transparent 4deg 16deg
-    );
-  -webkit-mask:radial-gradient(circle,transparent 0 22%,#000 24% 66%,transparent 68%);
-  mask:radial-gradient(circle,transparent 0 22%,#000 24% 66%,transparent 68%);
-  filter:drop-shadow(0 0 8px rgba(255,224,92,.85));
-  animation:inlineUnlockBurst 1.15s ease-out 1.62s both;
-}
-.medal-item.just-unlocked .unlock-ring{
-  position:absolute;
-  left:50%;
-  top:27px;
-  width:70px;
-  height:70px;
-  pointer-events:none;
-  z-index:1;
-  opacity:0;
-  border-radius:999px;
-  border:3px solid rgba(255,242,163,.95);
-  box-shadow:0 0 16px rgba(255,226,102,.85),inset 0 0 10px rgba(255,255,255,.65);
-  animation:inlineUnlockRing .95s ease-out 1.68s both;
-}
-.medal-item.just-unlocked .unlock-spark{
-  position:absolute;
-  left:50%;
-  top:27px;
-  width:6px;
-  height:6px;
-  pointer-events:none;
-  z-index:9;
-  border-radius:999px;
-  background:#fff8b5;
-  box-shadow:0 0 9px rgba(255,255,255,.95);
-  opacity:0;
-  animation:inlineUnlockSpark 1.05s ease-out 1.68s both;
-}
-.medal-item.just-unlocked .unlock-spark.s1{--sx:-42px;--sy:-34px}
-.medal-item.just-unlocked .unlock-spark.s2{--sx:2px;--sy:-48px}
-.medal-item.just-unlocked .unlock-spark.s3{--sx:44px;--sy:-28px}
-.medal-item.just-unlocked .unlock-spark.s4{--sx:49px;--sy:18px}
-.medal-item.just-unlocked .unlock-spark.s5{--sx:10px;--sy:47px}
-.medal-item.just-unlocked .unlock-spark.s6{--sx:-38px;--sy:32px}
-.medal-item.just-unlocked .medal-label{
-  animation:haloPulse .7s ease 2.05s 2;
-}
-
-@media(max-width:600px){
-  .medal-item.focus .badge-shell{width:55px!important;height:55px!important}
-  .medal-item.just-unlocked .unlock-burst{top:24px;width:84px;height:84px}
-  .medal-item.just-unlocked .unlock-ring{top:24px;width:64px;height:64px}
-  .medal-item.just-unlocked .unlock-spark{top:24px}
-}
-
 </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='medal-cinema-v1.css') }}">
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
   {% set medal_icons = {2:'◆', 3:'★', 4:'⬟', 5:'✸'} %}
@@ -1172,6 +1023,31 @@ body.intro-pop-go .medal-grid .medal-item.just-unlocked{
     <div class="intro-flash"></div>
 
   </div>
+
+  {% if new_medal %}
+  <!-- Medalaren benetako lekuko desblokeatze zinematografikoa.
+       Ez du datu-basea aldatzen: ikus-efektu hutsa da. -->
+  <div id="medalCinema" class="medal-cinema" data-medal="{{ new_medal }}" aria-hidden="true">
+    <div class="cinema-dark"></div>
+    <div class="cinema-aura"></div>
+    <div class="cinema-rays"></div>
+    <div class="cinema-flare"></div>
+    <div class="cinema-ring r1"></div>
+    <div class="cinema-ring r2"></div>
+    <div class="cinema-ring r3"></div>
+    <div class="cinema-particles"></div>
+    <div class="cinema-medal badge-shell locked shape-{{ new_medal }}">
+      <div class="badge-back"></div>
+      <div class="badge-core">
+        <span class="icon-glyph">{{ medal_icons[new_medal] }}</span>
+      </div>
+    </div>
+    <div class="cinema-caption">
+      <strong>{{ new_medal }}. EPEKO MEDAILA!</strong>
+      <span>LORTU DUZU!</span>
+    </div>
+  </div>
+  {% endif %}
 
   <div id="profileFitShell" class="profile-fit-shell">
 
@@ -1260,16 +1136,6 @@ body.intro-pop-go .medal-grid .medal-item.just-unlocked{
         <div class="medal-grid">
           {% for i in range(2,6) %}
           <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %} {% if i == focus_medal %}focus{% endif %} {% if new_medal == i %}just-unlocked{% endif %}" data-medal="{{ i }}">
-            {% if new_medal == i %}
-              <span class="unlock-burst"></span>
-              <span class="unlock-ring"></span>
-              <span class="unlock-spark s1"></span>
-              <span class="unlock-spark s2"></span>
-              <span class="unlock-spark s3"></span>
-              <span class="unlock-spark s4"></span>
-              <span class="unlock-spark s5"></span>
-              <span class="unlock-spark s6"></span>
-            {% endif %}
             <div class="badge-shell {% if i in medailak %}unlocked{% else %}locked{% endif %} shape-{{ i }}">
               <div class="badge-back"></div>
               <div class="badge-core">
@@ -1422,15 +1288,7 @@ body.intro-pop-go .medal-grid .medal-item.just-unlocked{
 </script>
 <!-- V28_THEME_SCRIPT_END -->
 
-{% if new_medal and new_medal < 5 %}
-<script>
-(() => {
-  const next = document.querySelector('.medal-item[data-medal="{{ new_medal + 1 }}"]');
-  if (!next) return;
-  setTimeout(() => next.classList.add('focus'), 3150);
-})();
-</script>
-{% endif %}
+<script defer src="{{ url_for('static', filename='medal-cinema-v1.js') }}"></script>
 
 </body>
 </html>
