@@ -860,9 +860,151 @@ body::before{
 .ea-theme-lm5 .glass{background:linear-gradient(160deg,rgba(252,250,255,.94),rgba(242,236,255,.91))!important}
 /* V29_PROFILE_END */
 
+
+/* ====================================================================== */
+/* V30 · MEDAILAK: 2.-5. epeak, bakoitza benetan desberdina               */
+/* ====================================================================== */
+@keyframes currentMedalBreath{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.075)}
+}
+
+.medal-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:.42rem!important;
+}
+.medal-item{
+  position:relative!important;
+  gap:.28rem!important;
+}
+.medal-item.future{opacity:.82!important}
+.medal-item.current .badge-shell{
+  animation:currentMedalBreath 2.15s ease-in-out infinite!important;
+}
+.medal-item.current .medal-label{
+  color:#4b5563!important;
+  font-weight:1000!important;
+}
+.medal-item.current .medal-label::before{
+  content:"•";
+  margin-right:.22rem;
+  color:#d59c13;
+}
+
+.badge-shell,
+.shape-5.badge-shell{
+  width:54px!important;
+  height:54px!important;
+  transition:transform .25s ease,filter .25s ease!important;
+}
+.badge-core,.badge-back{
+  border-radius:0!important;
+}
+/* 2. epea · zortzikia */
+.shape-2 .badge-core,.shape-2 .badge-back{
+  clip-path:polygon(30% 3%,70% 3%,97% 30%,97% 70%,70% 97%,30% 97%,3% 70%,3% 30%)!important;
+}
+/* 3. epea · izarra */
+.shape-3 .badge-core,.shape-3 .badge-back{
+  clip-path:polygon(50% 0%,61% 34%,97% 34%,68% 56%,79% 91%,50% 70%,21% 91%,32% 56%,3% 34%,39% 34%)!important;
+}
+/* 4. epea · ezkutua */
+.shape-4 .badge-core,.shape-4 .badge-back{
+  clip-path:polygon(50% 2%,91% 16%,86% 61%,50% 98%,14% 61%,9% 16%)!important;
+}
+/* 5. epea · eguzki/txapeldun medaila */
+.shape-5 .badge-core,.shape-5 .badge-back{
+  clip-path:polygon(50% 0%,63% 11%,79% 5%,87% 21%,100% 29%,93% 47%,100% 64%,83% 71%,76% 91%,58% 84%,50% 100%,39% 84%,21% 92%,15% 73%,0% 64%,8% 47%,0% 30%,16% 21%,23% 4%,39% 11%)!important;
+}
+
+.medal-grid .medal-item .badge-shell.locked.shape-2 .badge-core{
+  background:linear-gradient(145deg,#203a36,#3d625a)!important;color:#b8d5ce!important
+}
+.medal-grid .medal-item .badge-shell.locked.shape-2 .badge-back{background:#102925!important}
+.medal-grid .medal-item .badge-shell.locked.shape-3 .badge-core{
+  background:linear-gradient(145deg,#312943,#55466d)!important;color:#d0c0ea!important
+}
+.medal-grid .medal-item .badge-shell.locked.shape-3 .badge-back{background:#211a31!important}
+.medal-grid .medal-item .badge-shell.locked.shape-4 .badge-core{
+  background:linear-gradient(145deg,#452a2f,#704149)!important;color:#e0bbc1!important
+}
+.medal-grid .medal-item .badge-shell.locked.shape-4 .badge-back{background:#30191e!important}
+.medal-grid .medal-item .badge-shell.locked.shape-5 .badge-core{
+  background:linear-gradient(145deg,#4b4027,#75633b)!important;color:#ead79e!important
+}
+.medal-grid .medal-item .badge-shell.locked.shape-5 .badge-back{background:#332813!important}
+
+.medal-grid .medal-item .badge-shell.unlocked.shape-2 .badge-core,
+.award-badge.unlocked.shape-2 .badge-core{
+  background:linear-gradient(145deg,#0d766d,#43d4c0 55%,#9af3e4)!important;color:#fff!important
+}
+.medal-grid .medal-item .badge-shell.unlocked.shape-2 .badge-back,
+.award-badge.unlocked.shape-2 .badge-back{background:#07544d!important}
+
+.medal-grid .medal-item .badge-shell.unlocked.shape-3 .badge-core,
+.award-badge.unlocked.shape-3 .badge-core{
+  background:linear-gradient(145deg,#6737c5,#a879f1 55%,#ddd0ff)!important;color:#fff!important
+}
+.medal-grid .medal-item .badge-shell.unlocked.shape-3 .badge-back,
+.award-badge.unlocked.shape-3 .badge-back{background:#47238e!important}
+
+.medal-grid .medal-item .badge-shell.unlocked.shape-4 .badge-core,
+.award-badge.unlocked.shape-4 .badge-core{
+  background:linear-gradient(145deg,#b92735,#ed5d68 55%,#ffb5ba)!important;color:#fff!important
+}
+.medal-grid .medal-item .badge-shell.unlocked.shape-4 .badge-back,
+.award-badge.unlocked.shape-4 .badge-back{background:#861a25!important}
+
+.medal-grid .medal-item .badge-shell.unlocked.shape-5 .badge-core,
+.award-badge.unlocked.shape-5 .badge-core{
+  background:linear-gradient(145deg,#bd7d0a,#ffd85a 42%,#ffeaa0 62%,#75b8ff)!important;color:#fff!important
+}
+.medal-grid .medal-item .badge-shell.unlocked.shape-5 .badge-back,
+.award-badge.unlocked.shape-5 .badge-back{background:#8a5a08!important}
+
+.icon-glyph{
+  display:block!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  font-size:1.18rem!important;
+  opacity:.64!important;
+  color:currentColor!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.16)!important;
+}
+.badge-shell.unlocked .icon-glyph{
+  opacity:1!important;
+  text-shadow:0 2px 6px rgba(0,0,0,.24)!important;
+}
+.award-badge .icon-glyph{
+  font-size:3.2rem!important;
+  opacity:1!important;
+  color:#fff!important;
+  text-shadow:0 4px 12px rgba(0,0,0,.28)!important;
+}
+
+.medal-item.current .badge-shell.locked{
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.20)) drop-shadow(0 0 11px rgba(213,156,19,.34))!important;
+}
+.medal-item .badge-shell.unlocked{
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.16)) drop-shadow(0 10px 15px rgba(0,0,0,.17))!important;
+}
+.medal-label{
+  margin-top:.06rem!important;
+  font-size:8.6px!important;
+  letter-spacing:.01em!important;
+}
+
+@media(max-width:600px){
+  .badge-shell,.shape-5.badge-shell{width:48px!important;height:48px!important}
+  .icon-glyph{font-size:1.02rem!important}
+  .medal-grid{gap:.28rem!important}
+}
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
+  {% set medal_icons = {2:'◆', 3:'★', 4:'⬟', 5:'✸'} %}
   <div class="intro {% if new_medal %}award{% endif %}" aria-hidden="true">
     <div class="portal"></div>
     <div class="intro-copy">
@@ -886,7 +1028,7 @@ body::before{
       <span class="award-spark" style="--x:-148px;--y:-18px"></span>
       <div class="badge-shell unlocked shape-{{ new_medal }} award-badge">
         <div class="badge-back"></div>
-        <div class="badge-core">{{ new_medal }}</div>
+        <div class="badge-core"><span class="icon-glyph">{{ medal_icons[new_medal] }}</span></div>
       </div>
       <div class="award-title">{{ new_medal }}. EPEKO MEDAILA</div>
       <div class="award-sub">Lortu duzu!</div>
@@ -946,7 +1088,7 @@ body::before{
       <div class="goal-zone mt-4 flex justify-center">
         <div class="goal-card goal-card-compact rounded-[1.4rem] px-6 py-3.5 text-center min-w-[235px] w-full max-w-[320px]">
           <div class="goal-head flex items-center justify-between gap-3">
-            <span class="goal-title text-xs font-black uppercase tracking-[.16em] text-zinc-500">Epeko helburua</span>
+            <span class="goal-title text-xs font-black uppercase tracking-[.16em] text-zinc-500">{% if epea == 1 %}Epeko helburua{% else %}Medailaren helburua{% endif %}</span>
             <span class="goal-target flex items-baseline gap-1.5 whitespace-nowrap">
               <span class="goal-number text-3xl">{{ medal_thresholds[epea] }}</span>
               <span class="goal-unit text-base font-black text-zinc-700">PUNTU</span>
@@ -970,14 +1112,12 @@ body::before{
       <div class="medal-panel mt-7 rounded-[1.75rem] p-4 sm:p-5">
         <div class="v27-medals-head">Urteko medailak</div>
         <div class="medal-grid">
-          {% set icons = ['◆','✦','★','⬟','✸'] %}
           {% for i in range(2,6) %}
-          <div class="medal-item {% if i == 5 %}last{% endif %}">
+          <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %}">
             <div class="badge-shell {% if i in medailak %}unlocked{% else %}locked{% endif %} shape-{{ i }}">
               <div class="badge-back"></div>
               <div class="badge-core">
-                <span class="icon-glyph">{{ icons[i-1] }}</span>
-                {% if i in medailak %}{{ i }}{% else %}●{% endif %}
+                <span class="icon-glyph">{{ medal_icons[i] }}</span>
               </div>
             </div>
             <span class="medal-label">{{ i }}. epea</span>
