@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Euskara Ageria · Student profile V30 -->
+<!-- Euskara Ageria · Student profile V31 -->
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
@@ -1008,6 +1008,105 @@ body::before{
   .medal-grid{gap:.28rem!important}
 }
 
+
+/* ====================================================================== */
+/* V31 · FOCUS + "PAF" unlock                                              */
+/* ====================================================================== */
+@keyframes focusMedalBreath{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.055)}
+}
+@keyframes pafMedalReveal{
+  0%,24%{opacity:0;transform:scale(.16) rotate(-14deg);filter:brightness(3.2) saturate(.2)}
+  34%{opacity:1;transform:scale(1.34) rotate(4deg);filter:brightness(2.6) saturate(1.25)}
+  46%{transform:scale(.92) rotate(-2deg);filter:brightness(1.18)}
+  60%{transform:scale(1.08) rotate(1deg);filter:brightness(1.04)}
+  100%{opacity:1;transform:scale(1) rotate(0);filter:brightness(1)}
+}
+@keyframes pafFlash{
+  0%,27%{opacity:0;transform:scale(.18)}
+  33%{opacity:1;transform:scale(.52)}
+  48%{opacity:.72;transform:scale(1.35)}
+  72%,100%{opacity:0;transform:scale(1.9)}
+}
+@keyframes pafRing{
+  0%,29%{opacity:0;transform:scale(.38)}
+  35%{opacity:1}
+  70%,100%{opacity:0;transform:scale(1.55)}
+}
+@keyframes pafRaySpin{
+  from{transform:rotate(0deg) scale(.65)}
+  to{transform:rotate(42deg) scale(1.2)}
+}
+
+/* Protagonista: handiagoa bakarrik lortzeko dagoen bitartean. */
+.medal-item.focus .badge-shell{
+  width:62px!important;
+  height:62px!important;
+  animation:focusMedalBreath 2.2s ease-in-out infinite!important;
+  filter:drop-shadow(0 7px 0 rgba(0,0,0,.20)) drop-shadow(0 0 14px rgba(213,156,19,.30))!important;
+}
+.medal-item.focus .medal-label{
+  color:#4b5563!important;
+  font-weight:1000!important;
+}
+.medal-item.focus .medal-label::before{
+  content:"•";
+  margin-right:.22rem;
+  color:#d59c13;
+}
+/* V30eko current pultsua kendu: focus kalkulatuak agintzen du. */
+.medal-item.current .badge-shell{animation:none!important}
+.medal-item.current:not(.focus) .medal-label::before{content:none!important}
+
+/* Desblokeatze-unea: argi kolpea + eraztuna + medaila bat-batean. */
+.award-stage{overflow:hidden!important}
+.award-medal-wrap{
+  position:relative;
+  z-index:3;
+  width:190px;
+  height:190px;
+  display:grid;
+  place-items:center;
+}
+.award-badge{
+  position:relative!important;
+  z-index:5!important;
+  animation:pafMedalReveal 1.18s cubic-bezier(.15,.9,.22,1) 1.55s both!important;
+}
+.award-flash{
+  position:absolute;
+  inset:2px;
+  z-index:2;
+  border-radius:999px;
+  background:
+    radial-gradient(circle,rgba(255,255,255,.98) 0 7%,rgba(255,244,173,.96) 8% 19%,rgba(255,208,75,.42) 30%,transparent 63%);
+  filter:blur(.2px);
+  animation:pafFlash 1.05s ease-out 1.42s both;
+}
+.award-ring{
+  position:absolute;
+  inset:18px;
+  z-index:3;
+  border-radius:999px;
+  border:5px solid rgba(255,241,155,.92);
+  box-shadow:0 0 22px rgba(255,226,102,.72),inset 0 0 18px rgba(255,255,255,.52);
+  animation:pafRing .9s ease-out 1.5s both;
+}
+.award-rays{
+  animation:pafRaySpin 1.1s cubic-bezier(.2,.8,.2,1) 1.42s both!important;
+}
+.award-spark{
+  animation:sparkBurst 1.45s cubic-bezier(.2,.8,.2,1) 1.52s both!important;
+}
+.award-title{animation:awardText 2.25s ease 1.7s both!important}
+.award-sub{animation:awardText 2.15s ease 1.82s both!important}
+
+@media(max-width:600px){
+  .medal-item.focus .badge-shell{width:55px!important;height:55px!important}
+  .award-medal-wrap{width:176px;height:176px}
+}
+
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
@@ -1033,9 +1132,13 @@ body::before{
       <span class="award-spark" style="--x:-48px;--y:132px"></span>
       <span class="award-spark" style="--x:-128px;--y:72px"></span>
       <span class="award-spark" style="--x:-148px;--y:-18px"></span>
-      <div class="badge-shell unlocked shape-{{ new_medal }} award-badge">
-        <div class="badge-back"></div>
-        <div class="badge-core"><span class="icon-glyph">{{ medal_icons[new_medal] }}</span></div>
+      <div class="award-medal-wrap">
+        <div class="award-flash"></div>
+        <div class="award-ring"></div>
+        <div class="badge-shell unlocked shape-{{ new_medal }} award-badge">
+          <div class="badge-back"></div>
+          <div class="badge-core"><span class="icon-glyph">{{ medal_icons[new_medal] }}</span></div>
+        </div>
       </div>
       <div class="award-title">{{ new_medal }}. EPEKO MEDAILA</div>
       <div class="award-sub">Lortu duzu!</div>
@@ -1116,11 +1219,18 @@ body::before{
         </div>
       </div>
 
+      {% if epea >= 2 and epea not in medailak %}
+        {% set focus_medal = epea %}
+      {% elif epea >= 2 and epea < 5 %}
+        {% set focus_medal = epea + 1 %}
+      {% else %}
+        {% set focus_medal = 0 %}
+      {% endif %}
       <div class="medal-panel mt-7 rounded-[1.75rem] p-4 sm:p-5">
         <div class="v27-medals-head">Urteko medailak</div>
         <div class="medal-grid">
           {% for i in range(2,6) %}
-          <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %}">
+          <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %} {% if i == focus_medal %}focus{% endif %}">
             <div class="badge-shell {% if i in medailak %}unlocked{% else %}locked{% endif %} shape-{{ i }}">
               <div class="badge-back"></div>
               <div class="badge-core">
