@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Euskara Ageria · Student profile V31 -->
+<!-- Euskara Ageria · Student profile V32 -->
 <html lang="eu">
 <head>
 <meta charset="UTF-8" />
@@ -1010,36 +1010,54 @@ body::before{
 
 
 /* ====================================================================== */
-/* V31 · FOCUS + "PAF" unlock                                              */
+/* V32 · MEDAILA DESBLOKEATZEA PERFILAREN BARRUAN                         */
 /* ====================================================================== */
 @keyframes focusMedalBreath{
   0%,100%{transform:scale(1)}
   50%{transform:scale(1.055)}
 }
-@keyframes pafMedalReveal{
-  0%,24%{opacity:0;transform:scale(.16) rotate(-14deg);filter:brightness(3.2) saturate(.2)}
-  34%{opacity:1;transform:scale(1.34) rotate(4deg);filter:brightness(2.6) saturate(1.25)}
-  46%{transform:scale(.92) rotate(-2deg);filter:brightness(1.18)}
-  60%{transform:scale(1.08) rotate(1deg);filter:brightness(1.04)}
-  100%{opacity:1;transform:scale(1) rotate(0);filter:brightness(1)}
+@keyframes inlineUnlockMedal{
+  0%,18%{
+    transform:scale(1);
+    filter:grayscale(1) brightness(.58) drop-shadow(0 5px 7px rgba(0,0,0,.18));
+  }
+  34%{
+    transform:scale(1.34) rotate(-3deg);
+    filter:grayscale(1) brightness(.72) drop-shadow(0 8px 10px rgba(0,0,0,.20));
+  }
+  42%{
+    transform:scale(1.48) rotate(2deg);
+    filter:grayscale(.75) brightness(3.3) drop-shadow(0 0 18px rgba(255,236,143,.95));
+  }
+  49%{
+    transform:scale(.72) rotate(-2deg);
+    filter:grayscale(0) brightness(1.65) drop-shadow(0 0 16px rgba(255,226,102,.88));
+  }
+  61%{
+    transform:scale(1.18) rotate(1deg);
+    filter:grayscale(0) brightness(1.08) drop-shadow(0 9px 12px rgba(0,0,0,.18));
+  }
+  76%{transform:scale(.96);filter:grayscale(0) brightness(1)}
+  100%{transform:scale(1);filter:grayscale(0) brightness(1)}
 }
-@keyframes pafFlash{
-  0%,27%{opacity:0;transform:scale(.18)}
-  33%{opacity:1;transform:scale(.52)}
-  48%{opacity:.72;transform:scale(1.35)}
-  72%,100%{opacity:0;transform:scale(1.9)}
+@keyframes inlineUnlockBurst{
+  0%,30%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(0)}
+  39%{opacity:1;transform:translate(-50%,-50%) scale(.72) rotate(8deg)}
+  58%{opacity:.72;transform:translate(-50%,-50%) scale(1.34) rotate(24deg)}
+  82%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.72) rotate(38deg)}
 }
-@keyframes pafRing{
-  0%,29%{opacity:0;transform:scale(.38)}
-  35%{opacity:1}
-  70%,100%{opacity:0;transform:scale(1.55)}
+@keyframes inlineUnlockRing{
+  0%,34%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
+  43%{opacity:1}
+  76%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.62)}
 }
-@keyframes pafRaySpin{
-  from{transform:rotate(0deg) scale(.65)}
-  to{transform:rotate(42deg) scale(1.2)}
+@keyframes inlineUnlockSpark{
+  0%,35%{opacity:0;transform:translate(-50%,-50%) scale(.15)}
+  44%{opacity:1}
+  78%,100%{opacity:0;transform:translate(calc(-50% + var(--sx)),calc(-50% + var(--sy))) scale(1)}
 }
 
-/* Protagonista: handiagoa bakarrik lortzeko dagoen bitartean. */
+/* Uneko hurrengo medaila: pixka bat handiagoa, baina ez gehiegi. */
 .medal-item.focus .badge-shell{
   width:62px!important;
   height:62px!important;
@@ -1055,63 +1073,91 @@ body::before{
   margin-right:.22rem;
   color:#d59c13;
 }
-/* V30eko current pultsua kendu: focus kalkulatuak agintzen du. */
 .medal-item.current:not(.focus) .badge-shell{animation:none!important}
 .medal-item.current:not(.focus) .medal-label::before{content:none!important}
 
-/* Desblokeatze-unea: argi kolpea + eraztuna + medaila bat-batean. */
-.award-stage{overflow:hidden!important}
-.award-medal-wrap{
-  position:relative;
-  z-index:3;
-  width:190px;
-  height:190px;
-  display:grid;
-  place-items:center;
-}
-.award-badge{
+/* Lortu berri den medaila: bere tokian bertan egiten du PAF efektua. */
+.medal-item.just-unlocked{
   position:relative!important;
-  z-index:5!important;
-  animation:pafMedalReveal 1.18s cubic-bezier(.15,.9,.22,1) 1.55s both!important;
+  z-index:8!important;
+  overflow:visible!important;
 }
-.award-flash{
+.medal-item.just-unlocked .badge-shell{
+  animation:inlineUnlockMedal 1.45s cubic-bezier(.16,.9,.22,1) 1.55s both!important;
+  transform-origin:center!important;
+  overflow:visible!important;
+}
+.medal-item.just-unlocked .unlock-burst{
   position:absolute;
-  inset:2px;
-  z-index:2;
+  left:50%;
+  top:27px;
+  width:92px;
+  height:92px;
+  pointer-events:none;
+  z-index:-1;
+  opacity:0;
   border-radius:999px;
   background:
-    radial-gradient(circle,rgba(255,255,255,.98) 0 7%,rgba(255,244,173,.96) 8% 19%,rgba(255,208,75,.42) 30%,transparent 63%);
-  filter:blur(.2px);
-  animation:pafFlash 1.05s ease-out 1.42s both;
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255,247,187,.98) 0 4deg,
+      transparent 4deg 16deg
+    );
+  -webkit-mask:radial-gradient(circle,transparent 0 22%,#000 24% 66%,transparent 68%);
+  mask:radial-gradient(circle,transparent 0 22%,#000 24% 66%,transparent 68%);
+  filter:drop-shadow(0 0 8px rgba(255,224,92,.85));
+  animation:inlineUnlockBurst 1.15s ease-out 1.62s both;
 }
-.award-ring{
+.medal-item.just-unlocked .unlock-ring{
   position:absolute;
-  inset:18px;
-  z-index:3;
+  left:50%;
+  top:27px;
+  width:70px;
+  height:70px;
+  pointer-events:none;
+  z-index:1;
+  opacity:0;
   border-radius:999px;
-  border:5px solid rgba(255,241,155,.92);
-  box-shadow:0 0 22px rgba(255,226,102,.72),inset 0 0 18px rgba(255,255,255,.52);
-  animation:pafRing .9s ease-out 1.5s both;
+  border:3px solid rgba(255,242,163,.95);
+  box-shadow:0 0 16px rgba(255,226,102,.85),inset 0 0 10px rgba(255,255,255,.65);
+  animation:inlineUnlockRing .95s ease-out 1.68s both;
 }
-.award-rays{
-  animation:pafRaySpin 1.1s cubic-bezier(.2,.8,.2,1) 1.42s both!important;
+.medal-item.just-unlocked .unlock-spark{
+  position:absolute;
+  left:50%;
+  top:27px;
+  width:6px;
+  height:6px;
+  pointer-events:none;
+  z-index:9;
+  border-radius:999px;
+  background:#fff8b5;
+  box-shadow:0 0 9px rgba(255,255,255,.95);
+  opacity:0;
+  animation:inlineUnlockSpark 1.05s ease-out 1.68s both;
 }
-.award-spark{
-  animation:sparkBurst 1.45s cubic-bezier(.2,.8,.2,1) 1.52s both!important;
+.medal-item.just-unlocked .unlock-spark.s1{--sx:-42px;--sy:-34px}
+.medal-item.just-unlocked .unlock-spark.s2{--sx:2px;--sy:-48px}
+.medal-item.just-unlocked .unlock-spark.s3{--sx:44px;--sy:-28px}
+.medal-item.just-unlocked .unlock-spark.s4{--sx:49px;--sy:18px}
+.medal-item.just-unlocked .unlock-spark.s5{--sx:10px;--sy:47px}
+.medal-item.just-unlocked .unlock-spark.s6{--sx:-38px;--sy:32px}
+.medal-item.just-unlocked .medal-label{
+  animation:haloPulse .7s ease 2.05s 2;
 }
-.award-title{animation:awardText 2.25s ease 1.7s both!important}
-.award-sub{animation:awardText 2.15s ease 1.82s both!important}
 
 @media(max-width:600px){
   .medal-item.focus .badge-shell{width:55px!important;height:55px!important}
-  .award-medal-wrap{width:176px;height:176px}
+  .medal-item.just-unlocked .unlock-burst{top:24px;width:84px;height:84px}
+  .medal-item.just-unlocked .unlock-ring{top:24px;width:64px;height:64px}
+  .medal-item.just-unlocked .unlock-spark{top:24px}
 }
 
 </style>
 </head>
 <body class="min-h-screen {{ bg_cls }} flex items-center justify-center p-3 sm:p-4">
   {% set medal_icons = {2:'◆', 3:'★', 4:'⬟', 5:'✸'} %}
-  <div class="intro {% if new_medal %}award{% endif %}" aria-hidden="true">
+  <div class="intro" aria-hidden="true">
     <div class="portal"></div>
     <div class="intro-copy">
       <div class="intro-title">EUSKARA AGERIA</div>
@@ -1119,37 +1165,12 @@ body::before{
     </div>
     <div class="intro-flash"></div>
 
-    {% if new_medal %}
-    <div class="award-stage">
-      <div class="award-rays"></div>
-      <span class="award-spark" style="--x:-118px;--y:-112px"></span>
-      <span class="award-spark" style="--x:-52px;--y:-145px"></span>
-      <span class="award-spark" style="--x:48px;--y:-145px"></span>
-      <span class="award-spark" style="--x:120px;--y:-105px"></span>
-      <span class="award-spark" style="--x:145px;--y:-28px"></span>
-      <span class="award-spark" style="--x:128px;--y:70px"></span>
-      <span class="award-spark" style="--x:62px;--y:126px"></span>
-      <span class="award-spark" style="--x:-48px;--y:132px"></span>
-      <span class="award-spark" style="--x:-128px;--y:72px"></span>
-      <span class="award-spark" style="--x:-148px;--y:-18px"></span>
-      <div class="award-medal-wrap">
-        <div class="award-flash"></div>
-        <div class="award-ring"></div>
-        <div class="badge-shell unlocked shape-{{ new_medal }} award-badge">
-          <div class="badge-back"></div>
-          <div class="badge-core"><span class="icon-glyph">{{ medal_icons[new_medal] }}</span></div>
-        </div>
-      </div>
-      <div class="award-title">{{ new_medal }}. EPEKO MEDAILA</div>
-      <div class="award-sub">Lortu duzu!</div>
-    </div>
-    {% endif %}
   </div>
 
   <div id="profileFitShell" class="profile-fit-shell">
 
 
-    <main id="studentProfile" class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow" {% if new_medal %}style="animation-delay:5.05s"{% endif %}>
+    <main id="studentProfile" class="page relative w-full max-w-md overflow-hidden rounded-[2rem] glass card-shadow">
     <div class="top-glow"></div>
     <div class="blob h-28 w-28 -top-8 -left-6 bg-white/35"></div>
     <div class="blob h-24 w-24 top-14 -right-8 bg-pink-200/55"></div>
@@ -1219,7 +1240,9 @@ body::before{
         </div>
       </div>
 
-      {% if epea >= 2 and epea not in medailak %}
+      {% if new_medal %}
+        {% set focus_medal = 0 %}
+      {% elif epea >= 2 and epea not in medailak %}
         {% set focus_medal = epea %}
       {% elif epea >= 2 and epea < 5 %}
         {% set focus_medal = epea + 1 %}
@@ -1230,7 +1253,17 @@ body::before{
         <div class="v27-medals-head">Urteko medailak</div>
         <div class="medal-grid">
           {% for i in range(2,6) %}
-          <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %} {% if i == focus_medal %}focus{% endif %}">
+          <div class="medal-item {% if i == 5 %}last{% endif %} {% if i == epea %}current{% elif i > epea %}future{% endif %} {% if i == focus_medal %}focus{% endif %} {% if new_medal == i %}just-unlocked{% endif %}" data-medal="{{ i }}">
+            {% if new_medal == i %}
+              <span class="unlock-burst"></span>
+              <span class="unlock-ring"></span>
+              <span class="unlock-spark s1"></span>
+              <span class="unlock-spark s2"></span>
+              <span class="unlock-spark s3"></span>
+              <span class="unlock-spark s4"></span>
+              <span class="unlock-spark s5"></span>
+              <span class="unlock-spark s6"></span>
+            {% endif %}
             <div class="badge-shell {% if i in medailak %}unlocked{% else %}locked{% endif %} shape-{{ i }}">
               <div class="badge-back"></div>
               <div class="badge-core">
@@ -1382,6 +1415,16 @@ body::before{
 })();
 </script>
 <!-- V28_THEME_SCRIPT_END -->
+
+{% if new_medal and new_medal < 5 %}
+<script>
+(() => {
+  const next = document.querySelector('.medal-item[data-medal="{{ new_medal + 1 }}"]');
+  if (!next) return;
+  setTimeout(() => next.classList.add('focus'), 3150);
+})();
+</script>
+{% endif %}
 
 </body>
 </html>
