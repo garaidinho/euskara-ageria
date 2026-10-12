@@ -1082,6 +1082,12 @@ body::before{
   z-index:8!important;
   overflow:visible!important;
 }
+/* Sarrerako medaila-pop orokorrak ez dezala desblokeatze berezia zapaldu. */
+body.intro-pop-go .medal-grid .medal-item.just-unlocked{
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
 .medal-item.just-unlocked .badge-shell{
   animation:inlineUnlockMedal 1.45s cubic-bezier(.16,.9,.22,1) 1.55s both!important;
   transform-origin:center!important;
