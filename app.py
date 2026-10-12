@@ -348,14 +348,28 @@ def mostrar_alumno(clase: str, nombre: str):
     if not is_official_student(clase_lower, nombre):
         abort(404)
 
-    key, puntuak, epea, medailak = student_state(clase_lower, nombre)
-    new_medal = consume_pending_medal_animation(clase_lower, key, epea)
-    display_name = format_display_name(nombre)
-    nombre_archivo = photo_for(clase_lower, nombre)
-    bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
-    threshold = MEDAL_THRESHOLDS[epea]
-    progress_pct = max(0, min(round((puntuak / threshold) * 100), 100))
-    remaining = max(threshold - puntuak, 0)
+    # Garapen-proba: benetako template bera erabiliz medaila desblokeatzea
+    # ikusteko, DBko egoera aldatu gabe. Adib.: ?medaila_proba=2
+    preview_medal = request.args.get("medaila_proba", type=int)
+    if preview_medal in (2, 3, 4, 5):
+        epea = preview_medal
+        puntuak = MEDAL_THRESHOLDS[epea]
+        medailak = set(range(2, epea + 1))
+        new_medal = epea
+        display_name = format_display_name(nombre)
+        nombre_archivo = photo_for(clase_lower, nombre)
+        bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
+        progress_pct = 100
+        remaining = 0
+    else:
+        key, puntuak, epea, medailak = student_state(clase_lower, nombre)
+        new_medal = consume_pending_medal_animation(clase_lower, key, epea)
+        display_name = format_display_name(nombre)
+        nombre_archivo = photo_for(clase_lower, nombre)
+        bg_cls, txt_cls = color_map.get(clase_lower, ("bg-gray-100", "text-black"))
+        threshold = MEDAL_THRESHOLDS[epea]
+        progress_pct = max(0, min(round((puntuak / threshold) * 100), 100))
+        remaining = max(threshold - puntuak, 0)
 
     return render_template(
         "alumno.html",
