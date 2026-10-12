@@ -1,0 +1,341 @@
+/* Euskara Ageria — medal unlock cinema V2.
+   This overlay only exists when a medal was newly earned. */
+@keyframes eaMedalFocusBreath {
+  0%,100% {transform:scale(1)}
+  50% {transform:scale(1.055)}
+}
+.medal-item.focus .badge-shell {
+  width:62px!important;height:62px!important;
+  animation:eaMedalFocusBreath 2.25s ease-in-out infinite!important;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.16)) drop-shadow(0 0 12px rgba(219,166,43,.28))!important;
+}
+.medal-item.focus .medal-label{color:#4b5563!important;font-weight:1000!important}
+.medal-item.focus .medal-label::before{content:"•";margin-right:.2rem;color:#d49a18}
+.medal-item.current:not(.focus) .badge-shell{animation:none!important}
+.medal-item.current:not(.focus) .medal-label::before{content:none!important}
+body.ea-medal-preparing .medal-item.just-unlocked .badge-core{
+  background:linear-gradient(145deg,#303540,#585d68)!important;
+  color:#c0c6d2!important;
+}
+body.ea-medal-preparing .medal-item.just-unlocked .badge-back{background:#1b202b!important}
+body.ea-medal-playing .medal-item.just-unlocked .badge-shell{visibility:hidden!important}
+body.ea-medal-playing .medal-item.just-unlocked .medal-label{opacity:.28}
+@media(max-width:600px){
+  .medal-item.focus .badge-shell{width:55px!important;height:55px!important}
+}
+
+/* Fixed to the browser screen, deliberately outside the scaled profile.
+   That keeps the medal directly over its real place even on narrow phones. */
+.medal-cinema{
+  --cx:50vw;--cy:65vh;--caption-y:40vh;
+  --medal-size:52px;
+  position:fixed;inset:0;z-index:115;
+  display:block;visibility:hidden;opacity:0;overflow:hidden;
+  pointer-events:none;isolation:isolate;
+  transition:opacity .48s ease,visibility .48s;
+}
+.medal-cinema.is-active{visibility:visible;opacity:1}
+.medal-cinema.is-fading{opacity:0;visibility:hidden}
+.medal-cinema.is-done{display:none}
+.medal-cinema .cinema-dark{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(circle 110px at var(--cx) var(--cy),
+      rgba(2,7,19,.52) 0%,rgba(2,7,19,.76) 50%,rgba(2,7,19,.91) 80%,rgba(1,4,12,.95) 100%),
+    rgba(1,5,14,.9);
+  opacity:0;transition:opacity .6s ease;
+}
+.medal-cinema.is-active .cinema-dark{opacity:1}
+.medal-cinema .cinema-aura{
+  position:absolute;left:var(--cx);top:var(--cy);z-index:1;
+  width:355px;height:355px;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.45);
+  background:radial-gradient(circle,rgba(255,249,198,.2),rgba(247,198,70,.11) 23%,rgba(31,218,203,.07) 44%,transparent 67%);
+  mix-blend-mode:screen;
+  opacity:0;filter:blur(7px);
+}
+.medal-cinema.is-charging .cinema-aura{opacity:.68;transform:translate(-50%,-50%) scale(.85);transition:all .7s ease}
+.medal-cinema.is-revealed .cinema-aura{opacity:1;transform:translate(-50%,-50%) scale(1.22);transition:all .4s ease}
+
+@keyframes eaCineSpin{from{transform:translate(-50%,-50%) rotate(0) scale(.65)}to{transform:translate(-50%,-50%) rotate(48deg) scale(1.35)}}
+@keyframes eaCineBreathe{
+  0%{opacity:.1;transform:translate(-50%,-50%) scale(.7)}
+  100%{opacity:.75;transform:translate(-50%,-50%) scale(1.07)}
+}
+.medal-cinema .cinema-rays{
+  position:absolute;left:var(--cx);top:var(--cy);z-index:2;
+  width:440px;height:440px;border-radius:50%;
+  background:repeating-conic-gradient(
+    from 5deg,
+    rgba(255,249,199,.9) 0deg 2deg,
+    rgba(255,220,105,.35) 2deg 4deg,
+    transparent 4deg 13deg,
+    rgba(125,245,235,.44) 13deg 15deg,
+    transparent 15deg 23deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 10%,#000 17% 55%,transparent 71%);
+  mask:radial-gradient(circle,transparent 0 10%,#000 17% 55%,transparent 71%);
+  opacity:0;filter:drop-shadow(0 0 10px rgba(255,217,106,.7));
+}
+.medal-cinema.is-charging .cinema-rays{animation:eaCineBreathe .8s ease-in-out infinite alternate}
+.medal-cinema.is-revealed .cinema-rays{opacity:1;animation:eaCineSpin 1.25s cubic-bezier(.11,.82,.16,1) forwards}
+
+@keyframes eaCineCharge{
+  0%{transform:translate(-50%,-50%) scale(1);filter:brightness(.75)}
+  40%{transform:translate(-50%,-50%) scale(1.23) rotate(-4deg);filter:brightness(1.15)}
+  100%{transform:translate(-50%,-50%) scale(1.55) rotate(3deg);filter:brightness(1.65)}
+}
+@keyframes eaCineImpact{
+  0%{transform:translate(-50%,-50%) scale(1.55) rotate(3deg);filter:brightness(2.6)}
+  11%{transform:translate(-50%,-50%) scale(.9) rotate(-8deg);filter:brightness(4.1)}
+  25%{transform:translate(-50%,-50%) scale(2.45) rotate(5deg);filter:brightness(2.05) drop-shadow(0 0 26px rgba(255,235,138,.95))}
+  44%{transform:translate(-50%,-50%) scale(1.72) rotate(-3deg);filter:brightness(1.4) drop-shadow(0 0 25px rgba(255,222,117,.8))}
+  67%{transform:translate(-50%,-50%) scale(1.94) rotate(1deg);filter:brightness(1.1)}
+  100%{transform:translate(-50%,-50%) scale(1.55) rotate(0);filter:brightness(1.04) drop-shadow(0 0 15px rgba(255,226,119,.62))}
+}
+.medal-cinema .cinema-medal{
+  position:absolute!important;left:var(--cx);top:var(--cy);z-index:8!important;
+  width:var(--medal-size)!important;height:var(--medal-size)!important;
+  transform:translate(-50%,-50%);transform-origin:center;
+  animation:none!important;filter:drop-shadow(0 6px 9px rgba(0,0,0,.4));
+  will-change:transform,filter;
+}
+.medal-cinema.is-charging .cinema-medal{animation:eaCineCharge .78s ease-in-out infinite alternate!important}
+.medal-cinema.is-revealed .cinema-medal{animation:eaCineImpact 1.75s cubic-bezier(.16,.85,.23,1) forwards!important}
+.medal-cinema .cinema-medal .badge-core{
+  background:linear-gradient(145deg,#27323e,#606a78)!important;
+  color:#cbd5df!important;
+  border:2px solid rgba(255,255,255,.24)!important;
+}
+.medal-cinema .cinema-medal .badge-back{background:#101b28!important}
+.medal-cinema .cinema-medal .icon-glyph{display:block!important;opacity:.88!important;color:inherit!important;font-size:1.4rem!important}
+.medal-cinema.is-revealed .cinema-medal.shape-2 .badge-core{
+  background:linear-gradient(135deg,#0f8075,#39e4cc 51%,#b1fff1)!important;
+  color:white!important;
+}
+.medal-cinema.is-revealed .cinema-medal.shape-3 .badge-core{
+  background:linear-gradient(135deg,#5931bc,#ab81f2 54%,#ebe0ff)!important;
+  color:white!important;
+}
+.medal-cinema.is-revealed .cinema-medal.shape-4 .badge-core{
+  background:linear-gradient(135deg,#a92132,#ff6874 55%,#ffd1d5)!important;
+  color:white!important;
+}
+.medal-cinema.is-revealed .cinema-medal.shape-5 .badge-core{
+  background:linear-gradient(135deg,#b47304,#ffdb48 44%,#fff7ad 72%,#81bcff)!important;
+  color:white!important;
+}
+.medal-cinema.is-revealed .cinema-medal .badge-back{background:#533910!important}
+
+@keyframes eaCineFlash{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.08)}
+  12%{opacity:1;transform:translate(-50%,-50%) scale(.7)}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+  78%,100%{opacity:0;transform:translate(-50%,-50%) scale(2.45)}
+}
+.medal-cinema .cinema-flare{
+  position:absolute;left:var(--cx);top:var(--cy);z-index:7;
+  width:280px;height:280px;opacity:0;border-radius:50%;
+  background:radial-gradient(circle,
+    #fff 0 7%,#fffddd 10%,rgba(255,236,151,.96) 21%,
+    rgba(255,210,88,.5) 36%,rgba(159,255,235,.12) 54%,transparent 69%);
+  mix-blend-mode:screen;filter:blur(2px);
+}
+.medal-cinema.is-revealed .cinema-flare{animation:eaCineFlash .94s ease-out both}
+
+@keyframes eaCineRing{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.18)}
+  22%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(2.75)}
+}
+.medal-cinema .cinema-ring{
+  position:absolute;left:var(--cx);top:var(--cy);z-index:6;
+  width:92px;height:92px;border-radius:50%;
+  border:4px solid rgba(255,248,182,.95);
+  box-shadow:0 0 14px rgba(255,233,127,.9),inset 0 0 12px rgba(255,255,255,.75);
+  opacity:0;
+}
+.medal-cinema.is-revealed .cinema-ring.r1{animation:eaCineRing 1.02s ease-out 0s both}
+.medal-cinema.is-revealed .cinema-ring.r2{animation:eaCineRing 1.12s ease-out .19s both;border-color:rgba(127,255,229,.95)}
+.medal-cinema.is-revealed .cinema-ring.r3{animation:eaCineRing 1.18s ease-out .36s both;border-width:2px}
+
+@keyframes eaCineParticle{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.15) rotate(0)}
+  14%{opacity:1}
+  62%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.65) rotate(var(--turn))}
+}
+.medal-cinema .cinema-particles{position:absolute;inset:0;z-index:9;pointer-events:none}
+.medal-cinema .cinema-particle{
+  position:absolute;left:var(--cx);top:var(--cy);
+  width:var(--ps);height:var(--ps);opacity:0;
+  background:#fffae3;box-shadow:0 0 10px 2px rgba(255,232,139,.78);
+}
+.medal-cinema .cinema-particle.star{
+  clip-path:polygon(50% 0,62% 34%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
+}
+.medal-cinema .cinema-particle.diamond{transform:rotate(45deg);border-radius:1px;background:#a3fff0}
+.medal-cinema .cinema-particle.trail{width:var(--plen);height:3px;border-radius:999px;background:linear-gradient(90deg,#fff,#ffd76a,transparent)}
+.medal-cinema.is-revealed .cinema-particle{
+  animation:eaCineParticle var(--pdur) cubic-bezier(.15,.67,.32,1) var(--pdelay) both;
+}
+@keyframes eaCineText{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55);filter:brightness(3)}
+  35%{opacity:1;transform:translate(-50%,-50%) scale(1.16);filter:brightness(1.7)}
+  68%{transform:translate(-50%,-50%) scale(.97)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:brightness(1)}
+}
+.medal-cinema .cinema-caption{
+  position:absolute;left:var(--cx);top:var(--caption-y);z-index:10;
+  width:min(92vw,430px);text-align:center;color:white;
+  transform:translate(-50%,-50%) scale(.6);opacity:0;
+  text-shadow:0 3px 16px rgba(0,0,0,.94);
+  font-family:'Nunito',system-ui,sans-serif;
+}
+.medal-cinema .cinema-caption strong{
+  display:block;font-family:'Luckiest Guy',Impact,sans-serif;
+  font-size:clamp(19px,5.3vw,30px);line-height:1.1;letter-spacing:.045em;
+}
+.medal-cinema .cinema-caption span{
+  display:block;margin-top:6px;font-size:clamp(12px,3.2vw,17px);font-weight:1000;
+  letter-spacing:.22em;color:#ffe68e;text-shadow:0 0 13px rgba(255,215,87,.65);
+}
+.medal-cinema.is-revealed .cinema-caption{animation:eaCineText .75s cubic-bezier(.12,.9,.18,1) .42s both}
+
+@media(prefers-reduced-motion:reduce){
+  .medal-cinema{display:none!important}
+  .medal-item.focus .badge-shell{animation:none!important}
+}
+
+/* ================================================================
+   V2 POLISH — MAGNETIC CHARGE · CINEMATIC FLARE · FINAL JEWEL GLINT
+   Only applies while the newly-earned medal animation is active.
+   ================================================================ */
+
+/* A controlled, soft shock of light behind the medal at the exact PAF. */
+@keyframes eaCineScreenBloom{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}
+  20%{opacity:.95;transform:translate(-50%,-50%) scale(.9)}
+  42%{opacity:.5;transform:translate(-50%,-50%) scale(1.26)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}
+}
+.medal-cinema .cinema-bloom{
+  position:absolute;z-index:4;left:var(--cx);top:var(--cy);
+  width:min(135vw,660px);height:min(135vw,660px);border-radius:50%;
+  pointer-events:none;opacity:0;
+  background:radial-gradient(circle,
+    rgba(255,255,255,.83) 0 7%,
+    rgba(255,246,168,.52) 13%,rgba(255,220,94,.28) 25%,
+    rgba(65,229,209,.15) 40%,transparent 63%);
+  mix-blend-mode:screen;
+}
+.medal-cinema.is-revealed .cinema-bloom{
+  animation:eaCineScreenBloom .95s cubic-bezier(.15,.6,.2,1) both;
+}
+
+/* Thin anamorphic streaks: sparkle, not a camera-sized white rectangle. */
+@keyframes eaCineStreak{
+  0%{opacity:0;transform:translate(-50%,-50%) scaleX(.04)}
+  17%{opacity:1;transform:translate(-50%,-50%) scaleX(.65)}
+  37%{opacity:.94;transform:translate(-50%,-50%) scaleX(1.14)}
+  100%{opacity:0;transform:translate(-50%,-50%) scaleX(1.46)}
+}
+.medal-cinema .cinema-streak{
+  position:absolute;left:var(--cx);top:var(--cy);z-index:9;
+  width:min(94vw,560px);height:5px;border-radius:100%;
+  opacity:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,
+    rgba(255,238,150,.12) 12%,rgba(255,252,215,.85) 38%,
+    #fff 50%,rgba(255,242,162,.85) 62%,
+    rgba(135,255,235,.2) 88%,transparent 100%);
+  box-shadow:0 0 15px 5px rgba(255,239,161,.37),0 0 35px rgba(255,246,212,.23);
+}
+.medal-cinema .cinema-streak.streak-2{
+  width:min(70vw,380px);height:2px;
+  transform:translate(-50%,-50%) rotate(90deg);
+  transform-origin:center;
+}
+.medal-cinema.is-revealed .cinema-streak.streak-1{
+  animation:eaCineStreak .83s ease-out both;
+}
+.medal-cinema.is-revealed .cinema-streak.streak-2{
+  animation:eaCineStreak .65s ease-out .14s both;
+  /* Vertical scale cannot use same keyframe transform without losing rotation. */
+  transform:translate(-50%,-50%) rotate(90deg);
+}
+@keyframes eaCineVerticalStreak{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(90deg) scaleX(.04)}
+  18%{opacity:.9;transform:translate(-50%,-50%) rotate(90deg) scaleX(.8)}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(90deg) scaleX(1.4)}
+}
+.medal-cinema.is-revealed .cinema-streak.streak-2{
+  animation-name:eaCineVerticalStreak;
+}
+
+/* Before the impact, little bits of light are pulled IN from every direction. */
+@keyframes eaCineGather{
+  0%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--gx)),calc(-50% + var(--gy))) scale(.32);
+  }
+  28%{opacity:.9}
+  68%{opacity:1}
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.08);
+  }
+}
+.medal-cinema .cinema-motes{position:absolute;inset:0;z-index:6;pointer-events:none}
+.medal-cinema .cinema-mote{
+  position:absolute;left:var(--cx);top:var(--cy);
+  width:var(--msize);height:var(--msize);
+  border-radius:50%;
+  background:#fff2bb;
+  box-shadow:0 0 11px 3px rgba(255,219,109,.78);
+  opacity:0;
+}
+.medal-cinema .cinema-mote:nth-child(3n){
+  background:#a3fff1;box-shadow:0 0 10px 2px rgba(137,255,233,.65)
+}
+.medal-cinema.is-charging .cinema-mote{
+  animation:eaCineGather var(--mdur) ease-in var(--mdelay) both;
+}
+
+/* Final light sweep across the medal's true clipped face. */
+@keyframes eaCineJewelSwipe{
+  0%,17%{opacity:0;transform:translateX(-145%) skewX(-22deg)}
+  34%{opacity:.04}
+  45%{opacity:1}
+  60%{opacity:.24}
+  76%,100%{opacity:0;transform:translateX(145%) skewX(-22deg)}
+}
+.medal-cinema .cinema-jewel-swipe{
+  position:absolute;inset:-12% -70%;z-index:4;
+  pointer-events:none;
+  background:linear-gradient(90deg,
+    transparent 0 34%,rgba(255,255,255,.05) 39%,
+    rgba(255,255,255,.88) 48%,#fff 50%,
+    rgba(255,255,255,.64) 53%,transparent 63%);
+  opacity:0;transform:translateX(-145%) skewX(-22deg);
+}
+.medal-cinema.is-revealed .cinema-jewel-swipe{
+  animation:eaCineJewelSwipe 1.36s ease-in-out .63s both;
+}
+
+/* One tiny victory sparkle remains on the real medal after the dark veil lifts. */
+@keyframes eaRealMedalVictory{
+  0%{transform:scale(1);filter:drop-shadow(0 0 0 transparent)}
+  40%{transform:scale(1.18);filter:drop-shadow(0 0 16px rgba(255,221,91,.85))}
+  100%{transform:scale(1);filter:drop-shadow(0 6px 8px rgba(0,0,0,.15))}
+}
+.medal-item.just-unlocked.is-victory .badge-shell{
+  animation:eaRealMedalVictory .72s cubic-bezier(.18,.89,.3,1.23) both!important;
+}
+
+/* Slow devices: keep the hero/rings, reduce decorative particles. */
+@media(max-width:420px){
+  .medal-cinema .cinema-mote:nth-child(n+15){display:none}
+  .medal-cinema .cinema-particle:nth-child(n+64){display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .medal-item.just-unlocked.is-victory .badge-shell{animation:none!important}
+}
