@@ -144,6 +144,74 @@ def get_conn(max_tries: int = 10):
 _schema_ready = False
 
 
+def _activate_second_term_once(cur):
+    """2. epea: transakzio berean itxi 1.a, puntuak berrabiarazi eta markatu.
+
+    CURRENT_TERM=2 konfiguratu arte ez du deus egiten.
+    Berrabiarazteak eta langile anitzek ez dute eragiketa errepikatzen.
+    """
+    if CURRENT_TERM != 2:
+        return
+
+    # Prozesu bat baino gehiago abiatuta ere, SQL transakzio bakarrak aldatuko du.
+    cur.execute("SELECT pg_advisory_xact_lock(%s, %s)", (2026, 2027))
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS epe_itxierak (
+            clase TEXT NOT NULL,
+            nombre TEXT NOT NULL,
+            epea INTEGER NOT NULL,
+            azken_puntuak INTEGER NOT NULL,
+            itxita_noiz TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (clase, nombre, epea)
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS epe_aldaketak (
+            epea INTEGER PRIMARY KEY,
+            aldatuta_noiz TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            ikasle_kopurua INTEGER NOT NULL
+        )
+    """)
+    cur.execute("SELECT 1 FROM epe_aldaketak WHERE epea=2")
+    if cur.fetchone():
+        return
+
+    # Lehen aktibazioan guztiek 1. epean egon behar dute.
+    # Egoera partziala aurkituz gero, ez arriskatu ez datuekin ez historikoarekin.
+    cur.execute("""
+        SELECT
+          COUNT(*) FILTER (WHERE epea = 1),
+          COUNT(*) FILTER (WHERE epea <> 1)
+        FROM ikasle_egoera
+    """)
+    previous, other = (int(v) for v in cur.fetchone())
+    if previous == 0 or other != 0:
+        raise RuntimeError(
+            f"2. epeko trantsizioa geldituta: 1. epea={previous}, bestelakoak={other}"
+        )
+
+    # Ikasle guztien aurreko puntuak iraunkorki babestu; historikoa bere horretan.
+    cur.execute("""
+        INSERT INTO epe_itxierak (clase, nombre, epea, azken_puntuak)
+        SELECT clase, nombre, 1, puntuak
+        FROM ikasle_egoera WHERE epea=1
+        ON CONFLICT (clase, nombre, epea) DO NOTHING
+    """)
+    cur.execute("""
+        UPDATE ikasle_egoera
+        SET puntuak=%s, epea=2, updated_at=NOW()
+        WHERE epea=1
+    """, (START_POINTS,))
+    if cur.rowcount != previous:
+        raise RuntimeError("Epe aldaketako ikasle kopurua ez dator bat")
+
+    cur.execute("""
+        INSERT INTO epe_aldaketak (epea, ikasle_kopurua)
+        VALUES (2, %s)
+    """, (previous,))
+    print(f"[EUSKARA AGERIA] 2. epea aktibatuta: {previous} ikasle, {START_POINTS} puntu")
+
+
 def ensure_schema():
     global _schema_ready
     if _schema_ready:
@@ -199,6 +267,7 @@ def ensure_schema():
                     PRIMARY KEY (clase, nombre, astea)
                 );
             """)
+            _activate_second_term_once(cur)
         _schema_ready = True
     except Exception as e:
         print("[WARN] init schema diferido:", repr(e))
